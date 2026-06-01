@@ -5,7 +5,7 @@ import { QiankunProvider } from '@/components/QiankunProvider';
 import './globals.scss';
 
 export const metadata: Metadata = {
-  title: '个人全能站点',
+  title: '王刘永的个人网站',
   description: 'Next.js + NestJS + Qiankun 微前端个人站',
 };
 
