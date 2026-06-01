@@ -1,0 +1,22 @@
+{
+  "name": "personal-site",
+  "version": "1.0.0",
+  "private": true,
+  "scripts": {
+    "install:all": "pnpm install --dir nest-server && pnpm install --dir next-host && pnpm run install:wc",
+    "install:wc": "pnpm install --dir web-components/wc-home && pnpm install --dir web-components/wc-about && pnpm install --dir web-components/wc-blog && pnpm install --dir web-components/wc-projects && pnpm install --dir web-components/wc-contact && pnpm install --dir web-components/wc-links",
+    "db:migrate": "pnpm --dir nest-server exec prisma migrate dev --name init",
+    "db:seed": "pnpm --dir nest-server exec ts-node prisma/seed.ts",
+    "build:wc": "pnpm run build:wc:home && pnpm run build:wc:about && pnpm run build:wc:blog && pnpm run build:wc:projects && pnpm run build:wc:contact && pnpm run build:wc:links",
+    "build:wc:home": "pnpm --dir web-components/wc-home run build",
+    "build:wc:about": "pnpm --dir web-components/wc-about run build",
+    "build:wc:blog": "pnpm --dir web-components/wc-blog run build",
+    "build:wc:projects": "pnpm --dir web-components/wc-projects run build",
+    "build:wc:contact": "pnpm --dir web-components/wc-contact run build",
+    "build:wc:links": "pnpm --dir web-components/wc-links run build",
+    "dev:api": "pnpm --dir nest-server run start:dev",
+    "dev:web": "pnpm --dir next-host run dev",
+    "build:api": "pnpm --dir nest-server run build",
+    "build:web": "pnpm run build:wc && pnpm --dir next-host run build"
+  }
+}
