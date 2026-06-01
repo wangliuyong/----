@@ -81,9 +81,11 @@ echo "==> 构建并启动 Docker 容器（首次可能需要 5-10 分钟）..."
 ssh_cmd "cd ${REMOTE_DIR} && docker compose -f docker/docker-compose.yml --env-file .env down 2>/dev/null || true"
 ssh_cmd "cd ${REMOTE_DIR} && docker compose -f docker/docker-compose.yml --env-file .env up -d --build"
 
-# ---------- 5. 初始化数据库种子（仅首次） ----------
+# ---------- 5. 初始化数据库种子（等待 api 就绪后执行） ----------
+echo "==> 等待 API 服务就绪..."
+ssh_cmd "for i in 1 2 3 4 5 6 7 8 9 10; do curl -sf http://127.0.0.1/api/article/list >/dev/null 2>&1 && break; sleep 3; done"
 echo "==> 初始化数据库种子数据..."
-ssh_cmd "cd ${REMOTE_DIR} && docker compose -f docker/docker-compose.yml exec -T api node dist/prisma/seed.js 2>/dev/null || echo '种子数据已存在或跳过'"
+ssh_cmd "cd ${REMOTE_DIR} && docker compose -f docker/docker-compose.yml exec -T api node dist/prisma/seed.js"
 
 # ---------- 6. 检查服务状态 ----------
 echo "==> 检查容器状态..."

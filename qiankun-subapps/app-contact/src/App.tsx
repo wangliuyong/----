@@ -85,18 +85,18 @@ export default function App({ apiBase, hostProps }: AppProps) {
             href="mailto:hello@wly.dev"
             className="text-blue-600 dark:text-blue-400 ml-1 hover:underline"
           >
-            hello@wly.dev
+            1355498705@qq.com
           </a>
         </p>
         <p>
           GitHub：
           <a
-            href="https://github.com/wly-dev"
+            href="https://github.com/wangliuyong/----"
             target="_blank"
             rel="noopener noreferrer"
             className="text-blue-600 dark:text-blue-400 ml-1 hover:underline"
           >
-            @wly-dev
+            https://github.com/wangliuyong
           </a>
         </p>
       </div>

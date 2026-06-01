@@ -27,7 +27,7 @@ export default function RootLayout({
             <QiankunProvider>{children}</QiankunProvider>
           </main>
           <footer className="border-t dark:border-gray-700 py-6 text-center text-sm text-gray-500">
-            © 2026 个人站点 | Next.js + NestJS + Qiankun
+            © 2026 | 本项目基于  Next.js + NestJS + Qiankun + docker + nginx搭建
           </footer>
         </Providers>
       </body>
