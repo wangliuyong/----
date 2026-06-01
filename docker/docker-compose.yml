@@ -40,6 +40,8 @@ services:
       NODE_ENV: production
       DATABASE_URL: "file:/app/data/prod.db"
       CORS_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
+      JWT_SECRET: ${JWT_SECRET:-personal-site-prod-secret}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
     volumes:
       - api-data:/app/data
     restart: unless-stopped

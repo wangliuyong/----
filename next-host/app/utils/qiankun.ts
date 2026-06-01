@@ -10,6 +10,7 @@ const ENTRIES = {
   projects: process.env.NEXT_PUBLIC_MICRO_PROJECTS ?? 'http://localhost:4004',
   contact: process.env.NEXT_PUBLIC_MICRO_CONTACT ?? 'http://localhost:4005',
   links: process.env.NEXT_PUBLIC_MICRO_LINKS ?? 'http://localhost:4006',
+  admin: process.env.NEXT_PUBLIC_MICRO_ADMIN ?? 'http://localhost:4007',
 };
 
 /** 基座向联系子应用暴露的回调（由 ContactCallbacks 写入） */
@@ -79,6 +80,12 @@ const microApps = [
     entry: ENTRIES.links,
     container: '#micro-container',
     activeRule: '/links',
+  },
+  {
+    name: 'app-admin',
+    entry: ENTRIES.admin,
+    container: '#micro-container',
+    activeRule: (location: Location) => location.pathname.startsWith('/admin'),
   },
 ];
 

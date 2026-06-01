@@ -1,5 +1,6 @@
-import { FormEvent, useState } from 'react';
+import { FormEvent, useEffect, useState } from 'react';
 import { apiUrl } from '../../_shared/api';
+import { fetchSiteConfig } from '../../_shared/siteConfig';
 import type { HostProps } from '../../_shared/mountApp';
 
 /** 基座与子应用约定的留言成功事件名 */
@@ -10,7 +11,7 @@ interface AppProps {
   hostProps?: HostProps;
 }
 
-/** 联系我：社交方式 + 留言表单 */
+/** 联系我：社交方式 + 留言表单（邮箱/GitHub 从 API 加载） */
 export default function App({ apiBase, hostProps }: AppProps) {
   const [nickname, setNickname] = useState('');
   const [contact, setContact] = useState('');
@@ -18,6 +19,19 @@ export default function App({ apiBase, hostProps }: AppProps) {
   const [submitting, setSubmitting] = useState(false);
   const [formError, setFormError] = useState('');
   const [formSuccess, setFormSuccess] = useState('');
+  const [email, setEmail] = useState('hello@wly.dev');
+  const [githubUrl, setGithubUrl] = useState('https://github.com/wly-dev');
+  const [intro, setIntro] = useState('欢迎通过以下方式与我联系，或在下方留言。');
+
+  useEffect(() => {
+    fetchSiteConfig(apiBase)
+      .then((cfg) => {
+        setEmail(cfg.email);
+        setGithubUrl(cfg.githubUrl);
+        if (cfg.contact?.intro) setIntro(cfg.contact.intro);
+      })
+      .catch(() => {});
+  }, [apiBase]);
 
   const validate = () => {
     if (!nickname.trim()) {
@@ -78,25 +92,18 @@ export default function App({ apiBase, hostProps }: AppProps) {
   return (
     <div>
       <h1 className="text-3xl font-bold mb-6 dark:text-white">联系我</h1>
+      {intro && <p className="mb-4 text-gray-600 dark:text-gray-300">{intro}</p>}
       <div className="mb-8 text-gray-600 dark:text-gray-300 space-y-1">
         <p>
           邮箱：
-          <a
-            href="mailto:hello@wly.dev"
-            className="text-blue-600 dark:text-blue-400 ml-1 hover:underline"
-          >
-            1355498705@qq.com
+          <a href={`mailto:${email}`} className="text-blue-600 dark:text-blue-400 ml-1 hover:underline">
+            {email}
           </a>
         </p>
         <p>
           GitHub：
-          <a
-            href="https://github.com/wangliuyong/----"
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 ml-1 hover:underline"
-          >
-            https://github.com/wangliuyong
+          <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 ml-1 hover:underline">
+            {githubUrl}
           </a>
         </p>
       </div>

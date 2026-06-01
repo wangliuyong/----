@@ -51,4 +51,62 @@ export class ArticleService {
     }
     return article;
   }
+
+  create(data: {
+    title: string;
+    summary?: string;
+    content: string;
+    category?: string;
+    tags?: string;
+    slug?: string;
+    publishedAt?: string;
+  }) {
+    const slug =
+      data.slug ||
+      data.title
+        .toLowerCase()
+        .replace(/\s+/g, '-')
+        .replace(/[^\w\u4e00-\u9fa5-]/g, '')
+        .slice(0, 80) ||
+      `article-${Date.now()}`;
+
+    return this.prisma.article.create({
+      data: {
+        title: data.title,
+        summary: data.summary,
+        content: data.content,
+        category: data.category,
+        tags: data.tags,
+        slug,
+        publishedAt: data.publishedAt ? new Date(data.publishedAt) : new Date(),
+      },
+    });
+  }
+
+  update(
+    id: number,
+    data: Partial<{
+      title: string;
+      summary: string;
+      content: string;
+      category: string;
+      tags: string;
+      slug: string;
+      publishedAt: string;
+    }>,
+  ) {
+    const { publishedAt, ...rest } = data;
+    return this.prisma.article.update({
+      where: { id },
+      data: {
+        ...rest,
+        ...(publishedAt ? { publishedAt: new Date(publishedAt) } : {}),
+      },
+    });
+  }
+
+  async remove(id: number) {
+    await this.findOne(id);
+    return this.prisma.article.delete({ where: { id } });
+  }
 }

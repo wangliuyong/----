@@ -1,4 +1,10 @@
 import { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
+import {
+  DEFAULT_ABOUT,
+  DEFAULT_CONTACT,
+  DEFAULT_NAV,
+} from '../src/site/site.types';
 
 const prisma = new PrismaClient();
 
@@ -7,6 +13,30 @@ async function main() {
   await prisma.article.deleteMany();
   await prisma.project.deleteMany();
   await prisma.link.deleteMany();
+
+  // 管理员账号（默认 admin / admin123，生产环境请修改 ADMIN_PASSWORD）
+  const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
+  const hash = await bcrypt.hash(adminPassword, 10);
+  await prisma.adminUser.upsert({
+    where: { username: 'admin' },
+    update: { password: hash },
+    create: { username: 'admin', password: hash },
+  });
+
+  // 站点全局配置
+  await prisma.siteConfig.upsert({
+    where: { id: 1 },
+    update: {},
+    create: {
+      id: 1,
+      siteName: '王刘永的博客',
+      githubUrl: 'https://github.com/wly-dev',
+      email: 'hello@wly.dev',
+      navJson: JSON.stringify(DEFAULT_NAV),
+      aboutJson: JSON.stringify(DEFAULT_ABOUT),
+      contactJson: JSON.stringify(DEFAULT_CONTACT),
+    },
+  });
 
   await prisma.article.createMany({
     data: [

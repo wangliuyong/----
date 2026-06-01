@@ -14,6 +14,7 @@ COPY qiankun-subapps/app-blog ./qiankun-subapps/app-blog
 COPY qiankun-subapps/app-projects ./qiankun-subapps/app-projects
 COPY qiankun-subapps/app-contact ./qiankun-subapps/app-contact
 COPY qiankun-subapps/app-links ./qiankun-subapps/app-links
+COPY qiankun-subapps/app-admin ./qiankun-subapps/app-admin
 
 # 构建各子应用（VITE_BASE 由环境变量注入）
 RUN cd qiankun-subapps/app-home && pnpm install && VITE_BASE=/micro/home/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
@@ -22,6 +23,7 @@ RUN cd qiankun-subapps/app-blog && pnpm install && VITE_BASE=/micro/blog/ NODE_E
 RUN cd qiankun-subapps/app-projects && pnpm install && VITE_BASE=/micro/projects/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 RUN cd qiankun-subapps/app-contact && pnpm install && VITE_BASE=/micro/contact/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 RUN cd qiankun-subapps/app-links && pnpm install && VITE_BASE=/micro/links/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
+RUN cd qiankun-subapps/app-admin && pnpm install && VITE_BASE=/micro/admin/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 
 # ---------- Nginx 运行阶段 ----------
 FROM nginx:1.27-alpine AS runner
@@ -35,6 +37,7 @@ COPY --from=subapps-builder /build/qiankun-subapps/app-blog/dist /usr/share/ngin
 COPY --from=subapps-builder /build/qiankun-subapps/app-projects/dist /usr/share/nginx/micro/projects
 COPY --from=subapps-builder /build/qiankun-subapps/app-contact/dist /usr/share/nginx/micro/contact
 COPY --from=subapps-builder /build/qiankun-subapps/app-links/dist /usr/share/nginx/micro/links
+COPY --from=subapps-builder /build/qiankun-subapps/app-admin/dist /usr/share/nginx/micro/admin
 
 EXPOSE 80
 

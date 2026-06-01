@@ -43,3 +43,22 @@ model Link {
   avatar      String?
   sort        Int     @default(0)
 }
+
+/** 管理后台账号 */
+model AdminUser {
+  id        Int      @id @default(autoincrement())
+  username  String   @unique
+  password  String
+  createdAt DateTime @default(now())
+}
+
+/** 站点全局配置（单行，id 固定为 1） */
+model SiteConfig {
+  id          Int    @id @default(1)
+  siteName    String @default("王刘永的博客")
+  githubUrl   String @default("https://github.com/wly-dev")
+  email       String @default("hello@wly.dev")
+  navJson     String @default("[]")
+  aboutJson   String @default("{}")
+  contactJson String @default("{}")
+}
