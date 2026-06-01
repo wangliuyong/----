@@ -1,7 +1,7 @@
 'use client';
 
-import { WcPage } from '@/components/WcPage';
+import { MicroPage } from '@/components/MicroPage';
 
 export default function LinksPage() {
-  return <WcPage scriptName="wc-links" tag="wc-links" />;
+  return <MicroPage />;
 }

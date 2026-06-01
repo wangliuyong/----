@@ -1,13 +1,7 @@
 'use client';
 
-import { WcPage } from '@/components/WcPage';
+import { MicroPage } from '@/components/MicroPage';
 
-export default function BlogListPage() {
-  return (
-    <WcPage
-      scriptName="wc-blog"
-      tag="wc-blog"
-      attrs={{ mode: 'list' }}
-    />
-  );
+export default function BlogPage() {
+  return <MicroPage />;
 }

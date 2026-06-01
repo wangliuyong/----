@@ -1,17 +1,7 @@
 'use client';
 
-import { useParams } from 'next/navigation';
-import { WcPage } from '@/components/WcPage';
+import { MicroPage } from '@/components/MicroPage';
 
 export default function BlogDetailPage() {
-  const params = useParams();
-  const id = String(params.id || '');
-
-  return (
-    <WcPage
-      scriptName="wc-blog"
-      tag="wc-blog"
-      attrs={{ mode: 'detail', 'article-id': id }}
-    />
-  );
+  return <MicroPage />;
 }

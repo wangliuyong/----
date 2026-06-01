@@ -1,7 +1,7 @@
 'use client';
 
 import { useState } from 'react';
-import { WcPage } from '@/components/WcPage';
+import { MicroPage } from '@/components/MicroPage';
 
 export default function ContactPage() {
   const [toast, setToast] = useState('');
@@ -16,12 +16,12 @@ export default function ContactPage() {
           {toast}
         </div>
       )}
-      <WcPage
-        scriptName="wc-contact"
-        tag="wc-contact"
-        onMessageSuccess={(msg) => {
-          setToast(msg);
-          setTimeout(() => setToast(''), 4000);
+      <MicroPage
+        hostCallbacks={{
+          onMessageSuccess: (msg) => {
+            setToast(msg);
+            setTimeout(() => setToast(''), 4000);
+          },
         }}
       />
     </>

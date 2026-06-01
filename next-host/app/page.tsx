@@ -1,7 +1,7 @@
 'use client';
 
-import { WcPage } from '@/components/WcPage';
+import { MicroPage } from '@/components/MicroPage';
 
 export default function HomePage() {
-  return <WcPage scriptName="wc-home" tag="wc-home" />;
+  return <MicroPage />;
 }

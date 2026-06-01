@@ -5,7 +5,7 @@ import './globals.css';
 
 export const metadata: Metadata = {
   title: '个人全能站点',
-  description: 'Next.js + NestJS + Web Components 个人站',
+  description: 'Next.js + NestJS + Qiankun 微前端个人站',
 };
 
 export default function RootLayout({
@@ -20,7 +20,7 @@ export default function RootLayout({
           <MainNav />
           <main className="container mx-auto px-4 py-8">{children}</main>
           <footer className="border-t dark:border-gray-700 py-6 text-center text-sm text-gray-500">
-            © 2026 个人站点 | Next.js + NestJS + Web Components
+            © 2026 个人站点 | Next.js + NestJS + Qiankun
           </footer>
         </Providers>
       </body>

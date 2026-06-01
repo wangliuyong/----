@@ -3,7 +3,7 @@
 import Fuse from 'fuse.js';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { API_BASE } from '@/app/utils/loadWc';
+import { API_BASE } from '@/app/utils/api';
 
 interface SearchItem {
   type: 'article' | 'project';

@@ -1,22 +1,33 @@
 {
   "name": "personal-site",
-  "version": "1.0.0",
+  "version": "2.0.0",
   "private": true,
   "scripts": {
-    "install:all": "pnpm install --dir nest-server && pnpm install --dir next-host && pnpm run install:wc",
-    "install:wc": "pnpm install --dir web-components/wc-home && pnpm install --dir web-components/wc-about && pnpm install --dir web-components/wc-blog && pnpm install --dir web-components/wc-projects && pnpm install --dir web-components/wc-contact && pnpm install --dir web-components/wc-links",
+    "dev": "pnpm run dev:all",
+    "dev:all": "concurrently -k -n api,web,home,about,blog,proj,contact,links -c blue,green,cyan,magenta,yellow,red,white,gray \"pnpm run dev:api\" \"pnpm run dev:web\" \"pnpm run dev:sub:home\" \"pnpm run dev:sub:about\" \"pnpm run dev:sub:blog\" \"pnpm run dev:sub:projects\" \"pnpm run dev:sub:contact\" \"pnpm run dev:sub:links\"",
+    "install:all": "pnpm install --dir nest-server && pnpm install --dir next-host && pnpm run install:subapps",
+    "install:subapps": "pnpm install --dir qiankun-subapps/app-home && pnpm install --dir qiankun-subapps/app-about && pnpm install --dir qiankun-subapps/app-blog && pnpm install --dir qiankun-subapps/app-projects && pnpm install --dir qiankun-subapps/app-contact && pnpm install --dir qiankun-subapps/app-links",
     "db:migrate": "pnpm --dir nest-server exec prisma migrate dev --name init",
     "db:seed": "pnpm --dir nest-server exec ts-node prisma/seed.ts",
-    "build:wc": "pnpm run build:wc:home && pnpm run build:wc:about && pnpm run build:wc:blog && pnpm run build:wc:projects && pnpm run build:wc:contact && pnpm run build:wc:links",
-    "build:wc:home": "pnpm --dir web-components/wc-home run build",
-    "build:wc:about": "pnpm --dir web-components/wc-about run build",
-    "build:wc:blog": "pnpm --dir web-components/wc-blog run build",
-    "build:wc:projects": "pnpm --dir web-components/wc-projects run build",
-    "build:wc:contact": "pnpm --dir web-components/wc-contact run build",
-    "build:wc:links": "pnpm --dir web-components/wc-links run build",
+    "build:subapps": "pnpm run build:sub:home && pnpm run build:sub:about && pnpm run build:sub:blog && pnpm run build:sub:projects && pnpm run build:sub:contact && pnpm run build:sub:links",
+    "build:sub:home": "pnpm --dir qiankun-subapps/app-home run build",
+    "build:sub:about": "pnpm --dir qiankun-subapps/app-about run build",
+    "build:sub:blog": "pnpm --dir qiankun-subapps/app-blog run build",
+    "build:sub:projects": "pnpm --dir qiankun-subapps/app-projects run build",
+    "build:sub:contact": "pnpm --dir qiankun-subapps/app-contact run build",
+    "build:sub:links": "pnpm --dir qiankun-subapps/app-links run build",
     "dev:api": "pnpm --dir nest-server run start:dev",
     "dev:web": "pnpm --dir next-host run dev",
+    "dev:sub:home": "pnpm --dir qiankun-subapps/app-home run dev",
+    "dev:sub:about": "pnpm --dir qiankun-subapps/app-about run dev",
+    "dev:sub:blog": "pnpm --dir qiankun-subapps/app-blog run dev",
+    "dev:sub:projects": "pnpm --dir qiankun-subapps/app-projects run dev",
+    "dev:sub:contact": "pnpm --dir qiankun-subapps/app-contact run dev",
+    "dev:sub:links": "pnpm --dir qiankun-subapps/app-links run dev",
     "build:api": "pnpm --dir nest-server run build",
-    "build:web": "pnpm run build:wc && pnpm --dir next-host run build"
+    "build:web": "pnpm run build:subapps && pnpm --dir next-host run build"
+  },
+  "devDependencies": {
+    "concurrently": "^9.1.2"
   }
 }

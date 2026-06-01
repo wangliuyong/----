@@ -1,0 +1,17 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* Markdown 代码块样式 */
+.article-body pre {
+  @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4;
+}
+.article-body code {
+  @apply font-mono text-sm;
+}
+.article-body h2 {
+  @apply text-xl font-bold mt-6 mb-2 dark:text-white;
+}
+.article-body p {
+  @apply my-2 text-gray-700 dark:text-gray-300;
+}

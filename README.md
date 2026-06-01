@@ -1,14 +1,20 @@
 # 个人全能站点
 
-Next.js 主基座 + Lit Web Components 业务模块 + NestJS 后端。
+Next.js 主基座 + Qiankun 微前端子应用 + NestJS 后端。
 
 ## 目录结构
 
 ```
-├── nest-server/       # NestJS + Prisma + SQLite API（端口 3001）
-├── next-host/         # Next.js 14 主基座（端口 3000）
-├── web-components/    # 6 个独立 Lit 组件，构建产物输出到 next-host/public/wc
-└── doc/               # PRD 与技术方案
+├── nest-server/         # NestJS + Prisma + SQLite API（端口 3001）
+├── next-host/           # Next.js 14 主基座 + Qiankun（端口 3000）
+├── qiankun-subapps/     # 6 个 Vite + React 子应用（端口 4001–4006）
+│   ├── app-home/
+│   ├── app-about/
+│   ├── app-blog/
+│   ├── app-projects/
+│   ├── app-contact/
+│   └── app-links/
+└── doc/                 # PRD 与技术方案
 ```
 
 ## 快速开始
@@ -29,38 +35,45 @@ pnpm exec ts-node prisma/seed.ts
 cd ..
 ```
 
-### 3. 构建 Web Components
+### 3. 环境变量（可选）
+
+复制 `next-host/.env.local.example` 为 `next-host/.env.local`。
+
+### 4. 一键启动（推荐）
+
+在项目根目录执行：
 
 ```bash
-pnpm run build:wc
+pnpm install
+pnpm run dev:all
 ```
 
-### 4. 启动服务
+等价命令：`pnpm run dev`（别名）
 
-终端 A — 后端：
+会并行启动：后端 (3001)、主基座 (3000)、六个子应用 (4001–4006)。  
+浏览器访问：**http://localhost:3000**  
+按 `Ctrl+C` 可一次退出全部进程。
+
+### 5. 分终端启动（可选）
+
+若需单独调试某个服务，仍可使用：
 
 ```bash
-pnpm run dev:api
+pnpm run dev:api          # 后端
+pnpm run dev:web          # 主基座
+pnpm run dev:sub:home     # 子应用 4001 … 以此类推
 ```
 
-终端 B — 前端：
+## 生产构建
 
 ```bash
-pnpm run dev:web
+pnpm run build:subapps
+pnpm run build:web
 ```
 
-访问 http://localhost:3000
+子应用静态资源部署后，在 `next-host/.env.local` 中配置 `NEXT_PUBLIC_MICRO_*` 为线上 entry 地址。
 
-## 环境变量
+## 文档
 
-复制 `next-host/.env.local.example` 为 `next-host/.env.local`：
-
-```
-NEXT_PUBLIC_API_BASE=http://localhost:3001/api
-NEXT_PUBLIC_WC_BASE=/wc
-```
-
-## 相关文档
-
-- [产品需求文档（PRD）](./doc/PRD.md)
-- [技术方案](./doc/技术方案.md)
+- [doc/PRD.md](doc/PRD.md) — 产品需求
+- [doc/技术方案.md](doc/技术方案.md) — 技术实现
