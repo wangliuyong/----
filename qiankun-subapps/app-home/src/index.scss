@@ -1,10 +1,1 @@
-@use '../../_shared/styles/variables' as *;
-
-@tailwind base;
-@tailwind components;
-@tailwind utilities;
-
-// 子应用全局样式（支持 SCSS 嵌套与变量）
-#root {
-  width: 100%;
-}
+@use './home';
