@@ -6,13 +6,13 @@ import {
   stripReactRefreshForQiankun,
 } from '../_shared/viteStripReactRefresh';
 
-export default defineConfig({
+export default defineConfig(({ mode }) => ({
   plugins: [
     react({ fastRefresh: false }),
-    qiankun('app-blog', { useDevMode: true }),
+    qiankun('app-blog', { useDevMode: mode === 'development' }),
     stripReactRefreshForQiankun(),
   ],
   server: { port: 4003, ...qiankunDevServer },
-  base: '/',
+  base: process.env.VITE_BASE || '/',
   build: { outDir: 'dist', assetsDir: 'static' },
-});
+}));

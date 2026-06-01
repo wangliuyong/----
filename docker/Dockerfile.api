@@ -1,0 +1,40 @@
+# NestJS 后端镜像：Prisma + SQLite
+FROM node:20-alpine AS base
+RUN corepack enable && corepack prepare pnpm@9 --activate
+WORKDIR /app
+
+# 安装依赖
+COPY nest-server/package.json nest-server/pnpm-lock.yaml* ./
+RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
+# 复制源码与 Prisma 配置
+COPY nest-server/prisma ./prisma
+COPY nest-server/tsconfig.json nest-server/nest-cli.json ./
+COPY nest-server/src ./src
+
+# 生成 Prisma Client 并编译
+RUN pnpm exec prisma generate
+RUN pnpm exec nest build
+# 编译 seed 脚本供生产环境初始化数据
+RUN pnpm exec tsc prisma/seed.ts --outDir dist/prisma --esModuleInterop --skipLibCheck --module commonjs --target ES2021
+
+# 生产运行阶段
+FROM node:20-alpine AS runner
+RUN corepack enable && corepack prepare pnpm@9 --activate
+WORKDIR /app
+
+ENV NODE_ENV=production
+ENV DATABASE_URL="file:/app/data/prod.db"
+
+COPY --from=base /app/node_modules ./node_modules
+COPY --from=base /app/dist ./dist
+COPY --from=base /app/prisma ./prisma
+COPY --from=base /app/package.json ./
+
+# 数据目录持久化挂载点
+RUN mkdir -p /app/data
+
+EXPOSE 3001
+
+# 启动前执行数据库迁移，再启动服务
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/src/main.js"]
