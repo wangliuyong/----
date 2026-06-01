@@ -79,16 +79,24 @@ export default function App({ apiBase, hostProps }: AppProps) {
     <div>
       <h1 className="text-3xl font-bold mb-6 dark:text-white">联系我</h1>
       <div className="mb-8 text-gray-600 dark:text-gray-300 space-y-1">
-        <p>邮箱：hello@example.com</p>
+        <p>
+          邮箱：
+          <a
+            href="mailto:hello@wly.dev"
+            className="text-blue-600 dark:text-blue-400 ml-1 hover:underline"
+          >
+            hello@wly.dev
+          </a>
+        </p>
         <p>
           GitHub：
           <a
-            href="https://github.com"
+            href="https://github.com/wly-dev"
             target="_blank"
             rel="noopener noreferrer"
-            className="text-blue-600 dark:text-blue-400 ml-1"
+            className="text-blue-600 dark:text-blue-400 ml-1 hover:underline"
           >
-            @yourname
+            @wly-dev
           </a>
         </p>
       </div>

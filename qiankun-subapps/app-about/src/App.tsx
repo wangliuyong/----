@@ -1,60 +1,112 @@
-const SKILLS = ['TypeScript', 'Next.js', 'Vue', 'NestJS', 'React', 'Qiankun', 'Prisma'];
+import { profile } from './data/profile';
 
-const TIMELINE = [
-  {
-    title: '全栈工程师 · 某科技公司',
-    period: '2022 — 至今',
-    desc: '负责中后台与官网类产品，推动组件化与微前端落地。',
-  },
-  {
-    title: '前端工程师 · 某互联网公司',
-    period: '2019 — 2022',
-    desc: '参与 C 端活动页与设计系统建设。',
-  },
-  {
-    title: '计算机科学 · 某大学',
-    period: '2015 — 2019',
-    desc: '本科，主修软件工程与 Web 开发。',
-  },
-];
-
-/** 关于我：静态介绍、技能、履历（MVP） */
+/** 关于我：个人介绍、核心优势、技能矩阵、工作履历、教育认证 */
 export default function App() {
-  return (
-    <div>
-      <section>
-        <h1 className="text-3xl font-bold mb-4 dark:text-white">关于我</h1>
-        <p className="text-gray-600 dark:text-gray-300 leading-relaxed">
-          全栈开发者，专注 Web 前端工程化与个人品牌建设。喜欢用 Next.js、NestJS
-          与 Qiankun 微前端构建可独立迭代的轻量站点。
-        </p>
-      </section>
+  const { name, title, location, email, github, intro, education, certifications, strengths, experiences, skillGroups } =
+    profile;
 
-      <section className="mt-8">
-        <h2 className="text-2xl font-bold mb-4 dark:text-white">技能</h2>
-        <div className="flex flex-wrap gap-2">
-          {SKILLS.map((s) => (
-            <span
-              key={s}
-              className="px-3 py-1 rounded-full text-sm bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200"
-            >
-              {s}
-            </span>
-          ))}
+  return (
+    <div className="max-w-3xl">
+      {/* 头部身份 */}
+      <section>
+        <h1 className="text-3xl font-bold dark:text-white">{name}</h1>
+        <p className="mt-2 text-lg text-blue-600 dark:text-blue-400 font-medium">{title}</p>
+        <p className="mt-1 text-sm text-gray-500 dark:text-gray-400">{location}</p>
+        <p className="mt-6 text-gray-600 dark:text-gray-300 leading-relaxed">{intro}</p>
+        <div className="mt-4 flex flex-wrap gap-4 text-sm">
+          <a
+            href={`mailto:${email}`}
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            {email}
+          </a>
+          <a
+            href={github}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-blue-600 dark:text-blue-400 hover:underline"
+          >
+            GitHub
+          </a>
         </div>
       </section>
 
-      <section className="mt-8">
-        <h2 className="text-2xl font-bold mb-4 dark:text-white">履历</h2>
-        <div className="border-l-2 border-gray-200 dark:border-gray-600 pl-6 space-y-6">
-          {TIMELINE.map((item) => (
-            <div key={item.title}>
-              <h3 className="font-semibold dark:text-white">{item.title}</h3>
-              <p className="text-sm text-gray-500 dark:text-gray-400">{item.period}</p>
-              <p className="mt-1 text-gray-600 dark:text-gray-300">{item.desc}</p>
+      {/* 核心优势 */}
+      <section className="mt-10">
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">核心优势</h2>
+        <ul className="space-y-2">
+          {strengths.map((item) => (
+            <li
+              key={item}
+              className="flex gap-2 text-gray-600 dark:text-gray-300 text-sm leading-relaxed"
+            >
+              <span className="text-blue-500 shrink-0">▸</span>
+              <span>{item}</span>
+            </li>
+          ))}
+        </ul>
+      </section>
+
+      {/* 技能矩阵（分组） */}
+      <section className="mt-10">
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">技能</h2>
+        <div className="space-y-6">
+          {skillGroups.map((group) => (
+            <div key={group.title}>
+              <h3 className="font-semibold dark:text-white">{group.title}</h3>
+              <p className="text-sm text-gray-500 dark:text-gray-400 mt-0.5">{group.description}</p>
+              <div className="flex flex-wrap gap-2 mt-3">
+                {group.items.map((skill) => (
+                  <span
+                    key={skill}
+                    className="px-3 py-1 rounded-full text-sm bg-blue-50 dark:bg-blue-900/40 text-blue-800 dark:text-blue-200"
+                  >
+                    {skill}
+                  </span>
+                ))}
+              </div>
             </div>
           ))}
         </div>
+      </section>
+
+      {/* 工作履历 */}
+      <section className="mt-10">
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">工作履历</h2>
+        <div className="border-l-2 border-gray-200 dark:border-gray-600 pl-6 space-y-8">
+          {experiences.map((item) => (
+            <div key={`${item.company}-${item.period}`}>
+              <p className="text-sm text-gray-500 dark:text-gray-400">{item.period}</p>
+              <h3 className="font-semibold dark:text-white mt-1">
+                {item.role} · {item.company}
+              </h3>
+              <p className="mt-2 text-gray-600 dark:text-gray-300 text-sm leading-relaxed">
+                {item.summary}
+              </p>
+            </div>
+          ))}
+        </div>
+      </section>
+
+      {/* 教育与认证 */}
+      <section className="mt-10 pb-4">
+        <h2 className="text-2xl font-bold mb-4 dark:text-white">教育背景</h2>
+        <p className="text-gray-600 dark:text-gray-300">{education}</p>
+        {certifications.length > 0 && (
+          <>
+            <h3 className="text-lg font-semibold mt-6 mb-3 dark:text-white">认证</h3>
+            <ul className="flex flex-wrap gap-2">
+              {certifications.map((cert) => (
+                <li
+                  key={cert}
+                  className="px-3 py-1 rounded-md text-sm border border-gray-200 dark:border-gray-600 text-gray-700 dark:text-gray-300"
+                >
+                  {cert}
+                </li>
+              ))}
+            </ul>
+          </>
+        )}
       </section>
     </div>
   );

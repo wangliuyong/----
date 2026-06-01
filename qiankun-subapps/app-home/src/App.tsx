@@ -51,10 +51,10 @@ export default function App({ apiBase }: AppProps) {
     <div>
       <section className="text-center mb-16">
         <h1 className="text-3xl font-bold mb-4 dark:text-white">
-          Hi，我是一名全栈开发者
+          Hi，我是王刘永
         </h1>
         <p className="text-gray-600 dark:text-gray-300">
-          技术栈：Next.js + NestJS + Qiankun 微前端 | 分享技术与项目
+          前端开发工程师（6 年）· 专注架构、可视化与工程化 · Next.js + NestJS + Qiankun
         </p>
       </section>
 
