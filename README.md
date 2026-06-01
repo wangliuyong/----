@@ -77,3 +77,9 @@ pnpm run build:web
 
 - [doc/PRD.md](doc/PRD.md) — 产品需求
 - [doc/技术方案.md](doc/技术方案.md) — 技术实现
+
+## 一键部署
+
+```bash
+./docker/deploy.sh 47.116.30.137 '你的SSH密码'
+```
