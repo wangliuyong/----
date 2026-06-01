@@ -1,6 +1,6 @@
 import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
 import App from './App';
-import './index.css';
+import './index.scss';
 import 'prismjs/themes/prism-tomorrow.css';
 import { mountReactApp, unmountReactApp, type HostProps } from '../../_shared/mountApp';
 

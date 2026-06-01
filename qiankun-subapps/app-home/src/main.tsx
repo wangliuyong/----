@@ -1,6 +1,6 @@
 import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
 import App from './App';
-import './index.css';
+import './index.scss';
 import {
   mountReactApp,
   unmountReactApp,

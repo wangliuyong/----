@@ -1,0 +1,22 @@
+@tailwind base;
+@tailwind components;
+@tailwind utilities;
+
+/* 博客 Markdown 正文（SCSS 嵌套） */
+.article-body {
+  pre {
+    @apply bg-gray-900 text-gray-100 p-4 rounded-lg overflow-x-auto my-4;
+  }
+
+  code {
+    @apply font-mono text-sm;
+  }
+
+  h2 {
+    @apply text-xl font-bold mt-6 mb-2 dark:text-white;
+  }
+
+  p {
+    @apply my-2 text-gray-700 dark:text-gray-300;
+  }
+}

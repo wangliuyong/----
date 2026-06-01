@@ -2,7 +2,7 @@ import type { Metadata } from 'next';
 import { MainNav } from '@/components/MainNav';
 import { Providers } from '@/components/Providers';
 import { QiankunProvider } from '@/components/QiankunProvider';
-import './globals.css';
+import './globals.scss';
 
 export const metadata: Metadata = {
   title: '个人全能站点',
