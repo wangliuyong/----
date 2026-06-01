@@ -12,7 +12,7 @@ const ENTRIES = {
   links: process.env.NEXT_PUBLIC_MICRO_LINKS ?? 'http://localhost:4006',
 };
 
-/** 基座向联系子应用暴露的回调（由 MicroPage 写入） */
+/** 基座向联系子应用暴露的回调（由 ContactCallbacks 写入） */
 export type HostCallbacks = {
   onMessageSuccess?: (msg: string) => void;
 };

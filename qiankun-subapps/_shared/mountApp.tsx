@@ -44,7 +44,6 @@ export function mountReactApp(
     if (!el) {
       el = document.createElement('div');
       el.id = 'root';
-      container.innerHTML = '';
       container.appendChild(el);
     }
   } else {
@@ -60,7 +59,7 @@ export function mountReactApp(
   root.render(<App apiBase={base} hostProps={props} />);
 }
 
-/** 卸载子应用根节点 */
+/** 卸载子应用根节点（保留 #root 节点，避免与 Qiankun 卸载时争抢 DOM） */
 export function unmountReactApp() {
   offGlobalState?.();
   offGlobalState = null;

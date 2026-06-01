@@ -1,6 +1,7 @@
 import type { Metadata } from 'next';
 import { MainNav } from '@/components/MainNav';
 import { Providers } from '@/components/Providers';
+import { QiankunProvider } from '@/components/QiankunProvider';
 import './globals.css';
 
 export const metadata: Metadata = {
@@ -22,7 +23,9 @@ export default function RootLayout({
       >
         <Providers>
           <MainNav />
-          <main className="container mx-auto px-4 py-8">{children}</main>
+          <main className="container mx-auto px-4 py-8">
+            <QiankunProvider>{children}</QiankunProvider>
+          </main>
           <footer className="border-t dark:border-gray-700 py-6 text-center text-sm text-gray-500">
             © 2026 个人站点 | Next.js + NestJS + Qiankun
           </footer>
