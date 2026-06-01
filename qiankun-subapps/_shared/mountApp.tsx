@@ -37,9 +37,19 @@ export function mountReactApp(
     }
   }
 
-  const el =
-    container ??
-    (document.querySelector('#root') as HTMLElement | null);
+  // Qiankun 传入基座 #micro-container；独立运行时用 index.html 的 #root
+  let el: HTMLElement | null = null;
+  if (container) {
+    el = container.querySelector('#root') as HTMLElement | null;
+    if (!el) {
+      el = document.createElement('div');
+      el.id = 'root';
+      container.innerHTML = '';
+      container.appendChild(el);
+    }
+  } else {
+    el = document.querySelector('#root') as HTMLElement | null;
+  }
   if (!el) {
     console.error('子应用挂载容器不存在');
     return;

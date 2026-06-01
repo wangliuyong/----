@@ -25,7 +25,7 @@ export function MainNav() {
     <header className="sticky top-0 z-50 border-b dark:border-gray-700 bg-white/80 dark:bg-gray-900/80 backdrop-blur">
       <div className="container mx-auto px-4 py-4 flex flex-wrap items-center justify-between gap-4">
         <Link href="/" className="text-xl font-bold shrink-0">
-          我的全能站点
+          王刘永的博客
         </Link>
         <nav className="flex flex-wrap gap-4 md:gap-6 items-center text-sm md:text-base">
           {navItems.map((item) => (
@@ -34,7 +34,7 @@ export function MainNav() {
               href={item.href}
               className={
                 pathname === item.href ||
-                (item.href !== '/' && pathname.startsWith(item.href))
+                  (item.href !== '/' && pathname.startsWith(item.href))
                   ? 'text-blue-600 dark:text-blue-400 font-medium'
                   : 'hover:text-blue-600 dark:hover:text-blue-400'
               }

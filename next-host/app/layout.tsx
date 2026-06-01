@@ -15,7 +15,11 @@ export default function RootLayout({
 }) {
   return (
     <html lang="zh-CN" suppressHydrationWarning>
-      <body className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors">
+      {/* suppressHydrationWarning：避免 next-themes / 浏览器翻译扩展改写 body class 导致水合告警 */}
+      <body
+        suppressHydrationWarning
+        className="min-h-screen bg-white dark:bg-gray-900 text-gray-800 dark:text-gray-100 transition-colors"
+      >
         <Providers>
           <MainNav />
           <main className="container mx-auto px-4 py-8">{children}</main>

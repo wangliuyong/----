@@ -1,6 +1,5 @@
 'use client';
 
-import { initGlobalState, registerMicroApps, start } from 'qiankun';
 import { API_BASE } from './api';
 
 /** 子应用开发环境 entry（生产环境通过环境变量覆盖） */
@@ -24,11 +23,19 @@ declare global {
   }
 }
 
-/** Qiankun 全局状态：主题同步 */
-export const globalActions = initGlobalState({ theme: 'light' });
+/** Qiankun 全局状态 actions（客户端懒加载后赋值） */
+export type GlobalActions = {
+  setGlobalState: (state: Record<string, unknown>) => void;
+  onGlobalStateChange: (
+    callback: (state: Record<string, unknown>, prev: Record<string, unknown>) => void,
+    fireImmediately?: boolean,
+  ) => void;
+};
 
+let globalActions: GlobalActions | null = null;
 let qiankunStarted = false;
 let qiankunRegistered = false;
+let qiankunLoading: Promise<void> | null = null;
 
 const microApps = [
   {
@@ -76,41 +83,64 @@ const microApps = [
 ];
 
 /**
- * 注册并启动 Qiankun（仅执行一次 start）
- * @param theme 当前明暗主题，同步至全局状态与子应用 props
+ * 仅在浏览器端动态加载 qiankun，避免 Next 打包/SSR 触发
+ * "Cannot use import statement outside a module"
  */
-export function initQiankun(theme: string) {
-  const resolved = theme === 'dark' ? 'dark' : 'light';
-  globalActions.setGlobalState({ theme: resolved });
+async function ensureQiankun(theme: string) {
+  if (typeof window === 'undefined') return;
 
-  if (!qiankunRegistered) {
-    registerMicroApps(
-      microApps.map((app) => ({
-        ...app,
-        props: {
-          theme: resolved,
-          apiBase: API_BASE,
-          ...(typeof app.props === 'object' ? app.props : {}),
-        },
-      })),
-    );
-    qiankunRegistered = true;
+  if (qiankunLoading) {
+    await qiankunLoading;
+    return;
   }
 
-  if (!qiankunStarted) {
-    start({
-      prefetch: true,
-      sandbox: {
-        experimentalStyleIsolation: true,
-      },
-    });
-    qiankunStarted = true;
-  }
+  qiankunLoading = (async () => {
+    const { initGlobalState, registerMicroApps, start } = await import('qiankun');
+    const resolved = theme === 'dark' ? 'dark' : 'light';
+
+    if (!globalActions) {
+      globalActions = initGlobalState({ theme: resolved });
+    } else {
+      globalActions.setGlobalState({ theme: resolved });
+    }
+
+    if (!qiankunRegistered) {
+      registerMicroApps(
+        microApps.map((app) => ({
+          ...app,
+          props: {
+            theme: resolved,
+            apiBase: API_BASE,
+            ...(typeof app.props === 'object' ? app.props : {}),
+          },
+        })),
+      );
+      qiankunRegistered = true;
+    }
+
+    if (!qiankunStarted) {
+      start({
+        prefetch: true,
+        // 与 vite-plugin-qiankun 开发模式兼容（子应用不在严格 JS 沙箱内）
+        sandbox: false,
+      });
+      qiankunStarted = true;
+    }
+  })();
+
+  await qiankunLoading;
 }
 
-/** 主题变更时仅更新全局状态（避免重复 register/start） */
+/**
+ * 注册并启动 Qiankun（仅客户端、仅执行一次 start）
+ */
+export async function initQiankun(theme: string) {
+  await ensureQiankun(theme);
+}
+
+/** 主题变更时仅更新全局状态 */
 export function syncQiankunTheme(theme: string) {
-  globalActions.setGlobalState({
+  globalActions?.setGlobalState({
     theme: theme === 'dark' ? 'dark' : 'light',
   });
 }
