@@ -22,7 +22,7 @@ export default function ProjectsPage() {
   return (
     <SubApp>
       <PageTitle className="mb-8">作品集</PageTitle>
-      <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
+      <div className="grid grid-cols-1 md:grid-cols-2 gap-6 app-stagger">
         {projects.map((item) => (
           <AppCard as="article" key={item.id} className="p-5">
             <h2 className="text-xl font-bold font-serif">{item.name}</h2>

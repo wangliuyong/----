@@ -1,12 +1,25 @@
 import type { HTMLAttributes, ReactNode } from 'react';
 import { cn } from '../utils/cn';
 
-/** 子应用根容器，注入 sub-app 排版与主题 Token */
+/** 子应用根容器，注入 sub-app 排版与主题 Token（含首页同款入场动画） */
 export function SubApp({ className, children, ...props }: HTMLAttributes<HTMLDivElement>) {
   return (
     <div className={cn('sub-app', className)} {...props}>
       {children}
     </div>
+  );
+}
+
+/** 页面分区：错峰入场，交互节奏对齐首页 home-section */
+export function AppSection({
+  className,
+  children,
+  ...props
+}: HTMLAttributes<HTMLElement>) {
+  return (
+    <section className={cn('app-section', className)} {...props}>
+      {children}
+    </section>
   );
 }
 

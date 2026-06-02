@@ -1,10 +1,11 @@
-import { SubApp } from '../../../../_shared/components';
+import { AppSkeleton, SubApp } from '../../../../_shared/components';
 
-/** 通用页面加载占位 */
-export default function PageLoading({ label = '加载中...' }: { label?: string }) {
+/** 通用页面加载占位（对齐首页 home-skeleton 动效） */
+export default function PageLoading() {
   return (
     <SubApp>
-      <p className="text-faint">{label}</p>
+      <AppSkeleton lines={4} />
+      <AppSkeleton lines={3} />
     </SubApp>
   );
 }

@@ -2,7 +2,6 @@ import {
   AppButton,
   AppInput,
   AppLink,
-  AppListItem,
   ArticleBody,
   PageTitle,
   SubApp,
@@ -44,7 +43,7 @@ export default function BlogPage() {
 
   if (mode === 'detail' && detail) {
     return (
-      <article className="sub-app">
+      <SubApp className="max-w-3xl">
         <AppLink href="/blog" variant="back" className="mb-4">
           返回列表
         </AppLink>
@@ -54,7 +53,7 @@ export default function BlogPage() {
           {detail.category ? ` · ${detail.category}` : ''}
         </p>
         <ArticleBody html={renderMarkdownHtml(detail.content)} />
-      </article>
+      </SubApp>
     );
   }
 
@@ -83,24 +82,21 @@ export default function BlogPage() {
         <AppButton onClick={() => void reload()}>筛选</AppButton>
       </div>
 
-      <div className="space-y-4">
+      <ul className="home-post-list app-stagger">
         {articles.map((item) => (
-          <AppListItem key={item.id}>
-            <h2 className="text-xl font-semibold font-serif">
-              <Link
-                to={blogDetailPath(item.id)}
-                className="app-list-item__title text-ink hover:no-underline"
-              >
-                {item.title}
-              </Link>
-            </h2>
-            <p className="text-muted mt-1">{item.summary || ''}</p>
-            <p className="text-sm text-faint mt-2">
-              {formatDate(item.publishedAt)}
-            </p>
-          </AppListItem>
+          <li className="home-post-item" key={item.id}>
+            <Link className="home-post-link" to={blogDetailPath(item.id)}>
+              <time className="home-post-meta" dateTime={item.publishedAt}>
+                {formatDate(item.publishedAt)}
+              </time>
+              <div className="home-post-body">
+                <h2 className="home-post-title">{item.title}</h2>
+                <p className="home-post-summary">{item.summary || '暂无摘要'}</p>
+              </div>
+            </Link>
+          </li>
         ))}
-      </div>
+      </ul>
     </SubApp>
   );
 }

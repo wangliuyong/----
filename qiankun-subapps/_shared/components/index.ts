@@ -1,5 +1,6 @@
 export {
   SubApp,
+  AppSection,
   PageTitle,
   SectionTitle,
   AppSkeleton,

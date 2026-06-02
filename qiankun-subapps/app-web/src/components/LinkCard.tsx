@@ -25,7 +25,7 @@ export default function LinkCard({ item }: { item: LinkItem }) {
             href={item.url}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-ink hover:text-accent transition-colors"
+            className="app-list-item__title text-ink no-underline"
           >
             {item.name}
           </a>

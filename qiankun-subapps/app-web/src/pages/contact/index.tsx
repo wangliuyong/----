@@ -3,6 +3,7 @@ import {
   AppButton,
   AppField,
   AppInput,
+  AppSection,
   PageTitle,
   SectionTitle,
   SubApp,
@@ -43,8 +44,9 @@ export default function ContactPage() {
         </p>
       </div>
 
-      <SectionTitle>留言</SectionTitle>
-      <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+      <AppSection className="mt-8">
+        <SectionTitle>留言</SectionTitle>
+        <form onSubmit={handleSubmit} className="max-w-md space-y-4">
         <AppField label="昵称" required>
           <AppInput
             required
@@ -69,7 +71,8 @@ export default function ContactPage() {
         <AppButton type="submit" disabled={submitting}>
           {submitting ? '提交中...' : '提交留言'}
         </AppButton>
-      </form>
+        </form>
+      </AppSection>
     </SubApp>
   );
 }

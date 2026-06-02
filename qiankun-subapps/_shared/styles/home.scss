@@ -411,3 +411,17 @@
   color: var(--home-faint);
   font-style: italic;
 }
+
+@media (prefers-reduced-motion: reduce) {
+  .home,
+  .home-section,
+  .home-skeleton-line {
+    animation: none;
+  }
+
+  .home-project-link:hover,
+  .home-post-link:hover {
+    padding-left: 0;
+    transform: none;
+  }
+}

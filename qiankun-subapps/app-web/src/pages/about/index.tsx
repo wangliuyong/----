@@ -1,6 +1,7 @@
 import {
   AppLinkRow,
   AppMark,
+  AppSection,
   AppTag,
   PageTitle,
   SectionTitle,
@@ -27,7 +28,7 @@ export default function AboutPage() {
 
   return (
     <SubApp className="max-w-3xl">
-      <section>
+      <AppSection>
         <PageTitle>{name}</PageTitle>
         <p className="mt-2 text-lg text-accent font-medium">{title}</p>
         <p className="mt-1 text-sm text-faint">{location}</p>
@@ -38,9 +39,9 @@ export default function AboutPage() {
             GitHub
           </a>
         </AppLinkRow>
-      </section>
+      </AppSection>
 
-      <section className="mt-10">
+      <AppSection className="mt-10">
         <SectionTitle>核心优势</SectionTitle>
         <ul className="space-y-2">
           {strengths.map((item) => (
@@ -50,9 +51,9 @@ export default function AboutPage() {
             </li>
           ))}
         </ul>
-      </section>
+      </AppSection>
 
-      <section className="mt-10">
+      <AppSection className="mt-10">
         <SectionTitle>技能</SectionTitle>
         <div className="space-y-6">
           {skillGroups.map((group) => (
@@ -67,9 +68,9 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-      </section>
+      </AppSection>
 
-      <section className="mt-10">
+      <AppSection className="mt-10">
         <SectionTitle>工作履历</SectionTitle>
         <div className="app-timeline pl-6 space-y-8">
           {experiences.map((item) => (
@@ -82,9 +83,9 @@ export default function AboutPage() {
             </div>
           ))}
         </div>
-      </section>
+      </AppSection>
 
-      <section className="mt-10 pb-4">
+      <AppSection className="mt-10 pb-4">
         <SectionTitle>教育背景</SectionTitle>
         <p className="text-muted">{education}</p>
         {certifications.length > 0 && (
@@ -99,7 +100,7 @@ export default function AboutPage() {
             </ul>
           </>
         )}
-      </section>
+      </AppSection>
     </SubApp>
   );
 }

@@ -25,7 +25,7 @@ export default function LinksPage() {
   return (
     <SubApp>
       <PageTitle className="mb-8">友情链接</PageTitle>
-      <div className="space-y-4">
+      <div className="space-y-4 app-stagger">
         {links.map((item) => (
           <LinkCard key={item.id} item={item} />
         ))}
