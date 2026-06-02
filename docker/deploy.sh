@@ -72,7 +72,12 @@ printf 'PUBLIC_ORIGIN=http://%s\nHTTP_PORT=80\n' "$SERVER_IP" > "$ENV_FILE"
 echo "==> 上传到服务器..."
 ssh_cmd 60 mkdir -p "${REMOTE_DIR}"
 scp_cmd "$TAR_FILE" "${REMOTE_DIR}/deploy.tar.gz"
-scp_cmd "$ENV_FILE" "${REMOTE_DIR}/.env"
+# 仅首次部署写入 .env，避免覆盖服务器上已配置的密钥与密码
+if ssh_cmd 30 "test -f '${REMOTE_DIR}/.env'"; then
+  echo "==> 保留服务器已有 .env"
+else
+  scp_cmd "$ENV_FILE" "${REMOTE_DIR}/.env"
+fi
 ssh_cmd 120 tar -xzf "${REMOTE_DIR}/deploy.tar.gz" -C "${REMOTE_DIR}"
 ssh_cmd 30 rm -f "${REMOTE_DIR}/deploy.tar.gz"
 ssh_cmd 30 chmod +x "${REMOTE_DIR}/docker/remote-deploy.sh"

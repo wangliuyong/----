@@ -9,11 +9,6 @@ import {
 const prisma = new PrismaClient();
 
 async function main() {
-  await prisma.message.deleteMany();
-  await prisma.article.deleteMany();
-  await prisma.project.deleteMany();
-  await prisma.link.deleteMany();
-
   // 管理员账号（默认 admin / admin123，生产环境请修改 ADMIN_PASSWORD）
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
   const hash = await bcrypt.hash(adminPassword, 10);
@@ -23,7 +18,7 @@ async function main() {
     create: { username: 'admin', password: hash },
   });
 
-  // 站点全局配置
+  // 站点全局配置：已有记录时不覆盖（部署时保留后台修改的内容）
   await prisma.siteConfig.upsert({
     where: { id: 1 },
     update: {},
@@ -38,7 +33,10 @@ async function main() {
     },
   });
 
-  await prisma.article.createMany({
+  // 演示数据仅在对应表为空时写入，避免重复部署清空生产数据
+  const articleCount = await prisma.article.count();
+  if (articleCount === 0) {
+    await prisma.article.createMany({
     data: [
       {
         title: 'Next.js 与 Web Components 微前端实践',
@@ -69,9 +67,12 @@ async function main() {
         publishedAt: new Date('2026-05-20'),
       },
     ],
-  });
+    });
+  }
 
-  await prisma.project.createMany({
+  const projectCount = await prisma.project.count();
+  if (projectCount === 0) {
+    await prisma.project.createMany({
     data: [
       {
         name: '个人全能站点',
@@ -93,9 +94,12 @@ async function main() {
         previewUrl: 'http://localhost:3000/blog',
       },
     ],
-  });
+    });
+  }
 
-  await prisma.link.createMany({
+  const linkCount = await prisma.link.count();
+  if (linkCount === 0) {
+    await prisma.link.createMany({
     data: [
       {
         name: 'Next.js 文档',
@@ -116,9 +120,10 @@ async function main() {
         sort: 3,
       },
     ],
-  });
+    });
+  }
 
-  console.log('Seed completed.');
+  console.log('Seed completed (existing data preserved).');
 }
 
 main()

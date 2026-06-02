@@ -1,5 +1,10 @@
 # 个人站点生产部署编排
 # 用法：在项目根目录执行 docker compose -f docker/docker-compose.yml up -d --build
+#
+# 数据库持久化：api 服务挂载命名卷 docker_api-data（SQLite prod.db），
+# docker compose down 不带 -v 时卷不会被删除，重复部署保留已有数据。
+
+name: docker
 
 services:
   # Nginx：统一入口 + 子应用静态资源
@@ -71,7 +76,9 @@ services:
       - app-net
 
 volumes:
+  # 固定卷名，避免 compose 项目目录变化导致挂载到新空卷、丢失旧库
   api-data:
+    name: docker_api-data
 
 networks:
   app-net:
