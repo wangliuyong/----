@@ -1,17 +1,28 @@
-import { Alert, ConfigProvider, Spin, theme } from 'antd';
+import { Alert, ConfigProvider, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { usePathname } from '../../_shared/hooks';
 import AdminShell from './components/AdminShell';
+import CachedPanel from './components/CachedPanel';
 import {
-  AboutPanel,
-  ArticlesPanel,
-  ContactPanel,
-  MessagesPanel,
-  NavPanel,
-  ProjectsPanel,
-  SiteSettingsPanel,
-} from './components/AdminPanels';
-import LoginPage from './components/LoginPage';
+  AboutPage,
+  ArticlesPage,
+  ContactPage,
+  LoginPage,
+  MessagesPage,
+  NavPage,
+  PageLoading,
+  ProjectsPage,
+  SitePage,
+} from './pages';
+import {
+  ADMIN_TABS,
+  SITE_DATA_TABS,
+  adminTabPath,
+  navigateAdminTab,
+  normalizeAdminPathname,
+  resolveAdminTab,
+} from './routes';
 import type { AdminTab, Article, Project, SiteConfig } from './types';
 import { adminApi } from './utils/adminApi';
 import { clearAuth, getUsername, isLoggedIn } from './utils/auth';
@@ -22,13 +33,15 @@ interface AppProps {
 
 /**
  * 管理后台主应用
- * - 使用 Ant Design ConfigProvider 独立主题，不依赖主站 Tailwind / dark mode
- * - 登录后进入 AdminShell 侧栏布局
+ * - 基座 pathname（/admin/:tab）驱动侧栏与内容区
+ * - 各 Tab 页面在 pages/ 目录，CachedPanel 缓存已访问页面
  */
 export default function App({ apiBase }: AppProps) {
+  const pathname = usePathname();
+  const tab = useMemo(() => resolveAdminTab(pathname), [pathname]);
+
   const [loggedIn, setLoggedIn] = useState(isLoggedIn());
   const [username, setUsername] = useState(getUsername() || '');
-  const [tab, setTab] = useState<AdminTab>('site');
   const [site, setSite] = useState<SiteConfig | null>(null);
   const [articles, setArticles] = useState<Article[]>([]);
   const [projects, setProjects] = useState<Project[]>([]);
@@ -36,122 +49,142 @@ export default function App({ apiBase }: AppProps) {
     Awaited<ReturnType<typeof adminApi.listMessages>>
   >([]);
   const [error, setError] = useState('');
-  const [loading, setLoading] = useState(false);
+  const [loadingTab, setLoadingTab] = useState<AdminTab | null>(null);
 
-  /** 按当前 Tab 拉取所需数据 */
-  const loadTabData = useCallback(async () => {
-    if (!isLoggedIn()) return;
-    setLoading(true);
-    setError('');
-    try {
-      if (tab === 'site' || tab === 'nav' || tab === 'about' || tab === 'contact') {
-        const cfg = await adminApi.getSite(apiBase);
-        setSite(cfg);
-      }
-      if (tab === 'articles') setArticles(await adminApi.listArticles(apiBase));
-      if (tab === 'projects') setProjects(await adminApi.listProjects(apiBase));
-      if (tab === 'messages') setMessages(await adminApi.listMessages(apiBase));
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '加载失败');
-      if (String(e).includes('登录')) setLoggedIn(false);
-    } finally {
-      setLoading(false);
-    }
-  }, [apiBase, tab]);
+  const [visitedTabs, setVisitedTabs] = useState<Set<AdminTab>>(
+    () => new Set<AdminTab>([tab]),
+  );
+  const loadedTabsRef = useRef<Set<AdminTab>>(new Set());
 
   useEffect(() => {
-    if (loggedIn) void loadTabData();
-  }, [loggedIn, loadTabData]);
+    normalizeAdminPathname(pathname);
+  }, [pathname]);
+
+  useEffect(() => {
+    setVisitedTabs((prev) => {
+      if (prev.has(tab)) return prev;
+      const next = new Set(prev);
+      next.add(tab);
+      return next;
+    });
+  }, [tab]);
+
+  const loadTabData = useCallback(
+    async (target: AdminTab, force = false) => {
+      if (!isLoggedIn()) return;
+
+      const siteReady = loadedTabsRef.current.has('site');
+
+      if (!force) {
+        if (SITE_DATA_TABS.includes(target) && siteReady) return;
+        if (target === 'articles' && loadedTabsRef.current.has('articles')) return;
+        if (target === 'projects' && loadedTabsRef.current.has('projects')) return;
+        if (target === 'messages' && loadedTabsRef.current.has('messages')) return;
+      }
+
+      setLoadingTab(target);
+      setError('');
+
+      try {
+        if (SITE_DATA_TABS.includes(target) && (force || !siteReady)) {
+          const cfg = await adminApi.getSite(apiBase);
+          setSite(cfg);
+          SITE_DATA_TABS.forEach((t) => loadedTabsRef.current.add(t));
+        }
+        if (target === 'articles' && (force || !loadedTabsRef.current.has('articles'))) {
+          setArticles(await adminApi.listArticles(apiBase));
+          loadedTabsRef.current.add('articles');
+        }
+        if (target === 'projects' && (force || !loadedTabsRef.current.has('projects'))) {
+          setProjects(await adminApi.listProjects(apiBase));
+          loadedTabsRef.current.add('projects');
+        }
+        if (target === 'messages' && (force || !loadedTabsRef.current.has('messages'))) {
+          setMessages(await adminApi.listMessages(apiBase));
+          loadedTabsRef.current.add('messages');
+        }
+      } catch (e) {
+        setError(e instanceof Error ? e.message : '加载失败');
+        if (String(e).includes('登录')) setLoggedIn(false);
+      } finally {
+        setLoadingTab((current) => (current === target ? null : current));
+      }
+    },
+    [apiBase],
+  );
+
+  useEffect(() => {
+    if (loggedIn) void loadTabData(tab);
+  }, [loggedIn, tab, loadTabData]);
 
   const handleLoginSuccess = (name: string) => {
     setUsername(name);
     setLoggedIn(true);
+    loadedTabsRef.current.clear();
+    setVisitedTabs(new Set([tab]));
+    if (window.location.pathname !== adminTabPath(tab)) {
+      history.replaceState(null, '', adminTabPath(tab));
+    }
   };
 
   const handleLogout = () => {
     clearAuth();
     setLoggedIn(false);
     setSite(null);
+    loadedTabsRef.current.clear();
+    setVisitedTabs(new Set(['site']));
   };
 
-  /** 渲染当前 Tab 对应的管理面板 */
-  const renderPanel = () => {
-    if (loading) {
-      return (
-        <div style={{ textAlign: 'center', padding: 48 }}>
-          <Spin tip="加载中..." />
-        </div>
-      );
-    }
+  const refreshTab = useCallback(
+    (target: AdminTab) => {
+      void loadTabData(target, true);
+    },
+    [loadTabData],
+  );
 
-    switch (tab) {
+  /** 渲染 pages/ 下对应路由页面 */
+  const renderAdminPage = (panelTab: AdminTab) => {
+    if (loadingTab === panelTab) return <PageLoading />;
+
+    switch (panelTab) {
       case 'site':
-        return site ? (
-          <SiteSettingsPanel
-            site={site}
-            onSave={async (data) => {
-              const updated = await adminApi.updateSite(apiBase, data);
-              setSite(updated);
-            }}
-          />
-        ) : null;
+        return (
+          <SitePage apiBase={apiBase} site={site} onSiteUpdate={setSite} />
+        );
       case 'nav':
-        return site ? (
-          <NavPanel
-            nav={site.nav}
-            onSave={async (nav) => {
-              const updated = await adminApi.updateNav(apiBase, nav);
-              setSite(updated);
-            }}
-          />
-        ) : null;
+        return (
+          <NavPage apiBase={apiBase} site={site} onSiteUpdate={setSite} />
+        );
       case 'articles':
         return (
-          <ArticlesPanel
+          <ArticlesPage
             apiBase={apiBase}
             articles={articles}
-            onRefresh={loadTabData}
+            onRefresh={() => refreshTab('articles')}
           />
         );
       case 'projects':
         return (
-          <ProjectsPanel
+          <ProjectsPage
             apiBase={apiBase}
             projects={projects}
-            onRefresh={loadTabData}
+            onRefresh={() => refreshTab('projects')}
           />
         );
       case 'about':
-        return site ? (
-          <AboutPanel
-            about={site.about}
-            onSave={async (about) => {
-              const updated = await adminApi.updateAbout(apiBase, about);
-              setSite(updated);
-            }}
-          />
-        ) : null;
+        return (
+          <AboutPage apiBase={apiBase} site={site} onSiteUpdate={setSite} />
+        );
       case 'contact':
-        return site ? (
-          <ContactPanel
-            site={site}
-            onSave={async (contact, email, githubUrl) => {
-              const updated = await adminApi.updateContact(
-                apiBase,
-                contact,
-                email,
-                githubUrl,
-              );
-              setSite(updated);
-            }}
-          />
-        ) : null;
+        return (
+          <ContactPage apiBase={apiBase} site={site} onSiteUpdate={setSite} />
+        );
       case 'messages':
         return (
-          <MessagesPanel
+          <MessagesPage
             apiBase={apiBase}
             messages={messages}
-            onRefresh={loadTabData}
+            onRefresh={() => refreshTab('messages')}
           />
         );
       default:
@@ -176,7 +209,7 @@ export default function App({ apiBase }: AppProps) {
         <AdminShell
           username={username}
           tab={tab}
-          onTabChange={setTab}
+          onTabChange={navigateAdminTab}
           onLogout={handleLogout}
         >
           {error && (
@@ -189,7 +222,16 @@ export default function App({ apiBase }: AppProps) {
               style={{ marginBottom: 16 }}
             />
           )}
-          {renderPanel()}
+          {ADMIN_TABS.map((panelTab) => (
+            <CachedPanel
+              key={panelTab}
+              tab={panelTab}
+              activeTab={tab}
+              visited={visitedTabs}
+            >
+              {renderAdminPage(panelTab)}
+            </CachedPanel>
+          ))}
         </AdminShell>
       )}
     </ConfigProvider>

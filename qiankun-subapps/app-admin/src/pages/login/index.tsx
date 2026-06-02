@@ -1,23 +1,16 @@
-import {
-  LockOutlined,
-  UserOutlined,
-} from '@ant-design/icons';
+import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { useState } from 'react';
-import { login } from '../utils/adminApi';
-import { saveAuth } from '../utils/auth';
+import { login } from '../../utils/adminApi';
+import { saveAuth } from '../../utils/auth';
+import type { LoginFormValues, LoginPageProps } from './types';
 
-interface LoginPageProps {
-  apiBase: string;
-  onSuccess: (username: string) => void;
-}
-
-/** Ant Design 登录页（全屏居中） */
+/** 登录页（未鉴权时全屏展示） */
 export default function LoginPage({ apiBase, onSuccess }: LoginPageProps) {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
-  const onFinish = async (values: { username: string; password: string }) => {
+  const onFinish = async (values: LoginFormValues) => {
     setLoading(true);
     setError('');
     try {
