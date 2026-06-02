@@ -43,7 +43,7 @@ export function MainNav() {
         if (cfg.githubUrl) setGithubUrl(cfg.githubUrl);
         if (Array.isArray(cfg.nav) && cfg.nav.length) setNavItems(cfg.nav);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return (
@@ -57,11 +57,14 @@ export function MainNav() {
             <Link
               key={item.href}
               href={item.href}
+              style={{
+                color: 'var($color-primary)'
+              }}
               className={
                 pathname === item.href ||
                   (item.href !== '/' && pathname.startsWith(item.href))
-                  ? 'text-blue-600 dark:text-blue-400 font-medium'
-                  : 'hover:text-blue-600 dark:hover:text-blue-400'
+                  ? 'text-accent dark:text-blue-400 font-medium'
+                  : 'hover dark:hover:text-blue-400'
               }
             >
               {item.label}

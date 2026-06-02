@@ -117,25 +117,33 @@ export default function App({ apiBase }: AppProps) {
   };
 
   if (loading) {
-    return <p className="text-gray-500">加载中...</p>;
+    return (
+      <div className="sub-app">
+        <p className="text-faint">加载中...</p>
+      </div>
+    );
   }
   if (error) {
-    return <p className="text-red-500">{error}</p>;
+    return (
+      <div className="sub-app">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
   }
 
   if (mode === 'detail' && detail) {
     return (
-      <article>
-        <a href="/blog" className="text-blue-600 dark:text-blue-400 mb-4 inline-block">
-          ← 返回列表
+      <article className="sub-app">
+        <a href="/blog" className="app-link app-link--back mb-4">
+          返回列表
         </a>
-        <h1 className="text-3xl font-bold dark:text-white">{detail.title}</h1>
-        <p className="text-sm text-gray-500 dark:text-gray-400 my-2">
+        <h1 className="text-3xl font-bold font-serif">{detail.title}</h1>
+        <p className="text-sm text-faint my-2">
           {new Date(detail.publishedAt).toLocaleDateString('zh-CN')}
           {detail.category ? ` · ${detail.category}` : ''}
         </p>
         <div
-          className="article-body prose dark:prose-invert max-w-none"
+          className="article-body max-w-none"
           dangerouslySetInnerHTML={{ __html: renderMarkdownHtml(detail.content) }}
         />
       </article>
@@ -143,11 +151,11 @@ export default function App({ apiBase }: AppProps) {
   }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 dark:text-white">博客</h1>
+    <div className="sub-app">
+      <h1 className="text-3xl font-bold mb-6 font-serif">博客</h1>
       <div className="flex flex-wrap gap-3 mb-6">
         <select
-          className="px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white"
+          className="app-input w-auto min-w-[140px]"
           value={filterCategory}
           onChange={(e) => setFilterCategory(e.target.value)}
         >
@@ -159,16 +167,12 @@ export default function App({ apiBase }: AppProps) {
           ))}
         </select>
         <input
-          className="px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white"
+          className="app-input w-auto min-w-[140px]"
           placeholder="按标签筛选"
           value={filterTag}
           onChange={(e) => setFilterTag(e.target.value)}
         />
-        <button
-          type="button"
-          className="px-4 py-2 rounded-md bg-blue-600 text-white hover:bg-blue-700"
-          onClick={() => void load()}
-        >
+        <button type="button" className="app-btn" onClick={() => void load()}>
           筛选
         </button>
       </div>
@@ -177,20 +181,15 @@ export default function App({ apiBase }: AppProps) {
         {articles.map((item) => (
           <div
             key={item.id}
-            className="border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800"
+            className="app-card app-list-item border border-line rounded-lg p-4 bg-surface"
           >
-            <h2 className="text-xl font-semibold">
-              <a
-                href={`/blog/${item.id}`}
-                className="text-blue-600 dark:text-blue-400 hover:underline"
-              >
+            <h2 className="text-xl font-semibold font-serif">
+              <a href={`/blog/${item.id}`} className="app-list-item__title text-ink hover:no-underline">
                 {item.title}
               </a>
             </h2>
-            <p className="text-gray-500 dark:text-gray-400 mt-1">
-              {item.summary || ''}
-            </p>
-            <p className="text-sm text-gray-400 mt-2">
+            <p className="text-muted mt-1">{item.summary || ''}</p>
+            <p className="text-sm text-faint mt-2">
               {new Date(item.publishedAt).toLocaleDateString('zh-CN')}
             </p>
           </div>

@@ -21,23 +21,27 @@ export default function App({ apiBase }: { apiBase: string }) {
       .catch(() => setError('项目列表加载失败'));
   }, [apiBase]);
 
-  if (error) return <p className="text-red-500">{error}</p>;
+  if (error) {
+    return (
+      <div className="sub-app">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8 dark:text-white">作品集</h1>
+    <div className="sub-app">
+      <h1 className="text-3xl font-bold mb-8 font-serif">作品集</h1>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {projects.map((item) => (
           <article
             key={item.id}
-            className="border border-gray-200 dark:border-gray-700 rounded-lg p-5 bg-white dark:bg-gray-800"
+            className="app-card border border-line rounded-lg p-5 bg-surface"
           >
-            <h2 className="text-xl font-bold dark:text-white">{item.name}</h2>
-            <p className="text-gray-600 dark:text-gray-300 mt-2">{item.desc}</p>
+            <h2 className="text-xl font-bold font-serif">{item.name}</h2>
+            <p className="text-muted mt-2">{item.desc}</p>
             {item.techStack && (
-              <p className="text-sm text-gray-500 dark:text-gray-400 mt-2">
-                技术栈：{item.techStack}
-              </p>
+              <p className="text-sm text-faint mt-2">技术栈：{item.techStack}</p>
             )}
             <div className="flex gap-4 mt-4">
               {item.githubUrl && (
@@ -45,7 +49,7 @@ export default function App({ apiBase }: { apiBase: string }) {
                   href={item.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 px-3 py-1 rounded-md"
+                  className="app-btn-ghost text-sm"
                 >
                   GitHub 源码
                 </a>
@@ -55,7 +59,7 @@ export default function App({ apiBase }: { apiBase: string }) {
                   href={item.previewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-sm text-blue-600 dark:text-blue-400 border border-blue-600 dark:border-blue-400 px-3 py-1 rounded-md"
+                  className="app-btn-ghost text-sm"
                 >
                   在线预览
                 </a>

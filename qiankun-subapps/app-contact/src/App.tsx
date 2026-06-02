@@ -90,60 +90,61 @@ export default function App({ apiBase, hostProps }: AppProps) {
   };
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-6 dark:text-white">联系我</h1>
-      {intro && <p className="mb-4 text-gray-600 dark:text-gray-300">{intro}</p>}
-      <div className="mb-8 text-gray-600 dark:text-gray-300 space-y-1">
+    <div className="sub-app">
+      <h1 className="text-3xl font-bold mb-6 font-serif">联系我</h1>
+      {intro && <p className="mb-4 text-muted">{intro}</p>}
+      <div className="mb-8 text-muted space-y-1">
         <p>
           邮箱：
-          <a href={`mailto:${email}`} className="text-blue-600 dark:text-blue-400 ml-1 hover:underline">
+          <a href={`mailto:${email}`} className="text-accent ml-1 border-b border-line hover:border-accent transition-colors">
             {email}
           </a>
         </p>
         <p>
           GitHub：
-          <a href={githubUrl} target="_blank" rel="noopener noreferrer" className="text-blue-600 dark:text-blue-400 ml-1 hover:underline">
+          <a
+            href={githubUrl}
+            target="_blank"
+            rel="noopener noreferrer"
+            className="text-accent ml-1 border-b border-line hover:border-accent transition-colors"
+          >
             {githubUrl}
           </a>
         </p>
       </div>
 
-      <h2 className="text-2xl font-bold mb-4 dark:text-white">留言</h2>
+      <h2 className="text-2xl font-bold mb-4 font-serif">留言</h2>
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
-        <label className="block text-sm">
+        <label className="block text-sm text-muted">
           昵称 *
           <input
             required
-            className="mt-1 w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white"
+            className="app-input mt-1"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
           />
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm text-muted">
           联系方式（选填）
           <input
-            className="mt-1 w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white"
+            className="app-input mt-1"
             value={contact}
             onChange={(e) => setContact(e.target.value)}
           />
         </label>
-        <label className="block text-sm">
+        <label className="block text-sm text-muted">
           留言内容 *
           <textarea
             required
             rows={5}
-            className="mt-1 w-full px-3 py-2 rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800 dark:text-white"
+            className="app-input mt-1 resize-y min-h-[120px]"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
         </label>
         {formError && <p className="text-red-500 text-sm">{formError}</p>}
-        {formSuccess && <p className="text-green-600 dark:text-green-400 text-sm">{formSuccess}</p>}
-        <button
-          type="submit"
-          disabled={submitting}
-          className="px-4 py-2 rounded-md bg-blue-600 text-white font-medium hover:bg-blue-700 disabled:opacity-60"
-        >
+        {formSuccess && <p className="text-accent text-sm">{formSuccess}</p>}
+        <button type="submit" disabled={submitting} className="app-btn">
           {submitting ? '提交中...' : '提交留言'}
         </button>
       </form>

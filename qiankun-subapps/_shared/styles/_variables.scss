@@ -1,4 +1,4 @@
-// 子应用共用 SCSS 变量（可按需在 index.scss 中 @use）
-$color-primary: #2563eb;
-$color-primary-dark: #60a5fa;
+// 子应用共用 SCSS 变量（与 app-home 主体色 #9a3412 一致）
+$color-primary: #9a3412;
+$color-primary-dark: #ea580c;
 $radius-card: 0.5rem;

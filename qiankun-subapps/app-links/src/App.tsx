@@ -20,42 +20,52 @@ export default function App({ apiBase }: { apiBase: string }) {
       .catch(() => setError('友链加载失败'));
   }, [apiBase]);
 
-  if (error) return <p className="text-red-500">{error}</p>;
-  if (!links.length) return <p className="text-gray-500">暂无友链</p>;
+  if (error) {
+    return (
+      <div className="sub-app">
+        <p className="text-red-500">{error}</p>
+      </div>
+    );
+  }
+  if (!links.length) {
+    return (
+      <div className="sub-app">
+        <p className="text-faint">暂无友链</p>
+      </div>
+    );
+  }
 
   return (
-    <div>
-      <h1 className="text-3xl font-bold mb-8 dark:text-white">友情链接</h1>
+    <div className="sub-app">
+      <h1 className="text-3xl font-bold mb-8 font-serif">友情链接</h1>
       <div className="space-y-4">
         {links.map((item) => (
           <article
             key={item.id}
-            className="flex gap-4 border border-gray-200 dark:border-gray-700 rounded-lg p-4 bg-white dark:bg-gray-800"
+            className="app-card flex gap-4 border border-line rounded-lg p-4 bg-surface"
           >
             {item.avatar ? (
               <img
                 src={item.avatar}
                 alt=""
-                className="w-12 h-12 rounded-lg object-cover bg-gray-200"
+                className="w-12 h-12 rounded-sm object-cover bg-line"
               />
             ) : (
-              <div className="w-12 h-12 rounded-lg bg-gray-200 dark:bg-gray-600 shrink-0" />
+              <div className="w-12 h-12 rounded-sm bg-line shrink-0" />
             )}
             <div>
-              <h2 className="text-lg font-semibold">
+              <h2 className="text-lg font-semibold font-serif">
                 <a
                   href={item.url}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="text-blue-600 dark:text-blue-400 hover:underline"
+                  className="text-ink hover:text-accent transition-colors"
                 >
                   {item.name}
                 </a>
               </h2>
               {item.description && (
-                <p className="text-sm text-gray-500 dark:text-gray-400 mt-1">
-                  {item.description}
-                </p>
+                <p className="text-sm text-muted mt-1">{item.description}</p>
               )}
             </div>
           </article>

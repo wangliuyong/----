@@ -95,9 +95,9 @@ export default function App({ apiBase }: AppProps) {
   const splitStack = (stack?: string) =>
     stack
       ? stack
-          .split(/[,，、|/]/)
-          .map((s) => s.trim())
-          .filter(Boolean)
+        .split(/[,，、|/]/)
+        .map((s) => s.trim())
+        .filter(Boolean)
       : [];
 
   if (loading) {
