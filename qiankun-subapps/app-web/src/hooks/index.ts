@@ -1,1 +1,0 @@
-export { useWebQuery } from './useWebQuery';

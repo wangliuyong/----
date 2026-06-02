@@ -116,20 +116,7 @@ export function AppCard({
   );
 }
 
-/** 列表项卡片（博客列表等） */
-export function AppListItem({
-  className,
-  children,
-  ...props
-}: React.HTMLAttributes<HTMLDivElement>) {
-  return (
-    <div className={cn('app-card app-list-item p-4', className)} {...props}>
-      {children}
-    </div>
-  );
-}
-
-/** 表单输入框 / 下拉 */
+/** Markdown 正文容器 */
 export function AppInput({
   className,
   ...props

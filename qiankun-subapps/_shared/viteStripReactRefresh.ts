@@ -63,13 +63,6 @@ export function qiankunFullReload(): Plugin {
   };
 }
 
-/** @deprecated 请改用 createQiankunDevServer(port) */
-export const qiankunDevServer = {
-  cors: true as const,
-  origin: 'http://localhost:3000',
-  hmr: false,
-};
-
 /** 开发模式下向子应用注入 dev 端口，供 Qiankun HMR 客户端使用 */
 export function qiankunDevDefine(port: number, mode: string) {
   return {

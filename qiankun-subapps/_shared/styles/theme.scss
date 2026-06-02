@@ -63,7 +63,6 @@
   }
 
   .app-card:hover,
-  .app-list-item:hover,
   .app-btn:hover:not(:disabled),
   .app-btn-ghost:hover {
     transform: none;
@@ -202,20 +201,7 @@
   }
 }
 
-/* ---------- 列表项悬停（home-post-link） ---------- */
-.app-list-item {
-  transition: background 0.3s ease, padding-left 0.3s ease;
-
-  &:hover {
-    padding-left: 6px;
-    background: var(--ed-accent-soft);
-
-    .app-list-item__title {
-      color: var(--ed-accent);
-    }
-  }
-}
-
+/** 卡片内链接标题悬停高亮 */
 .app-list-item__title {
   transition: color 0.25s ease;
 }
