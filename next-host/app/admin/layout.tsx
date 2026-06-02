@@ -13,7 +13,7 @@ export default function AdminLayout({
   children: React.ReactNode;
 }) {
   return (
-    <div className="admin-root min-h-screen w-full bg-[#f0f2f5]">
+    <div className="admin-root h-screen w-full overflow-hidden bg-[#f0f2f5]">
       <AdminQiankunProvider>{children}</AdminQiankunProvider>
     </div>
   );

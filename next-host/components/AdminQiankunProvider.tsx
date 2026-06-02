@@ -38,7 +38,7 @@ export function AdminQiankunProvider({ children }: AdminQiankunProviderProps) {
   }, []);
 
   return (
-    <div className="relative min-h-screen w-full">
+    <div className="relative h-full w-full overflow-hidden">
       {children}
 
       {!ready && !error && (
@@ -52,8 +52,8 @@ export function AdminQiankunProvider({ children }: AdminQiankunProviderProps) {
         </div>
       )}
 
-      {/* Qiankun 子应用挂载点：占满视口高度 */}
-      <div id="micro-container" className="min-h-screen w-full" />
+      {/* Qiankun 子应用挂载点：占满视口，滚动由子应用内容区承担 */}
+      <div id="micro-container" className="h-full w-full overflow-hidden" />
     </div>
   );
 }

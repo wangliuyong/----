@@ -118,7 +118,7 @@ export default function AdminShell({
       };
 
   return (
-    <Layout style={{ minHeight: '100vh' }}>
+    <Layout className="admin-shell-root">
       <Sider
         className="admin-shell-sider"
         collapsible
@@ -136,7 +136,6 @@ export default function AdminShell({
           }
         }}
         theme="dark"
-        style={{ boxShadow: '2px 0 8px rgba(0,0,0,0.08)' }}
       >
         <div className="admin-shell-sider__brand">
           <span className="admin-shell-sider__brand-full">CMS 后台</span>
@@ -155,8 +154,9 @@ export default function AdminShell({
         />
       </Sider>
 
-      <Layout>
+      <Layout className="admin-shell-body">
         <Header
+          className="admin-shell-header"
           style={{
             padding: '0 24px',
             background: token.colorBgContainer,
@@ -186,7 +186,7 @@ export default function AdminShell({
           </Space>
         </Header>
 
-        <Content style={{ margin: 24, minHeight: 280 }}>{children}</Content>
+        <Content className="admin-shell-content">{children}</Content>
       </Layout>
     </Layout>
   );

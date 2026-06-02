@@ -3,11 +3,46 @@ body,
 #root {
   height: 100%;
   margin: 0;
+  overflow: hidden;
+}
+
+/* 整页固定高度：侧栏 + 顶栏不随内容滚动，仅内容区滚动 */
+.admin-shell-root {
+  height: 100vh;
+  overflow: hidden;
+}
+
+.admin-shell-body {
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.admin-shell-header {
+  flex-shrink: 0;
+  z-index: 10;
+}
+
+.admin-shell-content {
+  flex: 1;
+  min-height: 0;
+  margin: 24px;
+  overflow-x: hidden;
+  overflow-y: auto;
 }
 
 /* 侧栏折叠过渡：隐藏溢出、固定 Logo 占位，减少 Menu 闪动 */
 .admin-shell-sider {
+  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
+  height: 100vh;
+  overflow: hidden;
+
   .ant-layout-sider-children {
+    display: flex;
+    flex-direction: column;
+    height: 100%;
     overflow: hidden;
   }
 
@@ -53,6 +88,11 @@ body,
 }
 
 .admin-shell-menu.ant-menu {
+  flex: 1;
+  min-height: 0;
+  overflow-x: hidden;
+  overflow-y: auto;
+
   /* 折叠宽度动画期间关闭 padding/width 过渡，避免子菜单文字抖动 */
   .ant-menu-submenu-title,
   .ant-menu-item {
