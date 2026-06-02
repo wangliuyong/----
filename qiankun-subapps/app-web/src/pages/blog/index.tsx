@@ -76,8 +76,7 @@ export default function BlogPage() {
         <AppInput
           className="w-auto min-w-[140px]"
           placeholder="按标签筛选"
-          value={filterTag}
-          onChange={(e) => setFilterTag(e.target.value)}
+          onBlur={(e) => setFilterCategory(e.target.value)}
         />
         <AppButton onClick={() => void reload()}>筛选</AppButton>
       </div>

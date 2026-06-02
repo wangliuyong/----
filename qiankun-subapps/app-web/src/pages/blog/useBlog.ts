@@ -27,7 +27,7 @@ export function useBlog() {
       } else {
         const list = await webApi.listArticles(apiBase, {
           category: filterCategory || undefined,
-          tag: filterTag || undefined,
+          // tag: filterTag || undefined,
         });
         setArticles(list);
         setDetail(null);
@@ -37,7 +37,7 @@ export function useBlog() {
     } finally {
       setLoading(false);
     }
-  }, [apiBase, mode, articleId, filterCategory, filterTag]);
+  }, [apiBase, mode, articleId, filterCategory]);
 
   useEffect(() => {
     void load();
