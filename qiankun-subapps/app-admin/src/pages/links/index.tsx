@@ -1,8 +1,7 @@
 import { Form, Input, InputNumber } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { createLink, deleteLink, updateLink } from '../../api/links.api';
 import AdminCrudPage from '../../components/AdminCrudPage';
-import { useApiBase } from '../../context/ApiBaseContext';
-import { adminApi } from '../../utils/adminApi';
 import type { LinkItem } from '../../types';
 import { useLinks } from './useLinks';
 
@@ -15,7 +14,6 @@ const columns: ColumnsType<LinkItem> = [
 
 /** 路由 /links — 友链 CRUD（与 nest-server /admin/links 对齐） */
 export default function LinksPage() {
-  const apiBase = useApiBase();
   const { links, loading, error, reload } = useLinks();
 
   return (
@@ -31,9 +29,9 @@ export default function LinksPage() {
       columns={columns}
       deleteConfirmTitle="确定删除该友链？"
       modalTitles={{ create: '新建友链', edit: '编辑友链' }}
-      onCreate={(values) => adminApi.createLink(apiBase, values)}
-      onUpdate={(id, values) => adminApi.updateLink(apiBase, id, values)}
-      onDelete={(id) => adminApi.deleteLink(apiBase, id)}
+      onCreate={(values) => createLink(values)}
+      onUpdate={(id, values) => updateLink(id, values)}
+      onDelete={(id) => deleteLink(id)}
       onReload={reload}
       renderForm={() => (
         <>

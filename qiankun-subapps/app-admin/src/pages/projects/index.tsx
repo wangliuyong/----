@@ -1,8 +1,7 @@
 import { Form, Input } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
+import { createProject, deleteProject, updateProject } from '../../api/projects.api';
 import AdminCrudPage from '../../components/AdminCrudPage';
-import { useApiBase } from '../../context/ApiBaseContext';
-import { adminApi } from '../../utils/adminApi';
 import type { Project } from '../../types';
 import { useProjects } from './useProjects';
 
@@ -16,7 +15,6 @@ const columns: ColumnsType<Project> = [
 
 /** 路由 /projects — 项目 CRUD */
 export default function ProjectsPage() {
-  const apiBase = useApiBase();
   const { projects, loading, error, reload } = useProjects();
 
   return (
@@ -32,9 +30,9 @@ export default function ProjectsPage() {
       columns={columns}
       deleteConfirmTitle="确定删除该项目？"
       modalTitles={{ create: '新建项目', edit: '编辑项目' }}
-      onCreate={(values) => adminApi.createProject(apiBase, values)}
-      onUpdate={(id, values) => adminApi.updateProject(apiBase, id, values)}
-      onDelete={(id) => adminApi.deleteProject(apiBase, id)}
+      onCreate={(values) => createProject(values)}
+      onUpdate={(id, values) => updateProject(id, values)}
+      onDelete={(id) => deleteProject(id)}
       onReload={reload}
       renderForm={() => (
         <>

@@ -18,7 +18,15 @@ import { useCallback, useEffect, useMemo, useState } from 'react';
 import PageError from '../../../components/_common/PageError';
 import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
-import { useApiBase } from '../../../context/ApiBaseContext';
+import {
+  createModule,
+  createPermission,
+  deleteModule,
+  deletePermission,
+  listModules,
+  updateModule,
+  updatePermission,
+} from '../../../api/rbac/modules.api';
 import { ICON_OPTIONS } from '../../../router/iconRegistry';
 import {
   buildMenuParentTreeData,
@@ -29,14 +37,12 @@ import {
 } from '../../../router/moduleTreeUtils';
 import { isPathRegistered } from '../../../router/pageRegistry';
 import type { AdminModuleRecord } from '../../../types/rbac';
-import { adminApi } from '../../../utils/adminApi';
 
 /** 菜单表单模式：一级新建 / 行内子菜单 / 编辑 */
 type MenuFormMode = 'create-top' | 'create-child' | 'edit';
 
 /** 模块管理：菜单与权限点同一棵树，权限点为叶子且不可展开 */
 export default function ModulesPage() {
-  const apiBase = useApiBase();
   const [modules, setModules] = useState<AdminModuleRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -56,13 +62,13 @@ export default function ModulesPage() {
     setLoading(true);
     setError('');
     try {
-      setModules(await adminApi.listModules(apiBase));
+      setModules(await listModules());
     } catch (e) {
       setError(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
-  }, [apiBase]);
+  }, []);
 
   useEffect(() => {
     loadModules();
@@ -146,10 +152,10 @@ export default function ModulesPage() {
       path: isGroup ? undefined : values.path,
     };
     if (editingMenu?.id) {
-      await adminApi.updateModule(apiBase, editingMenu.id, payload);
+      await updateModule(editingMenu.id, payload);
       message.success('菜单已更新');
     } else {
-      await adminApi.createModule(apiBase, payload);
+      await createModule(payload);
       message.success('菜单已创建');
     }
     setMenuModal(false);
@@ -166,9 +172,9 @@ export default function ModulesPage() {
       sort: values.sort ?? 0,
     };
     if (editingPermId) {
-      await adminApi.updatePermission(apiBase, editingPermId, payload);
+      await updatePermission(editingPermId, payload);
     } else {
-      await adminApi.createPermission(apiBase, permParentMenu.id, payload);
+      await createPermission(permParentMenu.id, payload);
     }
     message.success('权限点已保存');
     setPermModal(false);
@@ -240,7 +246,7 @@ export default function ModulesPage() {
                 <Popconfirm
                   title="确定删除该权限点？"
                   onConfirm={async () => {
-                    await adminApi.deletePermission(apiBase, record.permissionId!);
+                    await deletePermission(record.permissionId!);
                     message.success('已删除');
                     loadModules();
                   }}
@@ -285,7 +291,7 @@ export default function ModulesPage() {
               <Popconfirm
                 title="确定删除？请先删除子菜单"
                 onConfirm={async () => {
-                  await adminApi.deleteModule(apiBase, record.moduleId!);
+                  await deleteModule(record.moduleId!);
                   message.success('已删除');
                   loadModules();
                 }}

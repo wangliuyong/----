@@ -1,5 +1,4 @@
 import { useCallback, useEffect, useState, type Dispatch, type SetStateAction } from 'react';
-import { useApiBase } from '../context/ApiBaseContext';
 
 interface UseAdminQueryResult<T> {
   /** 服务端数据；首屏加载完成前为 null */
@@ -16,9 +15,8 @@ interface UseAdminQueryResult<T> {
  * 统一 loading / error / 竞态安全 reload，各 feature hook 在此之上做语义别名
  */
 export function useAdminQuery<T>(
-  fetcher: (apiBase: string) => Promise<T>,
+  fetcher: () => Promise<T>,
 ): UseAdminQueryResult<T> {
-  const apiBase = useApiBase();
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -27,13 +25,13 @@ export function useAdminQuery<T>(
     setLoading(true);
     setError('');
     try {
-      setData(await fetcher(apiBase));
+      setData(await fetcher());
     } catch (e) {
       setError(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
-  }, [apiBase, fetcher]);
+  }, [fetcher]);
 
   useEffect(() => {
     void reload();

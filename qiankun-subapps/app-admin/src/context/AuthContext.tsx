@@ -7,8 +7,7 @@ import {
   useState,
   type ReactNode,
 } from 'react';
-import { useApiBase } from './ApiBaseContext';
-import { adminApi } from '../utils/adminApi';
+import { getProfile } from '../api/auth.api';
 import { clearAuth, isLoggedIn } from '../utils/auth';
 import type { AdminProfile } from '../types/rbac';
 
@@ -23,7 +22,6 @@ const AuthContext = createContext<AuthContextValue | null>(null);
 
 /** 全局鉴权上下文：登录后拉取 profile（菜单 + 权限码） */
 export function AuthProvider({ children }: { children: ReactNode }) {
-  const apiBase = useApiBase();
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(isLoggedIn());
 
@@ -35,7 +33,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     }
     setLoading(true);
     try {
-      const data = await adminApi.getProfile(apiBase);
+      const data = await getProfile({ skipErrorMessage: true });
       setProfile(data);
       return data;
     } catch {
@@ -45,7 +43,7 @@ export function AuthProvider({ children }: { children: ReactNode }) {
     } finally {
       setLoading(false);
     }
-  }, [apiBase]);
+  }, []);
 
   useEffect(() => {
     reloadProfile();

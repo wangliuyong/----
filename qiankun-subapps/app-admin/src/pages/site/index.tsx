@@ -1,15 +1,13 @@
 import { Button, Card, Form, Input, message } from 'antd';
 import { useEffect, useState } from 'react';
+import { updateSite } from '../../api/site.api';
 import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
-import { useApiBase } from '../../context/ApiBaseContext';
-import { adminApi } from '../../utils/adminApi';
 import type { SiteConfig } from '../../types';
 import { useSite } from './useSite';
 
 /** 路由 /site — 站点基础信息 */
 export default function SitePage() {
-  const apiBase = useApiBase();
   const { site, setSite, loading, error } = useSite();
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
@@ -29,7 +27,7 @@ export default function SitePage() {
   const handleSubmit = async (values: Partial<SiteConfig>) => {
     setSaving(true);
     try {
-      setSite(await adminApi.updateSite(apiBase, values));
+      setSite(await updateSite(values));
       message.success('站点设置已保存');
     } finally {
       setSaving(false);

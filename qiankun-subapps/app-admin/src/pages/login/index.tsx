@@ -1,14 +1,12 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { useState } from 'react';
-import { useApiBase } from '../../context/ApiBaseContext';
-import { login } from '../../utils/adminApi';
+import { login } from '../../api/auth.api';
 import { saveAuth } from '../../utils/auth';
 import type { LoginFormValues, LoginPageProps } from './types';
 
 /** 路由 /login — 未鉴权时全屏登录 */
 export default function LoginPage({ onSuccess }: LoginPageProps) {
-  const apiBase = useApiBase();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 
@@ -16,7 +14,9 @@ export default function LoginPage({ onSuccess }: LoginPageProps) {
     setLoading(true);
     setError('');
     try {
-      const res = await login(apiBase, values.username, values.password);
+      const res = await login(values.username, values.password, {
+        skipErrorMessage: true,
+      });
       saveAuth(res.accessToken, res.username);
       onSuccess(res.username);
     } catch {

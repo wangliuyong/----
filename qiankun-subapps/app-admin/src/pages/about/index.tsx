@@ -1,9 +1,8 @@
 import { Button, Card, Input, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
+import { updateAbout } from '../../api/site.api';
 import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
-import { useApiBase } from '../../context/ApiBaseContext';
-import { adminApi } from '../../utils/adminApi';
 import { useSite } from '../site/useSite';
 
 const { TextArea } = Input;
@@ -13,7 +12,6 @@ const { TextArea } = Input;
  * 暂用 JSON 编辑：Profile 含嵌套数组，结构化表单改动面大，后续可拆为分块表单
  */
 export default function AboutPage() {
-  const apiBase = useApiBase();
   const { site, setSite, loading, error } = useSite();
   const [json, setJson] = useState('');
   const [parseError, setParseError] = useState('');
@@ -31,7 +29,7 @@ export default function AboutPage() {
       const parsed = JSON.parse(json);
       setParseError('');
       setSaving(true);
-      setSite(await adminApi.updateAbout(apiBase, parsed));
+      setSite(await updateAbout(parsed));
       message.success('关于我已保存');
     } catch {
       setParseError('JSON 格式错误，请检查语法');

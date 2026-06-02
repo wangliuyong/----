@@ -1,16 +1,14 @@
 import { Button, Card, Form, Input, message } from 'antd';
 import { useEffect, useState } from 'react';
+import { updateContact } from '../../api/site.api';
 import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
-import { useApiBase } from '../../context/ApiBaseContext';
-import { adminApi } from '../../utils/adminApi';
 import { useSite } from '../site/useSite';
 
 const { TextArea } = Input;
 
 /** 路由 /contact — 联系页文案与邮箱 */
 export default function ContactPage() {
-  const apiBase = useApiBase();
   const { site, setSite, loading, error } = useSite();
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
@@ -35,8 +33,7 @@ export default function ContactPage() {
     setSaving(true);
     try {
       setSite(
-        await adminApi.updateContact(
-          apiBase,
+        await updateContact(
           { intro: values.intro },
           values.email,
           values.githubUrl,

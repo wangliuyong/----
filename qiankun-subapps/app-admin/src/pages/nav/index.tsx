@@ -1,15 +1,13 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Input, Space, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
+import { updateNav } from '../../api/site.api';
 import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
-import { useApiBase } from '../../context/ApiBaseContext';
-import { adminApi } from '../../utils/adminApi';
 import { useSite } from '../site/useSite';
 
 /** 路由 /nav — 顶栏导航项 */
 export default function NavPage() {
-  const apiBase = useApiBase();
   const { site, setSite, loading, error } = useSite();
   const [items, setItems] = useState(site?.nav ?? []);
   const [saving, setSaving] = useState(false);
@@ -30,7 +28,7 @@ export default function NavPage() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      setSite(await adminApi.updateNav(apiBase, items));
+      setSite(await updateNav(items));
       message.success('导航已保存');
     } finally {
       setSaving(false);

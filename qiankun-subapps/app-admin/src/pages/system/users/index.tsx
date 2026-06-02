@@ -1,14 +1,20 @@
 import { Button, Form, Input, Modal, Select, Space, Tag, message } from 'antd';
 import { useCallback, useEffect, useState } from 'react';
+import { listRoles } from '../../../api/rbac/roles.api';
+import {
+  assignUserRoles,
+  createUser,
+  deleteUser,
+  listUsers,
+  resetUserPassword,
+  updateUser,
+} from '../../../api/rbac/users.api';
 import AdminCrudPage from '../../../components/AdminCrudPage';
 import PermissionGuard from '../../../components/PermissionGuard';
-import { useApiBase } from '../../../context/ApiBaseContext';
 import type { AdminRoleRecord, AdminUserRecord } from '../../../types/rbac';
-import { adminApi } from '../../../utils/adminApi';
 
 /** 用户管理：CRUD + 角色分配 + 重置密码 */
 export default function UsersPage() {
-  const apiBase = useApiBase();
   const [users, setUsers] = useState<AdminUserRecord[]>([]);
   const [roles, setRoles] = useState<AdminRoleRecord[]>([]);
   const [loading, setLoading] = useState(true);
@@ -24,8 +30,8 @@ export default function UsersPage() {
     setError('');
     try {
       const [userList, roleList] = await Promise.all([
-        adminApi.listUsers(apiBase),
-        adminApi.listRoles(apiBase),
+        listUsers(),
+        listRoles(),
       ]);
       setUsers(userList);
       setRoles(roleList);
@@ -34,7 +40,7 @@ export default function UsersPage() {
     } finally {
       setLoading(false);
     }
-  }, [apiBase]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -48,7 +54,7 @@ export default function UsersPage() {
 
   const saveRoles = async () => {
     if (!activeUser) return;
-    await adminApi.assignUserRoles(apiBase, activeUser.id, roleIds);
+    await assignUserRoles(activeUser.id, roleIds);
     message.success('角色已更新');
     setRoleModal(false);
     load();
@@ -63,7 +69,7 @@ export default function UsersPage() {
   const savePwd = async () => {
     if (!activeUser) return;
     const { password } = await pwdForm.validateFields();
-    await adminApi.resetUserPassword(apiBase, activeUser.id, password);
+    await resetUserPassword(activeUser.id, password);
     message.success('密码已重置');
     setPwdModal(false);
   };
@@ -122,15 +128,15 @@ export default function UsersPage() {
         )}
         onCreate={async (values) => {
           if (!values.password) throw new Error('请设置密码');
-          await adminApi.createUser(apiBase, values);
+          await createUser(values);
         }}
         onUpdate={async (id, values) => {
           const payload = { ...values };
           if (!payload.password) delete payload.password;
-          await adminApi.updateUser(apiBase, id, payload);
+          await updateUser(id, payload);
         }}
         onDelete={async (id) => {
-          await adminApi.deleteUser(apiBase, id);
+          await deleteUser(id);
         }}
         onReload={load}
         extraActions={(record) => (

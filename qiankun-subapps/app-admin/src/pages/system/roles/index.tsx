@@ -1,16 +1,21 @@
 import { Button, Form, Input, Modal, Select, Tag, Tree, message } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import {
+  assignRolePermissions,
+  createRole,
+  deleteRole,
+  getPermissionTree,
+  listRoles,
+  updateRole,
+} from '../../../api/rbac/roles.api';
 import AdminCrudPage from '../../../components/AdminCrudPage';
 import PermissionGuard from '../../../components/PermissionGuard';
-import { useApiBase } from '../../../context/ApiBaseContext';
 import { buildPermissionAssignTreeData } from '../../../router/moduleTreeUtils';
 import type { AdminRoleRecord, PermissionAssignNode } from '../../../types/rbac';
-import { adminApi } from '../../../utils/adminApi';
 
 /** 角色管理：CRUD + 权限树分配 */
 export default function RolesPage() {
-  const apiBase = useApiBase();
   const [roles, setRoles] = useState<AdminRoleRecord[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState('');
@@ -23,13 +28,13 @@ export default function RolesPage() {
     setLoading(true);
     setError('');
     try {
-      setRoles(await adminApi.listRoles(apiBase));
+      setRoles(await listRoles());
     } catch (e) {
       setError(e instanceof Error ? e.message : '加载失败');
     } finally {
       setLoading(false);
     }
-  }, [apiBase]);
+  }, []);
 
   useEffect(() => {
     load();
@@ -39,14 +44,14 @@ export default function RolesPage() {
 
   const openAssign = async (role: AdminRoleRecord) => {
     setActiveRole(role);
-    setPermTree(await adminApi.getPermissionTree(apiBase));
+    setPermTree(await getPermissionTree());
     setCheckedKeys(role.permissions?.map((p) => p.permission.id) ?? []);
     setPermOpen(true);
   };
 
   const savePermissions = async () => {
     if (!activeRole) return;
-    await adminApi.assignRolePermissions(apiBase, activeRole.id, checkedKeys);
+    await assignRolePermissions(activeRole.id, checkedKeys);
     message.success('权限已保存');
     setPermOpen(false);
     load();
@@ -99,13 +104,13 @@ export default function RolesPage() {
           </>
         )}
         onCreate={async (values) => {
-          await adminApi.createRole(apiBase, values as Partial<AdminRoleRecord>);
+          await createRole(values as Partial<AdminRoleRecord>);
         }}
         onUpdate={async (id, values) => {
-          await adminApi.updateRole(apiBase, id, values as Partial<AdminRoleRecord>);
+          await updateRole(id, values as Partial<AdminRoleRecord>);
         }}
         onDelete={async (id) => {
-          await adminApi.deleteRole(apiBase, id);
+          await deleteRole(id);
         }}
         onReload={load}
         extraActions={(record) => (
