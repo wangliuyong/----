@@ -1,6 +1,6 @@
+@use '../../qiankun-subapps/_shared/styles/tokens';
+@use '../styles/shell';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
-
-@import '../../qiankun-subapps/_shared/styles/tokens.scss';
-@import '../styles/shell.scss';

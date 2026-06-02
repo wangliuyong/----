@@ -55,8 +55,10 @@ pnpm run dev:all
 ```bash
 pnpm run dev:api          # 后端
 pnpm run dev:web          # 主基座
-pnpm run dev:sub:web      # 前台子应用 4001
-pnpm run dev:sub:admin    # 管理后台 4007
+pnpm run dev:sub:web      # 前台子应用 4001（供基座加载）
+pnpm run dev:sub:admin    # 管理后台 4007（供基座加载）
+pnpm run dev:web:standalone   # 仅 API + 前台子应用，浏览器访问 http://localhost:4001
+pnpm run dev:admin:standalone # 仅 API + 管理后台，浏览器访问 http://localhost:4007
 ```
 
 ## 生产构建

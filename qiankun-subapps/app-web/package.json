@@ -5,8 +5,10 @@
   "type": "module",
   "scripts": {
     "dev": "vite",
+    "dev:standalone": "VITE_STANDALONE=1 vite",
     "build": "vite build",
-    "preview": "vite preview"
+    "preview": "vite preview",
+    "preview:standalone": "vite preview --port 4001"
   },
   "dependencies": {
     "marked": "^15.0.6",
