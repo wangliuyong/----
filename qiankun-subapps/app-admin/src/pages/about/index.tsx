@@ -1,7 +1,6 @@
 import { Button, Card, Input, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { updateAbout } from '../../api/site.api';
-import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
 import { useSite } from '../site/useSite';
 
@@ -12,7 +11,7 @@ const { TextArea } = Input;
  * 暂用 JSON 编辑：Profile 含嵌套数组，结构化表单改动面大，后续可拆为分块表单
  */
 export default function AboutPage() {
-  const { site, setSite, loading, error } = useSite();
+  const { site, setSite, loading, reload } = useSite();
   const [json, setJson] = useState('');
   const [parseError, setParseError] = useState('');
   const [saving, setSaving] = useState(false);
@@ -22,7 +21,15 @@ export default function AboutPage() {
   }, [site]);
 
   if (loading) return <PageLoading />;
-  if (!site) return <PageError message={error || '站点配置加载失败'} />;
+  if (!site) {
+    return (
+      <Card title="关于我">
+        <Button type="primary" onClick={() => void reload()}>
+          重新加载
+        </Button>
+      </Card>
+    );
+  }
 
   const handleSave = async () => {
     try {

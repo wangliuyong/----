@@ -4,8 +4,8 @@ import type { SiteConfig } from '../../types';
 
 /** 站点配置：site / nav / about / contact 页共用 */
 export function useSite() {
-  const { data: site, setData: setSite, loading, error, reload } =
+  const { data: site, setData: setSite, loading, reload } =
     useAdminQuery<SiteConfig>(getSite);
 
-  return { site, setSite, loading, error, reload };
+  return { site, setSite, loading, reload };
 }

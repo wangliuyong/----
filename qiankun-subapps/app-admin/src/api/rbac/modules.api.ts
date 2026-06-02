@@ -1,10 +1,8 @@
 import type { AdminModuleRecord, AdminPermissionItem } from '../../types/rbac';
-import { request, type RequestConfig } from '../client';
-
-const silentGet: Pick<RequestConfig, 'skipErrorMessage'> = { skipErrorMessage: true };
+import { request } from '../client';
 
 export function listModules() {
-  return request<AdminModuleRecord[]>('/admin/rbac/modules', silentGet);
+  return request<AdminModuleRecord[]>('/admin/rbac/modules');
 }
 
 export function createModule(data: Partial<AdminModuleRecord>) {
@@ -28,7 +26,6 @@ export function deleteModule(id: number) {
 export function listModulePermissions(moduleId: number) {
   return request<AdminPermissionItem[]>(
     `/admin/rbac/modules/${moduleId}/permissions`,
-    silentGet,
   );
 }
 

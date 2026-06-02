@@ -2,13 +2,12 @@ import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
 import { Button, Card, Input, Space, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { updateNav } from '../../api/site.api';
-import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
 import { useSite } from '../site/useSite';
 
 /** 路由 /nav — 顶栏导航项 */
 export default function NavPage() {
-  const { site, setSite, loading, error } = useSite();
+  const { site, setSite, loading, reload } = useSite();
   const [items, setItems] = useState(site?.nav ?? []);
   const [saving, setSaving] = useState(false);
 
@@ -17,7 +16,15 @@ export default function NavPage() {
   }, [site]);
 
   if (loading) return <PageLoading />;
-  if (!site) return <PageError message={error || '站点配置加载失败'} />;
+  if (!site) {
+    return (
+      <Card title="导航管理">
+        <Button type="primary" onClick={() => void reload()}>
+          重新加载
+        </Button>
+      </Card>
+    );
+  }
 
   const updateItem = (index: number, key: 'href' | 'label', value: string) => {
     const next = [...items];

@@ -4,6 +4,6 @@ import type { Project } from '../../types';
 
 /** 项目列表数据 */
 export function useProjects() {
-  const { data, loading, error, reload } = useAdminQuery<Project[]>(listProjects);
-  return { projects: data ?? [], loading, error, reload };
+  const { data, loading, reload } = useAdminQuery<Project[]>(listProjects);
+  return { projects: data ?? [], loading, reload };
 }

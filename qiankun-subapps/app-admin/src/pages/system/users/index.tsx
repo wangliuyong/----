@@ -18,7 +18,6 @@ export default function UsersPage() {
   const [users, setUsers] = useState<AdminUserRecord[]>([]);
   const [roles, setRoles] = useState<AdminRoleRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [roleModal, setRoleModal] = useState(false);
   const [pwdModal, setPwdModal] = useState(false);
   const [activeUser, setActiveUser] = useState<AdminUserRecord | null>(null);
@@ -27,7 +26,6 @@ export default function UsersPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError('');
     try {
       const [userList, roleList] = await Promise.all([
         listUsers(),
@@ -35,8 +33,8 @@ export default function UsersPage() {
       ]);
       setUsers(userList);
       setRoles(roleList);
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '加载失败');
+    } catch {
+      /* 错误已由 request 拦截器 toast 提示 */
     } finally {
       setLoading(false);
     }
@@ -81,7 +79,6 @@ export default function UsersPage() {
         createLabel="新建用户"
         data={users}
         loading={loading}
-        error={error}
         createPermission="admin:system:users:create"
         updatePermission="admin:system:users:update"
         deletePermission="admin:system:users:delete"

@@ -1,10 +1,8 @@
 import type { LinkItem } from '../types';
-import { request, type RequestConfig } from './client';
-
-const silentGet: Pick<RequestConfig, 'skipErrorMessage'> = { skipErrorMessage: true };
+import { request } from './client';
 
 export function listLinks() {
-  return request<LinkItem[]>('/admin/links', silentGet);
+  return request<LinkItem[]>('/admin/links');
 }
 
 export function createLink(data: Partial<LinkItem>) {

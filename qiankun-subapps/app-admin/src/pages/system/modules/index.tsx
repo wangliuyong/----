@@ -15,7 +15,6 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useEffect, useMemo, useState } from 'react';
-import PageError from '../../../components/_common/PageError';
 import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
 import {
@@ -45,7 +44,6 @@ type MenuFormMode = 'create-top' | 'create-child' | 'edit';
 export default function ModulesPage() {
   const [modules, setModules] = useState<AdminModuleRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const [menuModal, setMenuModal] = useState(false);
   const [menuFormMode, setMenuFormMode] = useState<MenuFormMode>('create-top');
@@ -60,11 +58,10 @@ export default function ModulesPage() {
 
   const loadModules = useCallback(async () => {
     setLoading(true);
-    setError('');
     try {
       setModules(await listModules());
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '加载失败');
+    } catch {
+      /* 错误已由 request 拦截器 toast 提示 */
     } finally {
       setLoading(false);
     }
@@ -308,7 +305,6 @@ export default function ModulesPage() {
   ];
 
   if (loading) return <PageLoading />;
-  if (error) return <PageError message={error} />;
 
   return (
     <Card

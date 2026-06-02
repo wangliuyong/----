@@ -1,10 +1,8 @@
 import type { Article } from '../types';
-import { request, type RequestConfig } from './client';
-
-const silentGet: Pick<RequestConfig, 'skipErrorMessage'> = { skipErrorMessage: true };
+import { request } from './client';
 
 export function listArticles() {
-  return request<Article[]>('/admin/articles', silentGet);
+  return request<Article[]>('/admin/articles');
 }
 
 export function createArticle(data: Partial<Article>) {

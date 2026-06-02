@@ -15,7 +15,7 @@ const columns: ColumnsType<Project> = [
 
 /** 路由 /projects — 项目 CRUD */
 export default function ProjectsPage() {
-  const { projects, loading, error, reload } = useProjects();
+  const { projects, loading, reload } = useProjects();
 
   return (
     <AdminCrudPage<Project>
@@ -23,7 +23,6 @@ export default function ProjectsPage() {
       createLabel="新建项目"
       data={projects}
       loading={loading}
-      error={error}
       createPermission="admin:projects:create"
       updatePermission="admin:projects:update"
       deletePermission="admin:projects:delete"

@@ -11,7 +11,7 @@ interface NestErrorBody {
 
 /** 管理端请求配置 */
 export interface RequestConfig extends RequestInit {
-  /** 跳过全局错误 toast（如 profile 拉取、登录页、useAdminQuery 首屏） */
+  /** 跳过全局错误 toast（如 profile 拉取、登录页等需自定义提示的场景） */
   skipErrorMessage?: boolean;
   /** 是否携带 JWT，默认 true；login 等公开接口传 false */
   auth?: boolean;
@@ -54,7 +54,7 @@ export function parseErrorMessage(body: unknown, fallback: string): string {
   return fallback;
 }
 
-/** 响应拦截：统一错误提示（可通过 skipErrorMessage 跳过） */
+/** 响应拦截：统一 toast 错误提示（可通过 skipErrorMessage 跳过） */
 function notifyError(errorMessage: string, skipErrorMessage?: boolean): void {
   if (!skipErrorMessage) {
     message.error(errorMessage);

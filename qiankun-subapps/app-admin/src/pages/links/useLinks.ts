@@ -4,6 +4,6 @@ import type { LinkItem } from '../../types';
 
 /** 友链列表数据 */
 export function useLinks() {
-  const { data, loading, error, reload } = useAdminQuery<LinkItem[]>(listLinks);
-  return { links: data ?? [], loading, error, reload };
+  const { data, loading, reload } = useAdminQuery<LinkItem[]>(listLinks);
+  return { links: data ?? [], loading, reload };
 }

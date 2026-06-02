@@ -20,7 +20,7 @@ const columns: ColumnsType<Article> = [
 
 /** 路由 /articles — 博客 CRUD */
 export default function ArticlesPage() {
-  const { articles, loading, error, reload } = useArticles();
+  const { articles, loading, reload } = useArticles();
 
   return (
     <AdminCrudPage<Article>
@@ -28,7 +28,6 @@ export default function ArticlesPage() {
       createLabel="新建文章"
       data={articles}
       loading={loading}
-      error={error}
       createPermission="admin:articles:create"
       updatePermission="admin:articles:update"
       deletePermission="admin:articles:delete"

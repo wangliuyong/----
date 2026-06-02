@@ -6,28 +6,25 @@ interface UseAdminQueryResult<T> {
   /** 允许保存成功后就地更新，避免整页 reload */
   setData: Dispatch<SetStateAction<T | null>>;
   loading: boolean;
-  error: string;
   reload: () => Promise<void>;
 }
 
 /**
  * 管理端通用数据拉取 hook
- * 统一 loading / error / 竞态安全 reload，各 feature hook 在此之上做语义别名
+ * 加载失败由 api/client 统一 toast，此处仅维护 loading / data 状态
  */
 export function useAdminQuery<T>(
   fetcher: () => Promise<T>,
 ): UseAdminQueryResult<T> {
   const [data, setData] = useState<T | null>(null);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
 
   const reload = useCallback(async () => {
     setLoading(true);
-    setError('');
     try {
       setData(await fetcher());
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '加载失败');
+    } catch {
+      /* 错误已由 request 拦截器 toast 提示 */
     } finally {
       setLoading(false);
     }
@@ -37,5 +34,5 @@ export function useAdminQuery<T>(
     void reload();
   }, [reload]);
 
-  return { data, setData, loading, error, reload };
+  return { data, setData, loading, reload };
 }

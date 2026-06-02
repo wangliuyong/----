@@ -1,10 +1,8 @@
 import type { Project } from '../types';
-import { request, type RequestConfig } from './client';
-
-const silentGet: Pick<RequestConfig, 'skipErrorMessage'> = { skipErrorMessage: true };
+import { request } from './client';
 
 export function listProjects() {
-  return request<Project[]>('/admin/projects', silentGet);
+  return request<Project[]>('/admin/projects');
 }
 
 export function createProject(data: Partial<Project>) {

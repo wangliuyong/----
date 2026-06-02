@@ -1,11 +1,8 @@
 import type { ContactConfig, NavItem, Profile, SiteConfig } from '../types';
-import { request, type RequestConfig } from './client';
-
-/** GET 类请求默认静默 toast，由 PageError 展示 */
-const silentGet: Pick<RequestConfig, 'skipErrorMessage'> = { skipErrorMessage: true };
+import { request } from './client';
 
 export function getSite() {
-  return request<SiteConfig>('/admin/site', silentGet);
+  return request<SiteConfig>('/admin/site');
 }
 
 export function updateSite(data: Partial<SiteConfig>) {

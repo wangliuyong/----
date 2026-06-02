@@ -14,7 +14,7 @@ const columns: ColumnsType<LinkItem> = [
 
 /** 路由 /links — 友链 CRUD（与 nest-server /admin/links 对齐） */
 export default function LinksPage() {
-  const { links, loading, error, reload } = useLinks();
+  const { links, loading, reload } = useLinks();
 
   return (
     <AdminCrudPage<LinkItem>
@@ -22,7 +22,6 @@ export default function LinksPage() {
       createLabel="新建友链"
       data={links}
       loading={loading}
-      error={error}
       createPermission="admin:links:create"
       updatePermission="admin:links:update"
       deletePermission="admin:links:delete"

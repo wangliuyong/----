@@ -18,7 +18,6 @@ import type { AdminRoleRecord, PermissionAssignNode } from '../../../types/rbac'
 export default function RolesPage() {
   const [roles, setRoles] = useState<AdminRoleRecord[]>([]);
   const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
   const [permOpen, setPermOpen] = useState(false);
   const [activeRole, setActiveRole] = useState<AdminRoleRecord | null>(null);
   const [permTree, setPermTree] = useState<PermissionAssignNode[]>([]);
@@ -26,11 +25,10 @@ export default function RolesPage() {
 
   const load = useCallback(async () => {
     setLoading(true);
-    setError('');
     try {
       setRoles(await listRoles());
-    } catch (e) {
-      setError(e instanceof Error ? e.message : '加载失败');
+    } catch {
+      /* 错误已由 request 拦截器 toast 提示 */
     } finally {
       setLoading(false);
     }
@@ -64,7 +62,6 @@ export default function RolesPage() {
         createLabel="新建角色"
         data={roles}
         loading={loading}
-        error={error}
         createPermission="admin:system:roles:create"
         updatePermission="admin:system:roles:update"
         deletePermission="admin:system:roles:delete"

@@ -1,10 +1,8 @@
 import type { AdminUserRecord } from '../../types/rbac';
-import { request, type RequestConfig } from '../client';
-
-const silentGet: Pick<RequestConfig, 'skipErrorMessage'> = { skipErrorMessage: true };
+import { request } from '../client';
 
 export function listUsers() {
-  return request<AdminUserRecord[]>('/admin/rbac/users', silentGet);
+  return request<AdminUserRecord[]>('/admin/rbac/users');
 }
 
 export function createUser(data: Record<string, unknown>) {

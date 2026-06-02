@@ -12,7 +12,6 @@ import {
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useState, type ReactNode } from 'react';
-import PageError from './_common/PageError';
 import PageLoading from './_common/PageLoading';
 import PermissionGuard from './PermissionGuard';
 
@@ -21,7 +20,6 @@ export interface AdminCrudPageProps<T extends { id: number }> {
   createLabel: string;
   data: T[];
   loading: boolean;
-  error: string;
   columns: ColumnsType<T>;
   deleteConfirmTitle: string;
   modalTitles: { create: string; edit: string };
@@ -45,7 +43,6 @@ export default function AdminCrudPage<T extends { id: number }>({
   createLabel,
   data,
   loading,
-  error,
   columns,
   deleteConfirmTitle,
   modalTitles,
@@ -66,7 +63,6 @@ export default function AdminCrudPage<T extends { id: number }>({
   const [saving, setSaving] = useState(false);
 
   if (loading) return <PageLoading />;
-  if (error) return <PageError message={error} />;
 
   const openCreate = () => {
     setEditing({});

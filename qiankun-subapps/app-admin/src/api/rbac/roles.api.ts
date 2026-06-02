@@ -1,10 +1,8 @@
 import type { AdminRoleRecord, PermissionAssignNode } from '../../types/rbac';
-import { request, type RequestConfig } from '../client';
-
-const silentGet: Pick<RequestConfig, 'skipErrorMessage'> = { skipErrorMessage: true };
+import { request } from '../client';
 
 export function listRoles() {
-  return request<AdminRoleRecord[]>('/admin/rbac/roles', silentGet);
+  return request<AdminRoleRecord[]>('/admin/rbac/roles');
 }
 
 export function createRole(data: Partial<AdminRoleRecord>) {
@@ -26,7 +24,7 @@ export function deleteRole(id: number) {
 }
 
 export function getPermissionTree() {
-  return request<PermissionAssignNode[]>('/admin/rbac/permission-tree', silentGet);
+  return request<PermissionAssignNode[]>('/admin/rbac/permission-tree');
 }
 
 export function assignRolePermissions(id: number, permissionIds: number[]) {

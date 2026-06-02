@@ -1,14 +1,13 @@
 import { Button, Card, Form, Input, message } from 'antd';
 import { useEffect, useState } from 'react';
 import { updateSite } from '../../api/site.api';
-import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
 import type { SiteConfig } from '../../types';
 import { useSite } from './useSite';
 
 /** 路由 /site — 站点基础信息 */
 export default function SitePage() {
-  const { site, setSite, loading, error } = useSite();
+  const { site, setSite, loading, reload } = useSite();
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
 
@@ -22,7 +21,15 @@ export default function SitePage() {
   }, [site, form]);
 
   if (loading) return <PageLoading />;
-  if (!site) return <PageError message={error || '站点配置加载失败'} />;
+  if (!site) {
+    return (
+      <Card title="站点设置">
+        <Button type="primary" onClick={() => void reload()}>
+          重新加载
+        </Button>
+      </Card>
+    );
+  }
 
   const handleSubmit = async (values: Partial<SiteConfig>) => {
     setSaving(true);

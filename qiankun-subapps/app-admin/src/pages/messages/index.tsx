@@ -2,7 +2,6 @@ import { DeleteOutlined } from '@ant-design/icons';
 import { Button, Card, Popconfirm, Table, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { deleteMessage } from '../../api/messages.api';
-import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
 import PermissionGuard from '../../components/PermissionGuard';
 import type { Message } from '../../types';
@@ -10,10 +9,9 @@ import { useMessages } from './useMessages';
 
 /** 路由 /messages — 留言列表（只读 + 删除） */
 export default function MessagesPage() {
-  const { messages, loading, error, reload } = useMessages();
+  const { messages, loading, reload } = useMessages();
 
   if (loading) return <PageLoading />;
-  if (error) return <PageError message={error} />;
 
   const handleDelete = async (id: number) => {
     await deleteMessage(id);
