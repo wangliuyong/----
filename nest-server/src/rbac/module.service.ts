@@ -87,10 +87,11 @@ export class ModuleService {
       if (curId === selfId) {
         throw new BadRequestException('不能将菜单设置到其子菜单下');
       }
-      const row = await this.prisma.adminModule.findUnique({
-        where: { id: curId },
-        select: { parentId: true },
-      });
+      const row: { parentId: number | null } | null =
+        await this.prisma.adminModule.findUnique({
+          where: { id: curId },
+          select: { parentId: true },
+        });
       curId = row?.parentId ?? null;
     }
   }
