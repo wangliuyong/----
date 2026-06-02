@@ -2,7 +2,7 @@
 
 import { useEffect, useState, type ReactNode } from 'react';
 import { useTheme } from 'next-themes';
-import { initQiankun, syncQiankunTheme } from '@/app/utils/qiankun';
+import { initQiankun, syncQiankunTheme } from '@/utils/qiankun';
 
 interface QiankunProviderProps {
   children: ReactNode;

@@ -3,7 +3,8 @@
 import Fuse from 'fuse.js';
 import Link from 'next/link';
 import { useCallback, useEffect, useState } from 'react';
-import { API_BASE } from '@/app/utils/api';
+import { blogDetailPath } from '@/router';
+import { API_BASE } from '@/utils/api';
 
 interface SearchItem {
   type: 'article' | 'project';
@@ -33,7 +34,7 @@ export function SearchBar() {
           id: a.id,
           title: a.title,
           summary: a.summary || '',
-          href: `/blog/${a.id}`,
+          href: blogDetailPath(a.id),
         })),
         ...projects.map((p: { id: number; name: string; desc: string }) => ({
           type: 'project' as const,

@@ -22,7 +22,7 @@ import {
 
 /**
  * 后台 Tab 单一数据源：顺序、文案、图标、页面组件
- * 新增 Tab 时只改此文件，避免 routes / pageMap / AdminShell 三处分散维护
+ * 新增 Tab 时只改此文件，避免 routes / AdminShell 三处分散维护
  */
 export const ADMIN_TAB_CONFIG = [
   { key: 'site', label: '站点设置', Icon: SettingOutlined, Page: SitePage },

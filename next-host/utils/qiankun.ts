@@ -1,5 +1,6 @@
 'use client';
 
+import { isAdminPath, isPublicSitePath } from '@/router';
 import { API_BASE } from './api';
 
 /** 前台统一子应用 entry（生产环境通过环境变量覆盖） */
@@ -31,21 +32,6 @@ let qiankunStarted = false;
 let qiankunRegistered = false;
 let qiankunLoading: Promise<void> | null = null;
 
-/** 匹配 app-web 内子路由对应的前台页面 */
-function isPublicSitePath(pathname: string): boolean {
-  if (pathname === '/') return true;
-  if (
-    pathname === '/about' ||
-    pathname === '/projects' ||
-    pathname === '/contact' ||
-    pathname === '/links'
-  ) {
-    return true;
-  }
-  if (pathname === '/blog' || pathname.startsWith('/blog/')) return true;
-  return false;
-}
-
 const microApps = [
   {
     name: 'app-web',
@@ -62,7 +48,7 @@ const microApps = [
     name: 'app-admin',
     entry: ADMIN_ENTRY,
     container: '#micro-container',
-    activeRule: (location: Location) => location.pathname.startsWith('/admin'),
+    activeRule: (location: Location) => isAdminPath(location.pathname),
   },
 ];
 
@@ -115,9 +101,7 @@ async function ensureQiankun(theme: string) {
   await qiankunLoading;
 }
 
-/**
- * 注册并启动 Qiankun（仅客户端、仅执行一次 start）
- */
+/** 注册并启动 Qiankun（仅客户端、仅执行一次 start） */
 export async function initQiankun(theme: string) {
   await ensureQiankun(theme);
 }
