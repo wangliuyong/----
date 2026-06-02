@@ -4,3 +4,61 @@ body,
   height: 100%;
   margin: 0;
 }
+
+/* 侧栏折叠过渡：隐藏溢出、固定 Logo 占位，减少 Menu 闪动 */
+.admin-shell-sider {
+  .ant-layout-sider-children {
+    overflow: hidden;
+  }
+
+  &__brand {
+    position: relative;
+    height: 56px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: #fff;
+    font-weight: 600;
+    font-size: 16px;
+    line-height: 56px;
+    text-align: center;
+    overflow: hidden;
+  }
+
+  &__brand-full,
+  &__brand-mini {
+    position: absolute;
+    inset: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    transition: opacity 0.2s ease;
+  }
+
+  &__brand-full {
+    opacity: 1;
+  }
+
+  &__brand-mini {
+    opacity: 0;
+  }
+
+  &.ant-layout-sider-collapsed {
+    .admin-shell-sider__brand-full {
+      opacity: 0;
+    }
+
+    .admin-shell-sider__brand-mini {
+      opacity: 1;
+    }
+  }
+}
+
+.admin-shell-menu.ant-menu {
+  /* 折叠宽度动画期间关闭 padding/width 过渡，避免子菜单文字抖动 */
+  .ant-menu-submenu-title,
+  .ant-menu-item {
+    transition:
+      background 0.2s ease,
+      color 0.2s ease,
+      border-color 0.2s ease !important;
+  }
+}

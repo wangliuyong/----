@@ -1,7 +1,7 @@
 import { HomeOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
 import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
-import { useEffect, useMemo, useState, type ReactNode } from 'react';
+import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import {
   ADMIN_MENU_GROUPS,
   ADMIN_TABS,
@@ -13,6 +13,8 @@ import { isAdminStandalone } from '../utils/runtime';
 const { Header, Sider, Content } = Layout;
 
 const SIDER_COLLAPSED_KEY = 'admin-sider-collapsed';
+/** 与 Ant Design Sider 默认宽度过渡时长一致 */
+const SIDER_TRANSITION_MS = 200;
 
 /** 读取侧栏折叠偏好（本地持久化） */
 function readSiderCollapsed(): boolean {
@@ -45,31 +47,72 @@ export default function AdminShell({
   children,
 }: AdminShellProps) {
   const { token } = theme.useToken();
+  const initialCollapsed = readSiderCollapsed();
 
   /** 侧栏折叠：窄屏仅图标，悬停弹出子菜单 */
-  const [collapsed, setCollapsed] = useState(readSiderCollapsed);
+  const [collapsed, setCollapsed] = useState(initialCollapsed);
+  /**
+   * 展开动画结束后再恢复 inline SubMenu 的 openKeys，
+   * 避免侧栏变宽过程中子菜单在窄宽度下闪动
+   */
+  const [menuExpanded, setMenuExpanded] = useState(!initialCollapsed);
 
   /** 当前展开的分组；切换路由时自动展开所属分类 */
-  const [openKeys, setOpenKeys] = useState<string[]>(() => [findMenuGroupKeyByTab(tab)]);
+  const [openKeys, setOpenKeys] = useState<string[]>(() =>
+    initialCollapsed ? [] : [findMenuGroupKeyByTab(tab)],
+  );
+
+  const savedOpenKeysRef = useRef<string[]>([findMenuGroupKeyByTab(tab)]);
+  const restoreTimerRef = useRef<ReturnType<typeof setTimeout>>();
+
+  useEffect(
+    () => () => {
+      if (restoreTimerRef.current) clearTimeout(restoreTimerRef.current);
+    },
+    [],
+  );
 
   useEffect(() => {
-    if (collapsed) return;
+    if (collapsed || !menuExpanded) return;
     const groupKey = findMenuGroupKeyByTab(tab);
-    setOpenKeys((prev) => (prev.includes(groupKey) ? prev : [...prev, groupKey]));
-  }, [tab, collapsed]);
+    setOpenKeys((prev) => {
+      if (prev.includes(groupKey)) return prev;
+      const next = [...prev, groupKey];
+      savedOpenKeysRef.current = next;
+      return next;
+    });
+  }, [tab, collapsed, menuExpanded]);
+
+  const handleOpenChange: MenuProps['onOpenChange'] = (keys) => {
+    savedOpenKeysRef.current = keys;
+    setOpenKeys(keys);
+  };
 
   const handleSiderCollapse = (next: boolean) => {
-    setCollapsed(next);
+    if (restoreTimerRef.current) {
+      clearTimeout(restoreTimerRef.current);
+      restoreTimerRef.current = undefined;
+    }
+
     try {
       localStorage.setItem(SIDER_COLLAPSED_KEY, next ? '1' : '0');
     } catch {
       // 忽略隐私模式等无法写入 localStorage 的场景
     }
+
     if (next) {
-      setOpenKeys([]);
-    } else {
-      setOpenKeys([findMenuGroupKeyByTab(tab)]);
+      savedOpenKeysRef.current = openKeys.length > 0 ? openKeys : savedOpenKeysRef.current;
+      setMenuExpanded(false);
+      setCollapsed(true);
+      return;
     }
+
+    setCollapsed(false);
+    restoreTimerRef.current = setTimeout(() => {
+      setOpenKeys(savedOpenKeysRef.current);
+      setMenuExpanded(true);
+      restoreTimerRef.current = undefined;
+    }, SIDER_TRANSITION_MS);
   };
 
   /** SubMenu 结构：一级分组带 icon，侧栏折叠时展示分组图标 */
@@ -94,9 +137,16 @@ export default function AdminShell({
     }
   };
 
+  /** 折叠态或宽度过渡中不控制 openKeys，避免与 inlineCollapsed 冲突导致闪烁 */
+  const menuOpenProps: Pick<MenuProps, 'openKeys' | 'onOpenChange'> =
+    collapsed || !menuExpanded
+      ? {}
+      : { openKeys, onOpenChange: handleOpenChange };
+
   return (
     <Layout style={{ minHeight: '100vh' }}>
       <Sider
+        className="admin-shell-sider"
         collapsible
         collapsed={collapsed}
         onCollapse={handleSiderCollapse}
@@ -105,41 +155,29 @@ export default function AdminShell({
         breakpoint="lg"
         collapsedWidth={64}
         onBreakpoint={(broken) => {
-          // 小屏自动收拢侧栏，避免占用过多横向空间
           if (broken) {
+            savedOpenKeysRef.current = openKeys.length > 0 ? openKeys : savedOpenKeysRef.current;
+            setMenuExpanded(false);
             setCollapsed(true);
-            setOpenKeys([]);
           }
         }}
         theme="dark"
         style={{ boxShadow: '2px 0 8px rgba(0,0,0,0.08)' }}
       >
-        <div
-          style={{
-            height: 56,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            color: '#fff',
-            fontWeight: 600,
-            fontSize: collapsed ? 14 : 16,
-            borderBottom: '1px solid rgba(255,255,255,0.1)',
-            overflow: 'hidden',
-            whiteSpace: 'nowrap',
-          }}
-        >
-          {collapsed ? 'CMS' : 'CMS 后台'}
+        <div className="admin-shell-sider__brand">
+          <span className="admin-shell-sider__brand-full">CMS 后台</span>
+          <span className="admin-shell-sider__brand-mini">CMS</span>
         </div>
         <Menu
+          className="admin-shell-menu"
           theme="dark"
           mode="inline"
           inlineCollapsed={collapsed}
           selectedKeys={[tab]}
-          openKeys={openKeys}
-          onOpenChange={setOpenKeys}
           items={menuItems}
           onClick={handleMenuClick}
           style={{ borderInlineEnd: 0 }}
+          {...menuOpenProps}
         />
       </Sider>
 
