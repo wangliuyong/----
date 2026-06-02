@@ -1,13 +1,9 @@
-/** app-web 内子路由页面标识 */
-export type WebPageKey = 'home' | 'about' | 'blog' | 'projects' | 'contact' | 'links';
+/** React Router basename：前台路径均在站点根下，Qiankun / 独立运行均为 / */
+export function getRouterBasename(): string {
+  return '/';
+}
 
-/** 根据基座 pathname 解析当前应渲染的页面 */
-export function resolveWebPage(pathname: string): WebPageKey {
-  if (pathname === '/') return 'home';
-  if (pathname === '/about') return 'about';
-  if (pathname === '/blog' || pathname.startsWith('/blog/')) return 'blog';
-  if (pathname === '/projects') return 'projects';
-  if (pathname === '/contact') return 'contact';
-  if (pathname === '/links') return 'links';
-  return 'home';
+/** 博客详情页相对路径 */
+export function blogDetailPath(id: string | number): string {
+  return `/blog/${id}`;
 }

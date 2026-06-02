@@ -8,7 +8,9 @@ import {
   SubApp,
 } from '../../../../_shared/components';
 import { formatDate } from '../../../../_shared/utils';
+import { Link } from 'react-router-dom';
 import PageLoading from '../../components/_common/PageLoading';
+import { blogDetailPath } from '../../router/routes';
 import { renderMarkdownHtml } from '../../utils/markdown';
 import { useBlog } from './useBlog';
 
@@ -85,12 +87,12 @@ export default function BlogPage() {
         {articles.map((item) => (
           <AppListItem key={item.id}>
             <h2 className="text-xl font-semibold font-serif">
-              <a
-                href={`/blog/${item.id}`}
+              <Link
+                to={blogDetailPath(item.id)}
                 className="app-list-item__title text-ink hover:no-underline"
               >
                 {item.title}
-              </a>
+              </Link>
             </h2>
             <p className="text-muted mt-1">{item.summary || ''}</p>
             <p className="text-sm text-faint mt-2">

@@ -1,13 +1,14 @@
 import { useCallback, useEffect, useMemo, useState } from 'react';
+import { useParams } from 'react-router-dom';
 import type { Article } from '../../../../_shared/contentTypes';
-import { useBlogRoute } from '../../../../_shared/hooks';
 import { useApiBase } from '../../context/ApiBaseContext';
 import { webApi } from '../../utils/webApi';
 
 /** 博客列表 / 详情数据与筛选状态 */
 export function useBlog() {
   const apiBase = useApiBase();
-  const { mode, articleId } = useBlogRoute();
+  const { id: articleId } = useParams();
+  const mode = articleId ? ('detail' as const) : ('list' as const);
   const [articles, setArticles] = useState<Article[]>([]);
   const [detail, setDetail] = useState<Article | null>(null);
   const [filterCategory, setFilterCategory] = useState('');
