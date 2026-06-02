@@ -2,7 +2,13 @@ import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helpe
 import App from './App';
 import 'antd/dist/reset.css';
 import './index.scss';
-import { mountReactApp, registerSubAppDevPort, unmountReactApp, type HostProps } from '../../_shared/mountApp';
+import {
+  mountReactApp,
+  registerSubAppDevPort,
+  unmountReactApp,
+  type HostProps,
+} from '../../_shared/mountApp';
+import { getStandaloneHostProps } from './utils/runtime';
 
 registerSubAppDevPort(4007);
 
@@ -13,6 +19,7 @@ renderWithQiankun({
   update: async () => {},
 });
 
+/** 非 Qiankun 环境：单独启动（pnpm dev / vite preview） */
 if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
-  mountReactApp(App, {});
+  mountReactApp(App, getStandaloneHostProps());
 }

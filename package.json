@@ -16,6 +16,7 @@
     "dev:web": "pnpm --dir next-host run dev",
     "dev:sub:web": "pnpm --dir qiankun-subapps/app-web run dev",
     "dev:sub:admin": "pnpm --dir qiankun-subapps/app-admin run dev",
+    "dev:admin:standalone": "concurrently -k -n api,admin -c blue,bgBlue \"pnpm run dev:api\" \"pnpm --dir qiankun-subapps/app-admin run dev:standalone\"",
     "build:api": "pnpm --dir nest-server run build",
     "build:web": "pnpm run build:subapps && pnpm --dir next-host run build"
   },

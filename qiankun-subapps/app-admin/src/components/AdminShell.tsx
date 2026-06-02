@@ -13,8 +13,14 @@ import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import type { ReactNode } from 'react';
 import type { AdminTab } from '../types';
+import { isAdminStandalone } from '../utils/runtime';
 
 const { Header, Sider, Content } = Layout;
+
+/** 独立运行时「返回前台」指向基座地址，否则为 / */
+const publicSiteHref = isAdminStandalone()
+  ? (import.meta.env.VITE_PUBLIC_URL || 'http://localhost:3000')
+  : '/';
 
 const MENU_ITEMS: { key: AdminTab; icon: ReactNode; label: string }[] = [
   { key: 'site', icon: <SettingOutlined />, label: '站点设置' },
@@ -96,7 +102,7 @@ export default function AdminShell({
           <Typography.Text type="secondary">内容管理系统</Typography.Text>
           <Space size="middle">
             <Typography.Text>你好，{username}</Typography.Text>
-            <Button type="link" icon={<HomeOutlined />} href="/" target="_blank">
+            <Button type="link" icon={<HomeOutlined />} href={publicSiteHref} target="_blank">
               返回前台
             </Button>
             <Button type="text" danger icon={<LogoutOutlined />} onClick={onLogout}>
