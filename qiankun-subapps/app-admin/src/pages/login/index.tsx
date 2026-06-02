@@ -1,12 +1,14 @@
 import { LockOutlined, UserOutlined } from '@ant-design/icons';
 import { Alert, Button, Card, Form, Input, Typography } from 'antd';
 import { useState } from 'react';
+import { useApiBase } from '../../context/ApiBaseContext';
 import { login } from '../../utils/adminApi';
 import { saveAuth } from '../../utils/auth';
 import type { LoginFormValues, LoginPageProps } from './types';
 
-/** 登录页（未鉴权时全屏展示） */
-export default function LoginPage({ apiBase, onSuccess }: LoginPageProps) {
+/** 路由 /login — 未鉴权时全屏登录 */
+export default function LoginPage({ onSuccess }: LoginPageProps) {
+  const apiBase = useApiBase();
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState('');
 

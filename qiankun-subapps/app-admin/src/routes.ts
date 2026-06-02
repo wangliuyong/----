@@ -17,50 +17,24 @@ export const SITE_DATA_TABS: AdminTab[] = ['site', 'nav', 'about', 'contact'];
 
 const TAB_SET = new Set<string>(ADMIN_TABS);
 
-/** 独立模式：/site；基座模式：/admin/site */
-function parseTabSegment(pathname: string): string | undefined {
-  if (isAdminStandalone()) {
-    const segment = pathname.replace(/^\/+/, '').split('/')[0];
-    return segment || undefined;
-  }
-
-  const match = pathname.match(/^\/admin(?:\/([^/?#]+))?/);
-  return match?.[1];
+/** React Router basename：独立 /，基座 /admin */
+export function getRouterBasename(): string {
+  return isAdminStandalone() ? '/' : '/admin';
 }
 
-/** 根据 pathname 解析当前 Tab */
+/**
+ * 从 React Router 相对 pathname 解析 Tab（侧栏高亮用）
+ * BrowserRouter basename 已剥离 /admin 前缀，此处只需处理 /site 等形式
+ */
 export function resolveAdminTab(pathname: string): AdminTab {
-  const segment = parseTabSegment(pathname);
+  const segment = pathname.replace(/^\/+/, '').split('/')[0];
   if (segment && TAB_SET.has(segment)) {
     return segment as AdminTab;
   }
   return 'site';
 }
 
-/** Tab 对应的 URL 路径 */
+/** Tab 对应的 React Router 相对路径（不含 basename） */
 export function adminTabPath(tab: AdminTab): string {
-  const suffix = `/${tab}`;
-  return isAdminStandalone() ? suffix : `/admin${suffix}`;
-}
-
-/** 侧栏切换 Tab：更新地址栏，usePathname 会同步 React 状态 */
-export function navigateAdminTab(tab: AdminTab) {
-  const path = adminTabPath(tab);
-  if (window.location.pathname !== path) {
-    history.pushState(null, '', path);
-  }
-}
-
-/** 进入根路径时归一化到默认 Tab（/ → /site 或 /admin → /admin/site） */
-export function normalizeAdminPathname(pathname: string) {
-  if (isAdminStandalone()) {
-    if (pathname === '/' || pathname === '') {
-      history.replaceState(null, '', adminTabPath('site'));
-    }
-    return;
-  }
-
-  if (pathname === '/admin' || pathname === '/admin/') {
-    history.replaceState(null, '', adminTabPath('site'));
-  }
+  return `/${tab}`;
 }
