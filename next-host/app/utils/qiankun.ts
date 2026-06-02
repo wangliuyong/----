@@ -2,16 +2,9 @@
 
 import { API_BASE } from './api';
 
-/** 子应用开发环境 entry（生产环境通过环境变量覆盖） */
-const ENTRIES = {
-  home: process.env.NEXT_PUBLIC_MICRO_HOME ?? 'http://localhost:4001',
-  about: process.env.NEXT_PUBLIC_MICRO_ABOUT ?? 'http://localhost:4002',
-  blog: process.env.NEXT_PUBLIC_MICRO_BLOG ?? 'http://localhost:4003',
-  projects: process.env.NEXT_PUBLIC_MICRO_PROJECTS ?? 'http://localhost:4004',
-  contact: process.env.NEXT_PUBLIC_MICRO_CONTACT ?? 'http://localhost:4005',
-  links: process.env.NEXT_PUBLIC_MICRO_LINKS ?? 'http://localhost:4006',
-  admin: process.env.NEXT_PUBLIC_MICRO_ADMIN ?? 'http://localhost:4007',
-};
+/** 前台统一子应用 entry（生产环境通过环境变量覆盖） */
+const WEB_ENTRY = process.env.NEXT_PUBLIC_MICRO_WEB ?? 'http://localhost:4001';
+const ADMIN_ENTRY = process.env.NEXT_PUBLIC_MICRO_ADMIN ?? 'http://localhost:4007';
 
 /** 基座向联系子应用暴露的回调（由 ContactCallbacks 写入） */
 export type HostCallbacks = {
@@ -38,52 +31,36 @@ let qiankunStarted = false;
 let qiankunRegistered = false;
 let qiankunLoading: Promise<void> | null = null;
 
+/** 匹配 app-web 内子路由对应的前台页面 */
+function isPublicSitePath(pathname: string): boolean {
+  if (pathname === '/') return true;
+  if (
+    pathname === '/about' ||
+    pathname === '/projects' ||
+    pathname === '/contact' ||
+    pathname === '/links'
+  ) {
+    return true;
+  }
+  if (pathname === '/blog' || pathname.startsWith('/blog/')) return true;
+  return false;
+}
+
 const microApps = [
   {
-    name: 'app-home',
-    entry: ENTRIES.home,
+    name: 'app-web',
+    entry: WEB_ENTRY,
     container: '#micro-container',
-    activeRule: (location: Location) => location.pathname === '/',
-  },
-  {
-    name: 'app-about',
-    entry: ENTRIES.about,
-    container: '#micro-container',
-    activeRule: '/about',
-  },
-  {
-    name: 'app-blog',
-    entry: ENTRIES.blog,
-    container: '#micro-container',
-    activeRule: (location: Location) => location.pathname.startsWith('/blog'),
-  },
-  {
-    name: 'app-projects',
-    entry: ENTRIES.projects,
-    container: '#micro-container',
-    activeRule: '/projects',
-  },
-  {
-    name: 'app-contact',
-    entry: ENTRIES.contact,
-    container: '#micro-container',
-    activeRule: '/contact',
+    activeRule: (location: Location) => isPublicSitePath(location.pathname),
     props: {
-      apiBase: API_BASE,
       get onMessageSuccess() {
         return window.__HOST_CALLBACKS__?.onMessageSuccess;
       },
     },
   },
   {
-    name: 'app-links',
-    entry: ENTRIES.links,
-    container: '#micro-container',
-    activeRule: '/links',
-  },
-  {
     name: 'app-admin',
-    entry: ENTRIES.admin,
+    entry: ADMIN_ENTRY,
     container: '#micro-container',
     activeRule: (location: Location) => location.pathname.startsWith('/admin'),
   },

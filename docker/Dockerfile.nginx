@@ -1,28 +1,13 @@
-# Nginx 镜像：构建 6 个子应用静态资源 + 反向代理配置
+# Nginx 镜像：构建子应用静态资源 + 反向代理配置
 FROM node:20-alpine AS subapps-builder
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /build
 
-# 复制共享工具与各子应用
 COPY qiankun-subapps/_shared ./qiankun-subapps/_shared
-
-# 子应用列表：目录名 → 生产 base 路径
-# 按顺序构建，每个子应用独立安装依赖
-COPY qiankun-subapps/app-home ./qiankun-subapps/app-home
-COPY qiankun-subapps/app-about ./qiankun-subapps/app-about
-COPY qiankun-subapps/app-blog ./qiankun-subapps/app-blog
-COPY qiankun-subapps/app-projects ./qiankun-subapps/app-projects
-COPY qiankun-subapps/app-contact ./qiankun-subapps/app-contact
-COPY qiankun-subapps/app-links ./qiankun-subapps/app-links
+COPY qiankun-subapps/app-web ./qiankun-subapps/app-web
 COPY qiankun-subapps/app-admin ./qiankun-subapps/app-admin
 
-# 构建各子应用（VITE_BASE 由环境变量注入）
-RUN cd qiankun-subapps/app-home && pnpm install && VITE_BASE=/micro/home/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
-RUN cd qiankun-subapps/app-about && pnpm install && VITE_BASE=/micro/about/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
-RUN cd qiankun-subapps/app-blog && pnpm install && VITE_BASE=/micro/blog/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
-RUN cd qiankun-subapps/app-projects && pnpm install && VITE_BASE=/micro/projects/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
-RUN cd qiankun-subapps/app-contact && pnpm install && VITE_BASE=/micro/contact/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
-RUN cd qiankun-subapps/app-links && pnpm install && VITE_BASE=/micro/links/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
+RUN cd qiankun-subapps/app-web && pnpm install && VITE_BASE=/micro/web/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 RUN cd qiankun-subapps/app-admin && pnpm install && VITE_BASE=/micro/admin/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 
 # ---------- Nginx 运行阶段 ----------
@@ -30,13 +15,7 @@ FROM nginx:1.27-alpine AS runner
 
 COPY docker/nginx.conf /etc/nginx/nginx.conf
 
-# 复制各子应用 dist 到 nginx 静态目录
-COPY --from=subapps-builder /build/qiankun-subapps/app-home/dist /usr/share/nginx/micro/home
-COPY --from=subapps-builder /build/qiankun-subapps/app-about/dist /usr/share/nginx/micro/about
-COPY --from=subapps-builder /build/qiankun-subapps/app-blog/dist /usr/share/nginx/micro/blog
-COPY --from=subapps-builder /build/qiankun-subapps/app-projects/dist /usr/share/nginx/micro/projects
-COPY --from=subapps-builder /build/qiankun-subapps/app-contact/dist /usr/share/nginx/micro/contact
-COPY --from=subapps-builder /build/qiankun-subapps/app-links/dist /usr/share/nginx/micro/links
+COPY --from=subapps-builder /build/qiankun-subapps/app-web/dist /usr/share/nginx/micro/web
 COPY --from=subapps-builder /build/qiankun-subapps/app-admin/dist /usr/share/nginx/micro/admin
 
 EXPOSE 80

@@ -32,7 +32,7 @@ export function QiankunProvider({ children }: QiankunProviderProps) {
       } catch (e) {
         console.error('[QiankunProvider] init failed', e);
         if (!cancelled) {
-          setError('微前端加载失败，请确认子应用已启动（4001–4006）');
+          setError('微前端加载失败，请确认子应用已启动（app-web :4001、app-admin :4007）');
         }
       }
     };

@@ -1,15 +1,11 @@
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap');
-
-#root {
-  width: 100%;
-}
-
 /**
  * 首页样式 — 刊物式极简（Ink & Sand）
+ * 仅由 HomeShell 所在模块引入，不进入其他页面的样式环境
  * 避免默认 Card 网格，以排版、留白与微动效营造高级感
  */
 
 .home {
+  width: 100%;
   --home-serif: 'Noto Serif SC', 'Songti SC', serif;
   --home-sans: 'IBM Plex Sans', 'PingFang SC', 'Helvetica Neue', sans-serif;
   --home-text: #141414;

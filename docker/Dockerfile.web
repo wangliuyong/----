@@ -2,29 +2,17 @@
 FROM node:20-alpine AS base
 RUN corepack enable && corepack prepare pnpm@9 --activate
 
-# ---------- 构建参数：生产环境公网地址 ----------
 ARG PUBLIC_ORIGIN=http://localhost
 ARG NEXT_PUBLIC_API_BASE
-ARG NEXT_PUBLIC_MICRO_HOME
-ARG NEXT_PUBLIC_MICRO_ABOUT
-ARG NEXT_PUBLIC_MICRO_BLOG
-ARG NEXT_PUBLIC_MICRO_PROJECTS
-ARG NEXT_PUBLIC_MICRO_CONTACT
-ARG NEXT_PUBLIC_MICRO_LINKS
+ARG NEXT_PUBLIC_MICRO_WEB
 ARG NEXT_PUBLIC_MICRO_ADMIN
 
 ENV NEXT_PUBLIC_API_BASE=${NEXT_PUBLIC_API_BASE:-${PUBLIC_ORIGIN}/api}
-ENV NEXT_PUBLIC_MICRO_HOME=${NEXT_PUBLIC_MICRO_HOME:-${PUBLIC_ORIGIN}/micro/home/}
-ENV NEXT_PUBLIC_MICRO_ABOUT=${NEXT_PUBLIC_MICRO_ABOUT:-${PUBLIC_ORIGIN}/micro/about/}
-ENV NEXT_PUBLIC_MICRO_BLOG=${NEXT_PUBLIC_MICRO_BLOG:-${PUBLIC_ORIGIN}/micro/blog/}
-ENV NEXT_PUBLIC_MICRO_PROJECTS=${NEXT_PUBLIC_MICRO_PROJECTS:-${PUBLIC_ORIGIN}/micro/projects/}
-ENV NEXT_PUBLIC_MICRO_CONTACT=${NEXT_PUBLIC_MICRO_CONTACT:-${PUBLIC_ORIGIN}/micro/contact/}
-ENV NEXT_PUBLIC_MICRO_LINKS=${NEXT_PUBLIC_MICRO_LINKS:-${PUBLIC_ORIGIN}/micro/links/}
+ENV NEXT_PUBLIC_MICRO_WEB=${NEXT_PUBLIC_MICRO_WEB:-${PUBLIC_ORIGIN}/micro/web/}
 ENV NEXT_PUBLIC_MICRO_ADMIN=${NEXT_PUBLIC_MICRO_ADMIN:-${PUBLIC_ORIGIN}/micro/admin/}
 
 WORKDIR /app/next-host
 
-# 安装 next-host 依赖
 COPY next-host/package.json next-host/pnpm-lock.yaml* ./
 RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
 
@@ -41,7 +29,6 @@ ENV NODE_ENV=production
 ENV PORT=3000
 ENV HOSTNAME=0.0.0.0
 
-# Next.js standalone 模式产物（若未启用 standalone 则复制 .next）
 COPY --from=base /app/next-host/package.json ./
 COPY --from=base /app/next-host/node_modules ./node_modules
 COPY --from=base /app/next-host/.next ./.next

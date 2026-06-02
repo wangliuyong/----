@@ -9,11 +9,6 @@ async function bootstrap() {
   const corsOrigins = [
     'http://localhost:3000',
     'http://localhost:4001',
-    'http://localhost:4002',
-    'http://localhost:4003',
-    'http://localhost:4004',
-    'http://localhost:4005',
-    'http://localhost:4006',
     'http://localhost:4007',
   ];
   if (process.env.CORS_ORIGIN) {

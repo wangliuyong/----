@@ -1,0 +1,23 @@
+import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
+import App from './App';
+import './index.scss';
+import 'prismjs/themes/prism-tomorrow.css';
+import {
+  mountReactApp,
+  registerSubAppDevPort,
+  unmountReactApp,
+  type HostProps,
+} from '../../_shared/mountApp';
+
+registerSubAppDevPort(4001);
+
+renderWithQiankun({
+  bootstrap: async () => console.log('[app-web] bootstrap'),
+  mount: (props: HostProps) => mountReactApp(App, props),
+  unmount: async () => unmountReactApp(),
+  update: async () => {},
+});
+
+if (!qiankunWindow.__POWERED_BY_QIANKUN__) {
+  mountReactApp(App, {});
+}

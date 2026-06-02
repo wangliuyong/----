@@ -7,13 +7,9 @@ Next.js 主基座 + Qiankun 微前端子应用 + NestJS 后端。
 ```
 ├── nest-server/         # NestJS + Prisma + SQLite API（端口 3001）
 ├── next-host/           # Next.js 14 主基座 + Qiankun（端口 3000）
-├── qiankun-subapps/     # 6 个 Vite + React 子应用（端口 4001–4006）
-│   ├── app-home/
-│   ├── app-about/
-│   ├── app-blog/
-│   ├── app-projects/
-│   ├── app-contact/
-│   └── app-links/
+├── qiankun-subapps/     # Vite + React 子应用
+│   ├── app-web/         # 前台统一子应用（首页 / 关于 / 博客 / 项目 / 联系 / 友链，端口 4001）
+│   └── app-admin/       # 管理后台（端口 4007）
 └── doc/                 # PRD 与技术方案
 ```
 
@@ -50,18 +46,17 @@ pnpm run dev:all
 
 等价命令：`pnpm run dev`（别名）
 
-会并行启动：后端 (3001)、主基座 (3000)、六个子应用 (4001–4006)。  
+会并行启动：后端 (3001)、主基座 (3000)、前台子应用 app-web (4001)、管理后台 app-admin (4007)。  
 浏览器访问：**http://localhost:3000**  
 按 `Ctrl+C` 可一次退出全部进程。
 
 ### 5. 分终端启动（可选）
 
-若需单独调试某个服务，仍可使用：
-
 ```bash
 pnpm run dev:api          # 后端
 pnpm run dev:web          # 主基座
-pnpm run dev:sub:home     # 子应用 4001 … 以此类推
+pnpm run dev:sub:web      # 前台子应用 4001
+pnpm run dev:sub:admin    # 管理后台 4007
 ```
 
 ## 生产构建
@@ -71,7 +66,7 @@ pnpm run build:subapps
 pnpm run build:web
 ```
 
-子应用静态资源部署后，在 `next-host/.env.local` 中配置 `NEXT_PUBLIC_MICRO_*` 为线上 entry 地址。
+子应用静态资源部署后，在 `next-host/.env.local` 中配置 `NEXT_PUBLIC_MICRO_WEB`、`NEXT_PUBLIC_MICRO_ADMIN` 为线上 entry 地址。
 
 ## 文档
 
