@@ -2,17 +2,23 @@ import { defineConfig } from 'vite';
 import react from '@vitejs/plugin-react';
 import qiankun from 'vite-plugin-qiankun';
 import {
-  qiankunDevServer,
+  createQiankunDevServer,
+  qiankunDevDefine,
+  qiankunFullReload,
   stripReactRefreshForQiankun,
 } from '../_shared/viteStripReactRefresh';
+
+const PORT = 4002;
 
 export default defineConfig(({ mode }) => ({
   plugins: [
     react({ fastRefresh: false }),
     qiankun('app-about', { useDevMode: mode === 'development' }),
     stripReactRefreshForQiankun(),
+    qiankunFullReload(),
   ],
-  server: { port: 4002, ...qiankunDevServer },
+  define: qiankunDevDefine(PORT, mode),
+  server: createQiankunDevServer(PORT),
   base: process.env.VITE_BASE || '/',
   build: { outDir: 'dist', assetsDir: 'static' },
 }));

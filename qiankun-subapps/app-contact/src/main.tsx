@@ -1,7 +1,9 @@
 import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helper';
 import App from './App';
 import './index.scss';
-import { mountReactApp, unmountReactApp, type HostProps } from '../../_shared/mountApp';
+import { mountReactApp, registerSubAppDevPort, unmountReactApp, type HostProps } from '../../_shared/mountApp';
+
+registerSubAppDevPort(4005);
 
 renderWithQiankun({
   bootstrap: async () => console.log('[app-contact] bootstrap'),

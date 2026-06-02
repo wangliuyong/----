@@ -2,7 +2,9 @@ import { renderWithQiankun, qiankunWindow } from 'vite-plugin-qiankun/dist/helpe
 import App from './App';
 import './index.scss';
 import 'prismjs/themes/prism-tomorrow.css';
-import { mountReactApp, unmountReactApp, type HostProps } from '../../_shared/mountApp';
+import { mountReactApp, registerSubAppDevPort, unmountReactApp, type HostProps } from '../../_shared/mountApp';
+
+registerSubAppDevPort(4003);
 
 renderWithQiankun({
   bootstrap: async () => console.log('[app-blog] bootstrap'),

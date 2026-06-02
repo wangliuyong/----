@@ -1,5 +1,6 @@
 import React from 'react';
 import ReactDOM from 'react-dom/client';
+import { setupQiankunHmr } from './dev/qiankunHmrClient';
 import { applyTheme, type GlobalState } from './theme';
 
 /** 子应用 mount 时基座传入的 props */
@@ -17,6 +18,11 @@ export interface HostProps {
 let root: ReactDOM.Root | null = null;
 let offGlobalState: (() => void) | null = null;
 
+/** 在 main.tsx 中调用，与 vite.config 里 PORT 保持一致 */
+export function registerSubAppDevPort(port: number) {
+  setupQiankunHmr(port);
+}
+
 /**
  * 统一挂载 React 子应用到 Qiankun 容器或独立 #root
  */
@@ -25,6 +31,7 @@ export function mountReactApp(
   props: HostProps,
 ) {
   const { container, theme, apiBase, onGlobalStateChange } = props;
+
   applyTheme(theme);
 
   if (onGlobalStateChange) {

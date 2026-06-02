@@ -3,9 +3,12 @@ import App from './App';
 import './index.scss';
 import {
   mountReactApp,
+  registerSubAppDevPort,
   unmountReactApp,
   type HostProps,
 } from '../../_shared/mountApp';
+
+registerSubAppDevPort(4001);
 
 async function bootstrap() {
   console.log('[app-home] bootstrap');
