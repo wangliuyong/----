@@ -4,7 +4,7 @@ import { Spin } from 'antd';
 export default function PageLoading() {
   return (
     <div style={{ textAlign: 'center', padding: 48 }}>
-      <Spin tip="加载中..." />
+      <Spin description="加载中..." />
     </div>
   );
 }

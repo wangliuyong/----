@@ -54,7 +54,7 @@ export default function NavPage() {
         </Space>
       }
     >
-      <Space direction="vertical" style={{ width: '100%' }} size="middle">
+      <Space orientation="vertical" style={{ width: '100%' }} size="middle">
         {items.map((item, index) => (
           <Space key={index} align="start" style={{ width: '100%' }}>
             <Input
