@@ -12,6 +12,7 @@ import {
 import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import type { ReactNode } from 'react';
+import { ADMIN_TABS, ADMIN_TAB_LABELS } from '../router/routes';
 import type { AdminTab } from '../types';
 import { isAdminStandalone } from '../utils/runtime';
 
@@ -22,15 +23,15 @@ const publicSiteHref = isAdminStandalone()
   ? (import.meta.env.VITE_PUBLIC_URL || 'http://localhost:3000')
   : '/';
 
-const MENU_ITEMS: { key: AdminTab; icon: ReactNode; label: string }[] = [
-  { key: 'site', icon: <SettingOutlined />, label: '站点设置' },
-  { key: 'nav', icon: <MenuOutlined />, label: '导航管理' },
-  { key: 'articles', icon: <FileTextOutlined />, label: '博客管理' },
-  { key: 'projects', icon: <ProjectOutlined />, label: '项目管理' },
-  { key: 'about', icon: <InfoCircleOutlined />, label: '关于我' },
-  { key: 'contact', icon: <MailOutlined />, label: '联系我' },
-  { key: 'messages', icon: <CommentOutlined />, label: '留言管理' },
-];
+const TAB_ICONS: Record<AdminTab, ReactNode> = {
+  site: <SettingOutlined />,
+  nav: <MenuOutlined />,
+  articles: <FileTextOutlined />,
+  projects: <ProjectOutlined />,
+  about: <InfoCircleOutlined />,
+  contact: <MailOutlined />,
+  messages: <CommentOutlined />,
+};
 
 interface AdminShellProps {
   username: string;
@@ -50,10 +51,10 @@ export default function AdminShell({
 }: AdminShellProps) {
   const { token } = theme.useToken();
 
-  const menuItems: MenuProps['items'] = MENU_ITEMS.map((item) => ({
-    key: item.key,
-    icon: item.icon,
-    label: item.label,
+  const menuItems: MenuProps['items'] = ADMIN_TABS.map((key) => ({
+    key,
+    icon: TAB_ICONS[key],
+    label: ADMIN_TAB_LABELS[key],
   }));
 
   return (
