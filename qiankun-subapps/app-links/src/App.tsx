@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
 import { apiUrl, fetchJson } from '../../_shared/api';
+import {
+  AppCard,
+  AppEmpty,
+  AppError,
+  PageTitle,
+  SubApp,
+} from '../../_shared/components';
 
 interface FriendLink {
   id: number;
@@ -8,6 +15,9 @@ interface FriendLink {
   description?: string;
   avatar?: string;
 }
+
+/** 无头像时取名称首字 */
+const avatarFallback = (name: string) => name.trim().charAt(0) || '?';
 
 /** 友链列表 */
 export default function App({ apiBase }: { apiBase: string }) {
@@ -22,28 +32,26 @@ export default function App({ apiBase }: { apiBase: string }) {
 
   if (error) {
     return (
-      <div className="sub-app">
-        <p className="text-red-500">{error}</p>
-      </div>
+      <SubApp>
+        <AppError message={error} />
+      </SubApp>
     );
   }
+
   if (!links.length) {
     return (
-      <div className="sub-app">
-        <p className="text-faint">暂无友链</p>
-      </div>
+      <SubApp>
+        <AppEmpty>暂无友链</AppEmpty>
+      </SubApp>
     );
   }
 
   return (
-    <div className="sub-app">
-      <h1 className="text-3xl font-bold mb-8 font-serif">友情链接</h1>
+    <SubApp>
+      <PageTitle className="mb-8">友情链接</PageTitle>
       <div className="space-y-4">
         {links.map((item) => (
-          <article
-            key={item.id}
-            className="app-card flex gap-4 border border-line rounded-lg p-4 bg-surface"
-          >
+          <AppCard as="article" key={item.id} className="flex gap-4 p-4">
             {item.avatar ? (
               <img
                 src={item.avatar}
@@ -51,7 +59,9 @@ export default function App({ apiBase }: { apiBase: string }) {
                 className="w-12 h-12 rounded-sm object-cover bg-line"
               />
             ) : (
-              <div className="w-12 h-12 rounded-sm bg-line shrink-0" />
+              <div className="w-12 h-12 rounded-sm bg-line shrink-0 flex items-center justify-center font-serif text-faint">
+                {avatarFallback(item.name)}
+              </div>
             )}
             <div>
               <h2 className="text-lg font-semibold font-serif">
@@ -68,9 +78,9 @@ export default function App({ apiBase }: { apiBase: string }) {
                 <p className="text-sm text-muted mt-1">{item.description}</p>
               )}
             </div>
-          </article>
+          </AppCard>
         ))}
       </div>
-    </div>
+    </SubApp>
   );
 }

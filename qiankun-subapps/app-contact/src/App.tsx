@@ -1,5 +1,14 @@
 import { FormEvent, useEffect, useState } from 'react';
 import { apiUrl } from '../../_shared/api';
+import {
+  AppAccentLink,
+  AppButton,
+  AppField,
+  AppInput,
+  PageTitle,
+  SectionTitle,
+  SubApp,
+} from '../../_shared/components';
 import { fetchSiteConfig } from '../../_shared/siteConfig';
 import type { HostProps } from '../../_shared/mountApp';
 
@@ -11,7 +20,7 @@ interface AppProps {
   hostProps?: HostProps;
 }
 
-/** 联系我：社交方式 + 留言表单（邮箱/GitHub 从 API 加载） */
+/** 联系我 */
 export default function App({ apiBase, hostProps }: AppProps) {
   const [nickname, setNickname] = useState('');
   const [contact, setContact] = useState('');
@@ -90,64 +99,49 @@ export default function App({ apiBase, hostProps }: AppProps) {
   };
 
   return (
-    <div className="sub-app">
-      <h1 className="text-3xl font-bold mb-6 font-serif">联系我</h1>
+    <SubApp>
+      <PageTitle className="mb-6">联系我</PageTitle>
       {intro && <p className="mb-4 text-muted">{intro}</p>}
       <div className="mb-8 text-muted space-y-1">
         <p>
           邮箱：
-          <a href={`mailto:${email}`} className="text-accent ml-1 border-b border-line hover:border-accent transition-colors">
-            {email}
-          </a>
+          <AppAccentLink href={`mailto:${email}`}>{email}</AppAccentLink>
         </p>
         <p>
           GitHub：
-          <a
-            href={githubUrl}
-            target="_blank"
-            rel="noopener noreferrer"
-            className="text-accent ml-1 border-b border-line hover:border-accent transition-colors"
-          >
+          <AppAccentLink href={githubUrl} target="_blank" rel="noopener noreferrer">
             {githubUrl}
-          </a>
+          </AppAccentLink>
         </p>
       </div>
 
-      <h2 className="text-2xl font-bold mb-4 font-serif">留言</h2>
+      <SectionTitle>留言</SectionTitle>
       <form onSubmit={handleSubmit} className="max-w-md space-y-4">
-        <label className="block text-sm text-muted">
-          昵称 *
-          <input
+        <AppField label="昵称" required>
+          <AppInput
             required
-            className="app-input mt-1"
             value={nickname}
             onChange={(e) => setNickname(e.target.value)}
           />
-        </label>
-        <label className="block text-sm text-muted">
-          联系方式（选填）
-          <input
-            className="app-input mt-1"
-            value={contact}
-            onChange={(e) => setContact(e.target.value)}
-          />
-        </label>
-        <label className="block text-sm text-muted">
-          留言内容 *
+        </AppField>
+        <AppField label="联系方式（选填）">
+          <AppInput value={contact} onChange={(e) => setContact(e.target.value)} />
+        </AppField>
+        <AppField label="留言内容" required>
           <textarea
             required
             rows={5}
-            className="app-input mt-1 resize-y min-h-[120px]"
+            className="app-input resize-y min-h-[120px]"
             value={content}
             onChange={(e) => setContent(e.target.value)}
           />
-        </label>
+        </AppField>
         {formError && <p className="text-red-500 text-sm">{formError}</p>}
         {formSuccess && <p className="text-accent text-sm">{formSuccess}</p>}
-        <button type="submit" disabled={submitting} className="app-btn">
+        <AppButton type="submit" disabled={submitting}>
           {submitting ? '提交中...' : '提交留言'}
-        </button>
+        </AppButton>
       </form>
-    </div>
+    </SubApp>
   );
 }

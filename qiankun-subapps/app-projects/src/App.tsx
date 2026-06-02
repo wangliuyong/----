@@ -1,5 +1,12 @@
 import { useEffect, useState } from 'react';
 import { apiUrl, fetchJson } from '../../_shared/api';
+import {
+  AppButtonGhost,
+  AppCard,
+  AppError,
+  PageTitle,
+  SubApp,
+} from '../../_shared/components';
 
 interface Project {
   id: number;
@@ -23,21 +30,18 @@ export default function App({ apiBase }: { apiBase: string }) {
 
   if (error) {
     return (
-      <div className="sub-app">
-        <p className="text-red-500">{error}</p>
-      </div>
+      <SubApp>
+        <AppError message={error} />
+      </SubApp>
     );
   }
 
   return (
-    <div className="sub-app">
-      <h1 className="text-3xl font-bold mb-8 font-serif">作品集</h1>
+    <SubApp>
+      <PageTitle className="mb-8">作品集</PageTitle>
       <div className="grid grid-cols-1 md:grid-cols-2 gap-6">
         {projects.map((item) => (
-          <article
-            key={item.id}
-            className="app-card border border-line rounded-lg p-5 bg-surface"
-          >
+          <AppCard as="article" key={item.id} className="p-5">
             <h2 className="text-xl font-bold font-serif">{item.name}</h2>
             <p className="text-muted mt-2">{item.desc}</p>
             {item.techStack && (
@@ -45,29 +49,29 @@ export default function App({ apiBase }: { apiBase: string }) {
             )}
             <div className="flex gap-4 mt-4">
               {item.githubUrl && (
-                <a
+                <AppButtonGhost
                   href={item.githubUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="app-btn-ghost text-sm"
+                  className="text-sm"
                 >
                   GitHub 源码
-                </a>
+                </AppButtonGhost>
               )}
               {item.previewUrl && (
-                <a
+                <AppButtonGhost
                   href={item.previewUrl}
                   target="_blank"
                   rel="noopener noreferrer"
-                  className="app-btn-ghost text-sm"
+                  className="text-sm"
                 >
                   在线预览
-                </a>
+                </AppButtonGhost>
               )}
             </div>
-          </article>
+          </AppCard>
         ))}
       </div>
-    </div>
+    </SubApp>
   );
 }
