@@ -5,6 +5,7 @@ import {
   DEFAULT_CONTACT,
   DEFAULT_NAV,
 } from '../src/site/site.types';
+import { seedRbac, ensureAdminSuperRole } from './rbac-seed';
 
 const prisma = new PrismaClient();
 
@@ -12,11 +13,15 @@ async function main() {
   // 管理员账号（默认 admin / admin123，生产环境请修改 ADMIN_PASSWORD）
   const adminPassword = process.env.ADMIN_PASSWORD || 'admin123';
   const hash = await bcrypt.hash(adminPassword, 10);
-  await prisma.adminUser.upsert({
+  const adminUser = await prisma.adminUser.upsert({
     where: { username: 'admin' },
     update: { password: hash },
-    create: { username: 'admin', password: hash },
+    create: { username: 'admin', password: hash, nickname: '管理员', status: 1 },
   });
+
+  // RBAC 菜单/权限/超管角色（仅 AdminModule 为空时初始化）
+  await seedRbac(prisma, adminUser.id);
+  await ensureAdminSuperRole(prisma, adminUser.id);
 
   // 站点全局配置：已有记录时不覆盖（部署时保留后台修改的内容）
   await prisma.siteConfig.upsert({

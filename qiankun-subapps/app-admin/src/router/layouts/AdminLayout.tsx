@@ -1,23 +1,30 @@
 import { useLocation, useNavigate } from 'react-router-dom';
 import AdminShell from '../../components/AdminShell';
+import { useAuth } from '../../context/AuthContext';
+import PageLoading from '../../components/_common/PageLoading';
 import { clearAuth, getUsername } from '../../utils/auth';
 import { CachedOutlet, useRouteCache } from '../cache';
-import { adminTabPath, resolveAdminTab } from '../routes';
+import { resolveMenuPath } from '../menuUtils';
 
-/**
- * 后台主布局：侧栏 + CachedOutlet（useOutlet 路由缓存）
- */
+/** 后台主布局：动态侧栏 + CachedOutlet */
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
   const { clearCache } = useRouteCache();
-  const tab = resolveAdminTab(location.pathname);
+  const { profile, loading } = useAuth();
+
+  if (loading || !profile) {
+    return <PageLoading />;
+  }
+
+  const currentPath = resolveMenuPath(location.pathname, profile.menus);
 
   return (
     <AdminShell
-      username={getUsername() || ''}
-      tab={tab}
-      onTabChange={(nextTab) => navigate(adminTabPath(nextTab))}
+      username={getUsername() || profile.username}
+      menus={profile.menus}
+      currentPath={currentPath}
+      onNavigate={(path) => navigate(`/${path}`)}
       onLogout={() => {
         clearAuth();
         clearCache();

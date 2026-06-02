@@ -6,12 +6,14 @@ import { LinkModule } from './link/link.module';
 import { MessageModule } from './message/message.module';
 import { PrismaModule } from './prisma/prisma.module';
 import { ProjectModule } from './project/project.module';
+import { RbacModule } from './rbac/rbac.module';
 import { SiteModule } from './site/site.module';
 
 @Module({
   imports: [
     PrismaModule,
     AuthModule,
+    RbacModule,
     SiteModule,
     AdminModule,
     ArticleModule,

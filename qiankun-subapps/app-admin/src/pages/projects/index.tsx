@@ -26,6 +26,9 @@ export default function ProjectsPage() {
       data={projects}
       loading={loading}
       error={error}
+      createPermission="admin:projects:create"
+      updatePermission="admin:projects:update"
+      deletePermission="admin:projects:delete"
       columns={columns}
       deleteConfirmTitle="确定删除该项目？"
       modalTitles={{ create: '新建项目', edit: '编辑项目' }}

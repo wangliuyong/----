@@ -3,6 +3,7 @@ import { Button, Card, Popconfirm, Table, message } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import PageError from '../../components/_common/PageError';
 import PageLoading from '../../components/_common/PageLoading';
+import PermissionGuard from '../../components/PermissionGuard';
 import { useApiBase } from '../../context/ApiBaseContext';
 import { adminApi } from '../../utils/adminApi';
 import type { Message } from '../../types';
@@ -36,9 +37,11 @@ export default function MessagesPage() {
       title: '操作',
       width: 80,
       render: (_, record) => (
-        <Popconfirm title="确定删除该留言？" onConfirm={() => handleDelete(record.id)}>
-          <Button type="link" size="small" danger icon={<DeleteOutlined />} />
-        </Popconfirm>
+        <PermissionGuard code="admin:messages:delete">
+          <Popconfirm title="确定删除该留言？" onConfirm={() => handleDelete(record.id)}>
+            <Button type="link" size="small" danger icon={<DeleteOutlined />} />
+          </Popconfirm>
+        </PermissionGuard>
       ),
     },
   ];

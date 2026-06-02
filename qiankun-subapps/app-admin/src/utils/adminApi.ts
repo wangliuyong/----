@@ -9,6 +9,14 @@ import type {
   Project,
   SiteConfig,
 } from '../types';
+import type {
+  AdminModuleRecord,
+  AdminPermissionItem,
+  AdminProfile,
+  AdminRoleRecord,
+  AdminUserRecord,
+  PermissionAssignNode,
+} from '../types/rbac';
 import { clearAuth, getToken } from './auth';
 
 /** 带 JWT 的管理端请求 */
@@ -141,4 +149,98 @@ export const adminApi = {
 
   deleteMessage: (apiBase: string, id: number) =>
     adminFetch<void>(apiBase, `/admin/messages/${id}`, { method: 'DELETE' }),
+
+  getProfile: (apiBase: string) =>
+    adminFetch<AdminProfile>(apiBase, '/admin/auth/profile'),
+
+  listModules: (apiBase: string) =>
+    adminFetch<AdminModuleRecord[]>(apiBase, '/admin/rbac/modules'),
+
+  createModule: (apiBase: string, data: Partial<AdminModuleRecord>) =>
+    adminFetch<AdminModuleRecord>(apiBase, '/admin/rbac/modules', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateModule: (apiBase: string, id: number, data: Partial<AdminModuleRecord>) =>
+    adminFetch<AdminModuleRecord>(apiBase, `/admin/rbac/modules/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteModule: (apiBase: string, id: number) =>
+    adminFetch<void>(apiBase, `/admin/rbac/modules/${id}`, { method: 'DELETE' }),
+
+  listModulePermissions: (apiBase: string, moduleId: number) =>
+    adminFetch<AdminPermissionItem[]>(apiBase, `/admin/rbac/modules/${moduleId}/permissions`),
+
+  createPermission: (apiBase: string, moduleId: number, data: Partial<AdminPermissionItem>) =>
+    adminFetch<AdminPermissionItem>(apiBase, `/admin/rbac/modules/${moduleId}/permissions`, {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updatePermission: (apiBase: string, id: number, data: Partial<AdminPermissionItem>) =>
+    adminFetch<AdminPermissionItem>(apiBase, `/admin/rbac/permissions/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deletePermission: (apiBase: string, id: number) =>
+    adminFetch<void>(apiBase, `/admin/rbac/permissions/${id}`, { method: 'DELETE' }),
+
+  getPermissionTree: (apiBase: string) =>
+    adminFetch<PermissionAssignNode[]>(apiBase, '/admin/rbac/permission-tree'),
+
+  listRoles: (apiBase: string) => adminFetch<AdminRoleRecord[]>(apiBase, '/admin/rbac/roles'),
+
+  createRole: (apiBase: string, data: Partial<AdminRoleRecord>) =>
+    adminFetch<AdminRoleRecord>(apiBase, '/admin/rbac/roles', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateRole: (apiBase: string, id: number, data: Partial<AdminRoleRecord>) =>
+    adminFetch<AdminRoleRecord>(apiBase, `/admin/rbac/roles/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteRole: (apiBase: string, id: number) =>
+    adminFetch<void>(apiBase, `/admin/rbac/roles/${id}`, { method: 'DELETE' }),
+
+  assignRolePermissions: (apiBase: string, id: number, permissionIds: number[]) =>
+    adminFetch<AdminRoleRecord>(apiBase, `/admin/rbac/roles/${id}/permissions`, {
+      method: 'PUT',
+      body: JSON.stringify({ permissionIds }),
+    }),
+
+  listUsers: (apiBase: string) => adminFetch<AdminUserRecord[]>(apiBase, '/admin/rbac/users'),
+
+  createUser: (apiBase: string, data: Record<string, unknown>) =>
+    adminFetch<AdminUserRecord>(apiBase, '/admin/rbac/users', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateUser: (apiBase: string, id: number, data: Record<string, unknown>) =>
+    adminFetch<AdminUserRecord>(apiBase, `/admin/rbac/users/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteUser: (apiBase: string, id: number) =>
+    adminFetch<void>(apiBase, `/admin/rbac/users/${id}`, { method: 'DELETE' }),
+
+  assignUserRoles: (apiBase: string, id: number, roleIds: number[]) =>
+    adminFetch<AdminUserRecord>(apiBase, `/admin/rbac/users/${id}/roles`, {
+      method: 'PUT',
+      body: JSON.stringify({ roleIds }),
+    }),
+
+  resetUserPassword: (apiBase: string, id: number, password: string) =>
+    adminFetch<{ ok: boolean }>(apiBase, `/admin/rbac/users/${id}/reset-password`, {
+      method: 'PUT',
+      body: JSON.stringify({ password }),
+    }),
 };

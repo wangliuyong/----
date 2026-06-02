@@ -46,10 +46,76 @@ model Link {
 
 /** 管理后台账号 */
 model AdminUser {
-  id        Int      @id @default(autoincrement())
-  username  String   @unique
+  id        Int             @id @default(autoincrement())
+  username  String          @unique
   password  String
-  createdAt DateTime @default(now())
+  nickname  String?
+  status    Int             @default(1)
+  createdAt DateTime        @default(now())
+  roles     AdminUserRole[]
+}
+
+/** 后台菜单/模块树 */
+model AdminModule {
+  id          Int               @id @default(autoincrement())
+  parentId    Int?
+  parent      AdminModule?      @relation("ModuleTree", fields: [parentId], references: [id])
+  children    AdminModule[]     @relation("ModuleTree")
+  name        String
+  code        String            @unique
+  type        String
+  path        String?
+  icon        String?
+  component   String?
+  sort        Int               @default(0)
+  status      Int               @default(1)
+  permissions AdminPermission[]
+  createdAt   DateTime          @default(now())
+  updatedAt   DateTime          @updatedAt
+}
+
+/** 菜单下权限点（菜单可见 / 按钮 / API） */
+model AdminPermission {
+  id       Int                   @id @default(autoincrement())
+  moduleId Int
+  module   AdminModule           @relation(fields: [moduleId], references: [id], onDelete: Cascade)
+  code     String                @unique
+  name     String
+  type     String
+  sort     Int                   @default(0)
+  roles    AdminRolePermission[]
+}
+
+/** 后台角色 */
+model AdminRole {
+  id          Int                   @id @default(autoincrement())
+  name        String
+  code        String                @unique
+  description String?
+  isSuper     Boolean               @default(false)
+  status      Int                   @default(1)
+  permissions AdminRolePermission[]
+  users       AdminUserRole[]
+  createdAt   DateTime              @default(now())
+  updatedAt   DateTime              @updatedAt
+}
+
+model AdminRolePermission {
+  roleId       Int
+  permissionId Int
+  role         AdminRole       @relation(fields: [roleId], references: [id], onDelete: Cascade)
+  permission   AdminPermission @relation(fields: [permissionId], references: [id], onDelete: Cascade)
+
+  @@id([roleId, permissionId])
+}
+
+model AdminUserRole {
+  userId Int
+  roleId Int
+  user   AdminUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  role   AdminRole @relation(fields: [roleId], references: [id], onDelete: Cascade)
+
+  @@id([userId, roleId])
 }
 
 /** 站点全局配置（单行，id 固定为 1） */

@@ -25,6 +25,9 @@ export default function LinksPage() {
       data={links}
       loading={loading}
       error={error}
+      createPermission="admin:links:create"
+      updatePermission="admin:links:update"
+      deletePermission="admin:links:delete"
       columns={columns}
       deleteConfirmTitle="确定删除该友链？"
       modalTitles={{ create: '新建友链', edit: '编辑友链' }}

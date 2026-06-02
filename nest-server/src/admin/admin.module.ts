@@ -4,10 +4,11 @@ import { ArticleModule } from '../article/article.module';
 import { LinkModule } from '../link/link.module';
 import { MessageModule } from '../message/message.module';
 import { ProjectModule } from '../project/project.module';
+import { RbacModule } from '../rbac/rbac.module';
 import { SiteModule } from '../site/site.module';
 
 @Module({
-  imports: [SiteModule, ArticleModule, ProjectModule, LinkModule, MessageModule],
+  imports: [SiteModule, ArticleModule, ProjectModule, LinkModule, MessageModule, RbacModule],
   controllers: [AdminController],
 })
 export class AdminModule {}

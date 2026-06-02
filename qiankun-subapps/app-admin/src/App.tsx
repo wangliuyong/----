@@ -1,6 +1,7 @@
 import { ConfigProvider, theme } from 'antd';
 import zhCN from 'antd/locale/zh_CN';
 import { ApiBaseProvider } from './context/ApiBaseContext';
+import { AuthProvider } from './context/AuthContext';
 import AdminRouter from './router';
 
 interface AppProps {
@@ -21,7 +22,9 @@ export default function App({ apiBase }: AppProps) {
       }}
     >
       <ApiBaseProvider apiBase={apiBase}>
-        <AdminRouter />
+        <AuthProvider>
+          <AdminRouter />
+        </AuthProvider>
       </ApiBaseProvider>
     </ConfigProvider>
   );

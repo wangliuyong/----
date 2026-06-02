@@ -31,6 +31,9 @@ export default function ArticlesPage() {
       data={articles}
       loading={loading}
       error={error}
+      createPermission="admin:articles:create"
+      updatePermission="admin:articles:update"
+      deletePermission="admin:articles:delete"
       columns={columns}
       deleteConfirmTitle="确定删除该文章？"
       modalTitles={{ create: '新建文章', edit: '编辑文章' }}
