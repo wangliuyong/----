@@ -24,7 +24,7 @@ export function useSiteConfig() {
         if (cfg.githubUrl) setGithubUrl(cfg.githubUrl);
         if (Array.isArray(cfg.nav) && cfg.nav.length) setNavItems(cfg.nav);
       })
-      .catch(() => {});
+      .catch(() => { });
   }, []);
 
   return { siteName, githubUrl, navItems };
