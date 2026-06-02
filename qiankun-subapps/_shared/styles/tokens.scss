@@ -1,28 +1,67 @@
 /**
- * 设计 Token — 与 app-home / next-host shell 一致
- * 主题色 #9a3412，暗色模式强调色 #ea580c
+ * 设计 Token — Ink & Sand（暖沙浅色 / 暖炭暗色）
+ * 基座 next-host 与子应用 app-web 共用
  */
 :root {
   --ed-serif: 'Noto Serif SC', 'Songti SC', serif;
   --ed-sans: 'IBM Plex Sans', 'PingFang SC', 'Helvetica Neue', sans-serif;
+
+  /* 背景层级 */
+  --ed-bg: #faf8f5;
+  --ed-bg-header: rgba(250, 248, 245, 0.88);
+  --ed-surface: rgba(255, 255, 255, 0.6);
+  --ed-surface-elevated: #ffffff;
+
+  /* 文字 */
   --ed-text: #141414;
   --ed-muted: #6f6a65;
   --ed-faint: #a8a29e;
+
+  /* 分割与阴影 */
   --ed-line: rgba(20, 20, 20, 0.08);
-  --ed-accent: #9a3412;
-  --ed-accent-soft: rgba(154, 52, 18, 0.08);
-  --ed-surface: rgba(255, 255, 255, 0.6);
   --ed-shadow: 0 24px 48px -32px rgba(20, 20, 20, 0.18);
+
+  /* 强调色 */
+  --ed-accent: #9a3412;
+  --ed-accent-hover: #7c2d12;
+  --ed-accent-soft: rgba(154, 52, 18, 0.08);
+  --ed-accent-border: rgba(154, 52, 18, 0.22);
+
+  /* 按钮 */
+  --ed-btn-bg: #141414;
+  --ed-btn-fg: #faf8f5;
+  --ed-btn-border: #141414;
+
+  /* 代码块 */
+  --ed-code-bg: #1a1a1a;
+  --ed-code-fg: #f3f4f6;
 }
 
 html.dark,
 .dark {
-  --ed-text: #eceae6;
-  --ed-muted: #a8a29e;
-  --ed-faint: #78716c;
-  --ed-line: rgba(255, 255, 255, 0.08);
-  --ed-accent: #ea580c;
-  --ed-accent-soft: rgba(234, 88, 12, 0.12);
-  --ed-surface: rgba(28, 28, 28, 0.5);
-  --ed-shadow: 0 24px 48px -32px rgba(0, 0, 0, 0.45);
+  /* 暖炭底 — 避免纯灰的「默认暗黑」感 */
+  --ed-bg: #121110;
+  --ed-bg-header: rgba(18, 17, 16, 0.92);
+  --ed-surface: rgba(32, 30, 28, 0.72);
+  --ed-surface-elevated: #1e1c1a;
+
+  --ed-text: #f0ebe4;
+  --ed-muted: #b8aea4;
+  --ed-faint: #7a7268;
+
+  --ed-line: rgba(240, 235, 228, 0.1);
+  --ed-shadow: 0 24px 48px -32px rgba(0, 0, 0, 0.55);
+
+  /* 暗色下略提亮橙赭，保证链接与按钮可读性 */
+  --ed-accent: #f97316;
+  --ed-accent-hover: #fb923c;
+  --ed-accent-soft: rgba(249, 115, 22, 0.14);
+  --ed-accent-border: rgba(249, 115, 22, 0.32);
+
+  --ed-btn-bg: #f97316;
+  --ed-btn-fg: #121110;
+  --ed-btn-border: #f97316;
+
+  --ed-code-bg: #0d0d0c;
+  --ed-code-fg: #e8e4df;
 }

@@ -30,10 +30,7 @@ export function ContactCallbacks({ children }: ContactCallbacksProps) {
   return (
     <>
       {toast && (
-        <div
-          role="status"
-          className="mb-4 px-4 py-2 rounded-md bg-green-100 dark:bg-green-900 text-green-800 dark:text-green-100 text-sm"
-        >
+        <div role="status" className="site-toast">
           {toast}
         </div>
       )}

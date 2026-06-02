@@ -10,6 +10,8 @@ export const accentThemeExtend = {
     faint: 'var(--ed-faint, #a8a29e)',
     line: 'var(--ed-line, rgba(20, 20, 20, 0.08))',
     surface: 'var(--ed-surface, rgba(255, 255, 255, 0.6))',
+    'surface-elevated': 'var(--ed-surface-elevated, #ffffff)',
+    sand: 'var(--ed-bg, #faf8f5)',
   },
   fontFamily: {
     serif: ['Noto Serif SC', 'Songti SC', 'serif'],

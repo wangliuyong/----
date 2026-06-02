@@ -66,12 +66,12 @@ export function SearchBar() {
   }, [query, items]);
 
   return (
-    <div className="relative">
+    <div className="site-search">
       <input
         type="search"
         placeholder="搜索文章/项目..."
         aria-label="全站搜索"
-        className="w-40 md:w-52 px-3 py-1.5 text-sm rounded-md border border-gray-300 dark:border-gray-600 bg-white dark:bg-gray-800"
+        className="site-search__input"
         value={query}
         onChange={(e) => {
           setQuery(e.target.value);
@@ -81,21 +81,21 @@ export function SearchBar() {
         onBlur={() => setTimeout(() => setOpen(false), 200)}
       />
       {open && query && (
-        <ul className="absolute right-0 mt-1 w-64 max-h-72 overflow-auto rounded-md border dark:border-gray-600 bg-white dark:bg-gray-800 shadow-lg z-50 text-sm">
+        <ul className="site-search__dropdown">
           {results.length === 0 ? (
-            <li className="px-3 py-2 text-gray-500">无匹配结果</li>
+            <li className="site-search__empty">无匹配结果</li>
           ) : (
             results.map((item) => (
               <li key={`${item.type}-${item.id}`}>
                 <Link
                   href={item.href}
-                  className="block px-3 py-2 hover:bg-gray-100 dark:hover:bg-gray-700"
+                  className="site-search__item"
                   onClick={() => setOpen(false)}
                 >
-                  <span className="text-xs text-gray-500">
+                  <span className="site-search__type">
                     {item.type === 'article' ? '文章' : '项目'}
                   </span>
-                  <div className="font-medium">{item.title}</div>
+                  <div className="site-search__title">{item.title}</div>
                 </Link>
               </li>
             ))

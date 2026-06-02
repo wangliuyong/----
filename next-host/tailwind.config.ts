@@ -1,4 +1,5 @@
 import type { Config } from 'tailwindcss';
+import { accentThemeExtend } from '../qiankun-subapps/_shared/tailwindAccentTheme.js';
 
 const config: Config = {
   content: [
@@ -8,7 +9,7 @@ const config: Config = {
   ],
   darkMode: 'class',
   theme: {
-    extend: {},
+    extend: accentThemeExtend,
   },
   plugins: [],
 };

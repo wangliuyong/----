@@ -49,13 +49,11 @@ export function QiankunProvider({ children }: QiankunProviderProps) {
 
       <div className="relative w-full min-h-[40vh]">
         {!ready && !error && (
-          <div className="absolute inset-0 z-10 flex items-center justify-center text-gray-500 text-sm pointer-events-none">
+          <div className="absolute inset-0 z-10 flex items-center justify-center site-loading pointer-events-none">
             页面加载中...
           </div>
         )}
-        {error && (
-          <div className="text-center py-20 text-red-500 text-sm">{error}</div>
-        )}
+        {error && <div className="site-error">{error}</div>}
         {/* 仅 Qiankun / 子应用可写入，React 永不向此节点内插入子元素 */}
         <div id="micro-container" className="w-full min-h-[40vh]" />
       </div>

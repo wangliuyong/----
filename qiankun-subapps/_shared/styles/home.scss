@@ -6,16 +6,17 @@
 
 .home {
   width: 100%;
-  --home-serif: 'Noto Serif SC', 'Songti SC', serif;
-  --home-sans: 'IBM Plex Sans', 'PingFang SC', 'Helvetica Neue', sans-serif;
-  --home-text: #141414;
-  --home-muted: #6f6a65;
-  --home-faint: #a8a29e;
-  --home-line: rgba(20, 20, 20, 0.08);
-  --home-accent: #9a3412;
-  --home-accent-soft: rgba(154, 52, 18, 0.08);
-  --home-surface: rgba(255, 255, 255, 0.6);
-  --home-shadow: 0 24px 48px -32px rgba(20, 20, 20, 0.18);
+  --home-serif: var(--ed-serif);
+  --home-sans: var(--ed-sans);
+  --home-text: var(--ed-text);
+  --home-muted: var(--ed-muted);
+  --home-faint: var(--ed-faint);
+  --home-line: var(--ed-line);
+  --home-accent: var(--ed-accent);
+  --home-accent-soft: var(--ed-accent-soft);
+  --home-surface: var(--ed-surface);
+  --home-shadow: var(--ed-shadow);
+  --home-accent-border: var(--ed-accent-border);
 
   font-family: var(--home-sans);
   color: var(--home-text);
@@ -23,17 +24,7 @@
   animation: home-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
-/* 暗黑模式：跟随基座 html.dark */
-:global(.dark) .home {
-  --home-text: #eceae6;
-  --home-muted: #a8a29e;
-  --home-faint: #78716c;
-  --home-line: rgba(255, 255, 255, 0.08);
-  --home-accent: #ea580c;
-  --home-accent-soft: rgba(234, 88, 12, 0.12);
-  --home-surface: rgba(28, 28, 28, 0.5);
-  --home-shadow: 0 24px 48px -32px rgba(0, 0, 0, 0.45);
-}
+/* 暗黑模式由 tokens.scss 统一驱动，此处无需重复定义 */
 
 @keyframes home-enter {
   from {
@@ -309,8 +300,8 @@
 
   &:hover {
     transform: translateY(-3px);
-    border-color: rgba(154, 52, 18, 0.22);
-    box-shadow: 0 28px 56px -28px rgba(154, 52, 18, 0.15);
+    border-color: var(--home-accent-border);
+    box-shadow: var(--home-shadow);
 
     .home-project-index {
       color: var(--home-accent);
