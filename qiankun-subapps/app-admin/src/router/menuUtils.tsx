@@ -1,6 +1,7 @@
 import type { MenuProps } from 'antd';
 import type { AdminMenuNode } from '../types/rbac';
 import { resolveIcon } from './iconRegistry';
+import { getRouterBasename } from './routes';
 
 /** 扁平化可访问的叶子菜单（type=menu 且有 path） */
 export function flattenLeafMenus(nodes: AdminMenuNode[]): AdminMenuNode[] {
@@ -23,9 +24,19 @@ export function getDefaultMenuPath(menus: AdminMenuNode[]): string {
   return leaf?.path ?? 'site';
 }
 
+/** 去掉 basename 前缀，得到菜单 path 片段 */
+function stripBasename(pathname: string): string {
+  let normalized = pathname.replace(/^\/+/, '').replace(/\/+$/, '');
+  const basename = getRouterBasename().replace(/^\/+/, '').replace(/\/+$/, '');
+  if (basename && (normalized === basename || normalized.startsWith(`${basename}/`))) {
+    normalized = normalized.slice(basename.length).replace(/^\/+/, '');
+  }
+  return normalized;
+}
+
 /** 从 pathname 解析当前菜单 path（支持 system/modules 等多段路径） */
 export function resolveMenuPath(pathname: string, menus: AdminMenuNode[]): string {
-  const normalized = pathname.replace(/^\/+/, '').replace(/\/+$/, '');
+  const normalized = stripBasename(pathname);
   const leaves = flattenLeafMenus(menus);
   const match = leaves
     .filter((m) => m.path)
@@ -39,22 +50,28 @@ export function isSidebarGroup(node: AdminMenuNode) {
   return node.type === 'dir' || (node.type === 'menu' && !node.path);
 }
 
-/** 查找 path 所属分组菜单 code */
-export function findDirCodeByPath(path: string, menus: AdminMenuNode[]): string {
-  let found = menus[0]?.code ?? '';
-  const walk = (nodes: AdminMenuNode[], groupCode: string) => {
+/** 查找 path 所属全部祖先分组菜单 code（多级 SubMenu 展开用） */
+export function findOpenGroupKeysByPath(path: string, menus: AdminMenuNode[]): string[] {
+  const keys: string[] = [];
+  const walk = (nodes: AdminMenuNode[], ancestors: string[]): boolean => {
     for (const node of nodes) {
-      const currentGroup = isSidebarGroup(node) ? node.code : groupCode;
+      const nextAncestors = isSidebarGroup(node) ? [...ancestors, node.code] : ancestors;
       if (node.type === 'menu' && node.path === path) {
-        found = currentGroup;
+        keys.push(...nextAncestors);
         return true;
       }
-      if (node.children?.length && walk(node.children, currentGroup)) return true;
+      if (node.children?.length && walk(node.children, nextAncestors)) return true;
     }
     return false;
   };
-  walk(menus, '');
-  return found;
+  walk(menus, []);
+  return keys;
+}
+
+/** @deprecated 使用 findOpenGroupKeysByPath */
+export function findDirCodeByPath(path: string, menus: AdminMenuNode[]): string {
+  const keys = findOpenGroupKeysByPath(path, menus);
+  return keys[keys.length - 1] ?? menus[0]?.code ?? '';
 }
 
 /** 动态菜单 -> Ant Design Menu items（仅菜单，不含权限点） */

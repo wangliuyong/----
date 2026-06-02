@@ -61,9 +61,15 @@ export function CachedOutlet() {
     cacheRef.current.set(activeKey, outlet);
   }
 
+  const entries = Array.from(cacheRef.current.entries());
+  // 无缓存时直接渲染当前 outlet，避免路由首屏空白
+  if (entries.length === 0) {
+    return outlet ?? null;
+  }
+
   return (
     <>
-      {Array.from(cacheRef.current.entries()).map(([key, element]) => (
+      {entries.map(([key, element]) => (
         <div
           key={key}
           role="tabpanel"

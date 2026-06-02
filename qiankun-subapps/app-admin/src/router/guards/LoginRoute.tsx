@@ -23,8 +23,9 @@ export default function LoginRoute() {
   return (
     <LoginPage
       onSuccess={async () => {
-        await reloadProfile();
-        navigate(from || '/', { replace: true });
+        const nextProfile = await reloadProfile();
+        const target = from || `/${getDefaultMenuPath(nextProfile?.menus ?? [])}`;
+        navigate(target, { replace: true });
       }}
     />
   );

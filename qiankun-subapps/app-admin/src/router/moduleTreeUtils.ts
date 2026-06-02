@@ -1,3 +1,4 @@
+import type { TreeSelectProps } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 import type { AdminModuleRecord, PermissionAssignNode } from '../types/rbac';
 import { buildModuleTree } from './menuUtils';
@@ -10,7 +11,6 @@ export interface ModuleAdminTreeNode {
   code: string;
   type: 'menu' | 'permission';
   path?: string | null;
-  component?: string | null;
   icon?: string | null;
   sort?: number;
   status?: number;
@@ -19,14 +19,67 @@ export interface ModuleAdminTreeNode {
   children?: ModuleAdminTreeNode[];
 }
 
-/** 是否为分组菜单（无路由，仅用于归类，兼容旧 dir 类型） */
-export function isMenuGroup(module: { type: string; path?: string | null; component?: string | null }) {
-  return module.type === 'dir' || (module.type === 'menu' && !module.path && !module.component);
+/** 是否为分组菜单（无路由，兼容旧 dir 类型） */
+export function isMenuGroup(module: { type: string; path?: string | null }) {
+  return module.type === 'dir' || (module.type === 'menu' && !module.path);
 }
 
 /** 是否为可访问页面菜单 */
 export function isPageMenu(module: { type: string; path?: string | null }) {
   return module.type === 'menu' && Boolean(module.path);
+}
+
+/** 收集某节点及其全部子孙 id（编辑时排除，防止循环引用） */
+export function collectDescendantIds(modules: AdminModuleRecord[], rootId: number): Set<number> {
+  const byParent = new Map<number, number[]>();
+  for (const m of modules) {
+    if (m.parentId != null) {
+      const list = byParent.get(m.parentId) ?? [];
+      list.push(m.id);
+      byParent.set(m.parentId, list);
+    }
+  }
+  const ids = new Set<number>([rootId]);
+  const stack = [rootId];
+  while (stack.length) {
+    const id = stack.pop()!;
+    for (const childId of byParent.get(id) ?? []) {
+      if (!ids.has(childId)) {
+        ids.add(childId);
+        stack.push(childId);
+      }
+    }
+  }
+  return ids;
+}
+
+/** 上级菜单 TreeSelect 数据：完整菜单树，仅分组菜单可选 */
+export function buildMenuParentTreeData(
+  modules: AdminModuleRecord[],
+  excludeId?: number,
+): NonNullable<TreeSelectProps['treeData']> {
+  const excludeIds = excludeId ? collectDescendantIds(modules, excludeId) : new Set<number>();
+  const menus = modules.filter(
+    (m) => (m.type === 'menu' || m.type === 'dir') && !excludeIds.has(m.id),
+  );
+  const tree = buildModuleTree(menus);
+
+  const mapNode = (
+    node: AdminModuleRecord & { children?: AdminModuleRecord[] },
+  ): NonNullable<TreeSelectProps['treeData']>[number] => {
+    const group = isMenuGroup(node);
+    return {
+      title: node.name,
+      value: node.id,
+      key: node.id,
+      /** 页面菜单展示在树中但不可选为上级 */
+      disabled: !group,
+      selectable: group,
+      children: node.children?.length ? node.children.map(mapNode) : undefined,
+    };
+  };
+
+  return tree.map(mapNode);
 }
 
 /** 菜单 + 权限点合并为同一棵树（权限点挂在所属菜单下，无子节点） */
@@ -53,7 +106,6 @@ export function buildModuleAdminTree(modules: AdminModuleRecord[]): ModuleAdminT
         code: node.code,
         type: 'menu' as const,
         path: node.path,
-        component: node.component,
         icon: node.icon,
         sort: node.sort,
         status: node.status,
@@ -86,12 +138,4 @@ export function buildPermissionAssignTreeData(flat: PermissionAssignNode[]): Dat
   };
 
   return tree.map(mapNode);
-}
-
-/** 可选上级菜单（分组菜单或顶级，不能选权限点） */
-export function listMenuParentOptions(modules: AdminModuleRecord[]) {
-  return modules
-    .filter((m) => m.type === 'menu' || m.type === 'dir')
-    .filter((m) => isMenuGroup(m) || !m.parentId)
-    .map((m) => ({ label: m.name, value: m.id }));
 }

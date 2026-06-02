@@ -3,7 +3,7 @@ import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AdminMenuNode } from '../types/rbac';
-import { buildMenuItems, findDirCodeByPath, isMenuGroupKey } from '../router/menuUtils';
+import { buildMenuItems, findOpenGroupKeysByPath, isMenuGroupKey } from '../router/menuUtils';
 import { isAdminStandalone } from '../utils/runtime';
 
 const { Header, Sider, Content } = Layout;
@@ -45,8 +45,8 @@ export default function AdminShell({
   const initialCollapsed = readSiderCollapsed();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [menuExpanded, setMenuExpanded] = useState(!initialCollapsed);
-  const [openKeys, setOpenKeys] = useState<string[]>(() => [findDirCodeByPath(currentPath, menus)]);
-  const savedOpenKeysRef = useRef<string[]>([findDirCodeByPath(currentPath, menus)]);
+  const [openKeys, setOpenKeys] = useState<string[]>(() => findOpenGroupKeysByPath(currentPath, menus));
+  const savedOpenKeysRef = useRef<string[]>(findOpenGroupKeysByPath(currentPath, menus));
   const restoreTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   useEffect(
@@ -58,10 +58,17 @@ export default function AdminShell({
 
   useEffect(() => {
     if (collapsed || !menuExpanded) return;
-    const groupKey = findDirCodeByPath(currentPath, menus);
+    const groupKeys = findOpenGroupKeysByPath(currentPath, menus);
     setOpenKeys((prev) => {
-      if (prev.includes(groupKey)) return prev;
-      const next = [...prev, groupKey];
+      const next = [...prev];
+      let changed = false;
+      for (const key of groupKeys) {
+        if (!next.includes(key)) {
+          next.push(key);
+          changed = true;
+        }
+      }
+      if (!changed) return prev;
       savedOpenKeysRef.current = next;
       return next;
     });
@@ -103,12 +110,12 @@ export default function AdminShell({
     collapsed || !menuExpanded
       ? {}
       : {
-          openKeys,
-          onOpenChange: (keys) => {
-            savedOpenKeysRef.current = keys;
-            setOpenKeys(keys);
-          },
-        };
+        openKeys,
+        onOpenChange: (keys) => {
+          savedOpenKeysRef.current = keys;
+          setOpenKeys(keys);
+        },
+      };
 
   return (
     <Layout style={{ minHeight: '100vh' }}>

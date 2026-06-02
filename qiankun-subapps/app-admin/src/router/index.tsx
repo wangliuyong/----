@@ -15,7 +15,7 @@ export default function AdminRouter() {
     [profile?.menus],
   );
 
-  if (isLoggedIn() && loading) {
+  if (isLoggedIn() && loading && !profile) {
     return <PageLoading />;
   }
 

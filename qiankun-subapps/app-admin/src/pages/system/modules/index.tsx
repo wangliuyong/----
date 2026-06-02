@@ -10,6 +10,7 @@ import {
   Space,
   Table,
   Tag,
+  TreeSelect,
   message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
@@ -20,15 +21,18 @@ import PermissionGuard from '../../../components/PermissionGuard';
 import { useApiBase } from '../../../context/ApiBaseContext';
 import { ICON_OPTIONS } from '../../../router/iconRegistry';
 import {
+  buildMenuParentTreeData,
   buildModuleAdminTree,
   isMenuGroup,
   isPageMenu,
-  listMenuParentOptions,
   type ModuleAdminTreeNode,
 } from '../../../router/moduleTreeUtils';
-import { PAGE_REGISTRY_OPTIONS } from '../../../router/pageRegistry';
+import { isPathRegistered } from '../../../router/pageRegistry';
 import type { AdminModuleRecord } from '../../../types/rbac';
 import { adminApi } from '../../../utils/adminApi';
+
+/** 菜单表单模式：一级新建 / 行内子菜单 / 编辑 */
+type MenuFormMode = 'create-top' | 'create-child' | 'edit';
 
 /** 模块管理：菜单与权限点同一棵树，权限点为叶子且不可展开 */
 export default function ModulesPage() {
@@ -38,6 +42,8 @@ export default function ModulesPage() {
   const [error, setError] = useState('');
 
   const [menuModal, setMenuModal] = useState(false);
+  const [menuFormMode, setMenuFormMode] = useState<MenuFormMode>('create-top');
+  const [childParentMenu, setChildParentMenu] = useState<AdminModuleRecord | null>(null);
   const [editingMenu, setEditingMenu] = useState<Partial<AdminModuleRecord> | null>(null);
   const [menuForm] = Form.useForm();
 
@@ -63,18 +69,48 @@ export default function ModulesPage() {
   }, [loadModules]);
 
   const treeData = useMemo(() => buildModuleAdminTree(modules), [modules]);
-  const parentOptions = useMemo(() => listMenuParentOptions(modules), [modules]);
+  const parentTreeData = useMemo(
+    () => buildMenuParentTreeData(modules, menuFormMode === 'edit' ? editingMenu?.id : undefined),
+    [modules, menuFormMode, editingMenu?.id],
+  );
 
-  const openMenuForm = (record?: AdminModuleRecord) => {
-    setEditingMenu(record ?? {});
-    if (record) {
-      menuForm.setFieldsValue({
-        ...record,
-        isGroup: isMenuGroup(record),
-      });
-    } else {
-      menuForm.setFieldsValue({ type: 'menu', sort: 0, status: 1, isGroup: false });
-    }
+  const openTopLevelMenuForm = () => {
+    setMenuFormMode('create-top');
+    setChildParentMenu(null);
+    setEditingMenu({});
+    menuForm.setFieldsValue({
+      type: 'menu',
+      sort: 0,
+      status: 1,
+      isGroup: true,
+      parentId: undefined,
+    });
+    setMenuModal(true);
+  };
+
+  /** 在任意分组菜单下新建子菜单（上级可在树中调整，支持无限层级） */
+  const openChildMenuForm = (parent: AdminModuleRecord) => {
+    setMenuFormMode('create-child');
+    setChildParentMenu(parent);
+    setEditingMenu({});
+    menuForm.setFieldsValue({
+      type: 'menu',
+      sort: 0,
+      status: 1,
+      isGroup: true,
+      parentId: parent.id,
+    });
+    setMenuModal(true);
+  };
+
+  const openMenuFormEdit = (record: AdminModuleRecord) => {
+    setMenuFormMode('edit');
+    setChildParentMenu(null);
+    setEditingMenu(record);
+    menuForm.setFieldsValue({
+      ...record,
+      isGroup: isMenuGroup(record),
+    });
     setMenuModal(true);
   };
 
@@ -85,6 +121,12 @@ export default function ModulesPage() {
     setPermModal(true);
   };
 
+  const menuModalTitle = useMemo(() => {
+    if (menuFormMode === 'edit') return '编辑菜单';
+    if (menuFormMode === 'create-child') return `新建子菜单 — ${childParentMenu?.name ?? ''}`;
+    return '新建一级菜单';
+  }, [menuFormMode, childParentMenu?.name]);
+
   const saveMenu = async () => {
     const values = await menuForm.validateFields();
     const isGroup = Boolean(values.isGroup);
@@ -92,12 +134,16 @@ export default function ModulesPage() {
       name: values.name,
       code: values.code,
       type: 'menu',
-      parentId: values.parentId,
+      parentId:
+        menuFormMode === 'create-top'
+          ? undefined
+          : menuFormMode === 'create-child'
+            ? childParentMenu?.id
+            : values.parentId,
       sort: values.sort,
       status: values.status,
       icon: values.icon,
       path: isGroup ? undefined : values.path,
-      component: isGroup ? undefined : values.component,
     };
     if (editingMenu?.id) {
       await adminApi.updateModule(apiBase, editingMenu.id, payload);
@@ -142,14 +188,21 @@ export default function ModulesPage() {
     {
       title: '路由',
       dataIndex: 'path',
-      width: 140,
-      render: (v: string | null | undefined, row) => (row.type === 'permission' ? '—' : v || '（分组）'),
-    },
-    {
-      title: '组件',
-      dataIndex: 'component',
-      width: 120,
-      render: (v: string | null | undefined, row) => (row.type === 'permission' ? '—' : v || '—'),
+      width: 200,
+      render: (v: string | null | undefined, row) => {
+        if (row.type === 'permission') return '—';
+        if (!v) return '（分组）';
+        return (
+          <Space size={4}>
+            <span>{v}</span>
+            {isPathRegistered(v) ? (
+              <Tag color="green">已匹配</Tag>
+            ) : (
+              <Tag color="red">未找到页面</Tag>
+            )}
+          </Space>
+        );
+      },
     },
     {
       title: '状态',
@@ -160,7 +213,7 @@ export default function ModulesPage() {
     },
     {
       title: '操作',
-      width: 260,
+      width: 300,
       render: (_, record) => {
         if (record.type === 'permission') {
           return (
@@ -202,26 +255,32 @@ export default function ModulesPage() {
         }
 
         const menuRecord = modules.find((m) => m.id === record.moduleId);
-        const canAddPerm = menuRecord && isPageMenu(menuRecord);
 
         return (
           <Space wrap>
+            {menuRecord && isMenuGroup(menuRecord) && (
+              <PermissionGuard code="admin:system:modules:create">
+                <Button type="link" size="small" onClick={() => openChildMenuForm(menuRecord)}>
+                  新增
+                </Button>
+              </PermissionGuard>
+            )}
+            {menuRecord && isPageMenu(menuRecord) && (
+              <PermissionGuard code="admin:system:modules:update">
+                <Button type="link" size="small" onClick={() => openPermForm(menuRecord)}>
+                  新增
+                </Button>
+              </PermissionGuard>
+            )}
             <PermissionGuard code="admin:system:modules:update">
               <Button
                 type="link"
                 size="small"
-                onClick={() => menuRecord && openMenuForm(menuRecord)}
+                onClick={() => menuRecord && openMenuFormEdit(menuRecord)}
               >
                 编辑
               </Button>
             </PermissionGuard>
-            {canAddPerm && (
-              <PermissionGuard code="admin:system:modules:update">
-                <Button type="link" size="small" onClick={() => menuRecord && openPermForm(menuRecord)}>
-                  新增权限点
-                </Button>
-              </PermissionGuard>
-            )}
             <PermissionGuard code="admin:system:modules:delete">
               <Popconfirm
                 title="确定删除？请先删除子菜单"
@@ -250,8 +309,8 @@ export default function ModulesPage() {
       title="模块管理"
       extra={
         <PermissionGuard code="admin:system:modules:create">
-          <Button type="primary" onClick={() => openMenuForm()}>
-            新建菜单
+          <Button type="primary" onClick={openTopLevelMenuForm}>
+            新建
           </Button>
         </PermissionGuard>
       }
@@ -268,7 +327,7 @@ export default function ModulesPage() {
       />
 
       <Modal
-        title={editingMenu?.id ? '编辑菜单' : '新建菜单'}
+        title={menuModalTitle}
         open={menuModal}
         onCancel={() => setMenuModal(false)}
         onOk={saveMenu}
@@ -282,28 +341,63 @@ export default function ModulesPage() {
           <Form.Item name="code" label="编码" rules={[{ required: true }]}>
             <Input disabled={Boolean(editingMenu?.id)} />
           </Form.Item>
-          <Form.Item name="isGroup" label="菜单类别" initialValue={false}>
+          {menuFormMode === 'create-top' && (
+            <Form.Item label="上级菜单">
+              <Input value="无（顶级）" disabled />
+            </Form.Item>
+          )}
+          {menuFormMode === 'create-child' && (
+            <>
+              <Form.Item name="parentId" hidden>
+                <Input />
+              </Form.Item>
+              <Form.Item label="上级菜单">
+                <Input value={childParentMenu?.name ?? ''} disabled />
+              </Form.Item>
+            </>
+          )}
+          {menuFormMode === 'edit' && (
+            <Form.Item
+              name="parentId"
+              label="上级菜单"
+              extra="仅分组菜单可选，支持任意层级嵌套"
+            >
+              <TreeSelect
+                allowClear
+                showSearch
+                treeDefaultExpandAll
+                treeLine
+                treeData={parentTreeData}
+                placeholder="无（顶级）"
+                style={{ width: '100%' }}
+                dropdownStyle={{ maxHeight: 360, overflow: 'auto' }}
+                filterTreeNode={(input, node) =>
+                  String(node.title ?? '')
+                    .toLowerCase()
+                    .includes(input.trim().toLowerCase())
+                }
+              />
+            </Form.Item>
+          )}
+          <Form.Item name="isGroup" label="菜单类别">
             <Select
               options={[
                 { label: '分组菜单（仅归类，无页面）', value: true },
-                { label: '页面菜单（可配置路由与组件）', value: false },
+                { label: '页面菜单（需配置路由 path）', value: false },
               ]}
             />
-          </Form.Item>
-          <Form.Item name="parentId" label="上级菜单">
-            <Select allowClear options={parentOptions} placeholder="无（顶级）" />
           </Form.Item>
           <Form.Item noStyle shouldUpdate={(prev, cur) => prev.isGroup !== cur.isGroup}>
             {({ getFieldValue }) =>
               !getFieldValue('isGroup') ? (
-                <>
-                  <Form.Item name="path" label="路由 path" rules={[{ required: true }]}>
-                    <Input placeholder="如 site 或 system/modules" />
-                  </Form.Item>
-                  <Form.Item name="component" label="页面组件" rules={[{ required: true }]}>
-                    <Select options={PAGE_REGISTRY_OPTIONS} />
-                  </Form.Item>
-                </>
+                <Form.Item
+                  name="path"
+                  label="路由 path"
+                  rules={[{ required: true }]}
+                  extra="与 pages 目录对应，如 site 或 system/modules"
+                >
+                  <Input placeholder="如 site 或 system/modules" />
+                </Form.Item>
               ) : null
             }
           </Form.Item>

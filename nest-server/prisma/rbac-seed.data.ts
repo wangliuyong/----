@@ -1,5 +1,5 @@
 /**
- * RBAC 初始菜单与权限点定义（与 app-admin pageRegistry 对齐）
+ * RBAC 初始菜单与权限点定义（path 与 app-admin pages 目录对齐）
  */
 
 export interface RbacPermissionDef {
@@ -16,7 +16,6 @@ export interface RbacModuleDef {
   type: 'menu';
   path?: string;
   icon?: string;
-  component?: string;
   sort: number;
   permissions?: RbacPermissionDef[];
   children?: RbacModuleDef[];
@@ -62,7 +61,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'site',
         icon: 'SettingOutlined',
-        component: 'SitePage',
         sort: 1,
         permissions: viewUpdatePermissions('admin:site', '站点设置'),
       },
@@ -72,7 +70,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'nav',
         icon: 'MenuOutlined',
-        component: 'NavPage',
         sort: 2,
         permissions: viewUpdatePermissions('admin:nav', '导航管理'),
       },
@@ -82,7 +79,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'about',
         icon: 'InfoCircleOutlined',
-        component: 'AboutPage',
         sort: 3,
         permissions: viewUpdatePermissions('admin:about', '关于我'),
       },
@@ -92,7 +88,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'contact',
         icon: 'MailOutlined',
-        component: 'ContactPage',
         sort: 4,
         permissions: viewUpdatePermissions('admin:contact', '联系我'),
       },
@@ -111,7 +106,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'articles',
         icon: 'FileTextOutlined',
-        component: 'ArticlesPage',
         sort: 1,
         permissions: crudPermissions('admin:articles', '博客'),
       },
@@ -121,7 +115,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'projects',
         icon: 'ProjectOutlined',
-        component: 'ProjectsPage',
         sort: 2,
         permissions: crudPermissions('admin:projects', '项目'),
       },
@@ -131,7 +124,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'links',
         icon: 'LinkOutlined',
-        component: 'LinksPage',
         sort: 3,
         permissions: crudPermissions('admin:links', '友链'),
       },
@@ -150,7 +142,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'messages',
         icon: 'CommentOutlined',
-        component: 'MessagesPage',
         sort: 1,
         permissions: viewDeletePermissions('admin:messages', '留言'),
       },
@@ -169,7 +160,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'system/modules',
         icon: 'BlockOutlined',
-        component: 'ModulesPage',
         sort: 1,
         permissions: crudPermissions('admin:system:modules', '模块'),
       },
@@ -179,7 +169,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'system/roles',
         icon: 'TeamOutlined',
-        component: 'RolesPage',
         sort: 2,
         permissions: [
           ...crudPermissions('admin:system:roles', '角色'),
@@ -192,7 +181,6 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
         type: 'menu',
         path: 'system/users',
         icon: 'UserOutlined',
-        component: 'UsersPage',
         sort: 3,
         permissions: [
           ...crudPermissions('admin:system:users', '用户'),

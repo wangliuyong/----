@@ -23,10 +23,6 @@ export class CreateModuleDto {
   icon?: string;
 
   @IsOptional()
-  @IsString()
-  component?: string;
-
-  @IsOptional()
   @IsInt()
   @Min(0)
   sort?: number;
@@ -56,10 +52,6 @@ export class UpdateModuleDto {
   @IsOptional()
   @IsString()
   icon?: string;
-
-  @IsOptional()
-  @IsString()
-  component?: string;
 
   @IsOptional()
   @IsInt()

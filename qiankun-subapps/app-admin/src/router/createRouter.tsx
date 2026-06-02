@@ -4,24 +4,22 @@ import type { AdminMenuNode } from '../types/rbac';
 import LoginRoute from './guards/LoginRoute';
 import RequireAuth from './guards/RequireAuth';
 import AdminLayout from './layouts/AdminLayout';
-import { flattenLeafMenus, getDefaultMenuPath } from './menuUtils';
-import { getPageComponent } from './pageRegistry';
+import { flattenLeafMenus } from './menuUtils';
+import { getPageByPath } from './pageRegistry';
 import { getRouterBasename } from './routes';
 
 const keepLoaderData: NonNullable<RouteObject['shouldRevalidate']> = () => false;
 
-/** 根据用户可访问菜单动态生成路由 */
+/** 根据用户可访问菜单动态生成路由（组件由 path 自动匹配 pages 目录） */
 export function createAdminRouter(menus: AdminMenuNode[]) {
-  const leafMenus = flattenLeafMenus(menus);
-  const defaultPath = getDefaultMenuPath(menus);
+  const leafMenus = flattenLeafMenus(menus).filter((m) => m.path && getPageByPath(m.path));
+  const defaultPath = leafMenus[0]?.path ?? 'site';
 
-  const adminTabRoutes: RouteObject[] = leafMenus
-    .filter((m) => m.path && m.component && getPageComponent(m.component))
-    .map((m) => ({
-      path: m.path!,
-      Component: getPageComponent(m.component)!,
-      shouldRevalidate: keepLoaderData,
-    }));
+  const adminTabRoutes: RouteObject[] = leafMenus.map((m) => ({
+    path: m.path!,
+    Component: getPageByPath(m.path)!,
+    shouldRevalidate: keepLoaderData,
+  }));
 
   return createBrowserRouter(
     [

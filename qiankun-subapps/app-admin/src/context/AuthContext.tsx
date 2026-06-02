@@ -15,7 +15,7 @@ import type { AdminProfile } from '../types/rbac';
 interface AuthContextValue {
   profile: AdminProfile | null;
   loading: boolean;
-  reloadProfile: () => Promise<void>;
+  reloadProfile: () => Promise<AdminProfile | null>;
   hasPermission: (code: string) => boolean;
 }
 
@@ -27,19 +27,21 @@ export function AuthProvider({ children }: { children: ReactNode }) {
   const [profile, setProfile] = useState<AdminProfile | null>(null);
   const [loading, setLoading] = useState(isLoggedIn());
 
-  const reloadProfile = useCallback(async () => {
+  const reloadProfile = useCallback(async (): Promise<AdminProfile | null> => {
     if (!isLoggedIn()) {
       setProfile(null);
       setLoading(false);
-      return;
+      return null;
     }
     setLoading(true);
     try {
       const data = await adminApi.getProfile(apiBase);
       setProfile(data);
+      return data;
     } catch {
       clearAuth();
       setProfile(null);
+      return null;
     } finally {
       setLoading(false);
     }

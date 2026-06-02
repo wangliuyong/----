@@ -8,7 +8,7 @@ import { CreateModuleDto, UpdateModuleDto } from './dto/module.dto';
 
 @Injectable()
 export class ModuleService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(private readonly prisma: PrismaService) { }
 
   findTree() {
     return this.prisma.adminModule.findMany({
@@ -18,13 +18,13 @@ export class ModuleService {
   }
 
   async create(dto: CreateModuleDto) {
-    this.assertMenuModule(dto);
+    await this.assertMenuModule(dto);
     return this.prisma.adminModule.create({ data: { ...dto, type: 'menu' } });
   }
 
   async update(id: number, dto: UpdateModuleDto) {
     const existing = await this.ensureExists(id);
-    this.assertMenuModule({ ...existing, ...dto });
+    await this.assertMenuModule({ ...existing, ...dto }, id);
     return this.prisma.adminModule.update({ where: { id }, data: { ...dto, type: 'menu' } });
   }
 
@@ -43,19 +43,55 @@ export class ModuleService {
     return row;
   }
 
-  /** 模块仅支持 menu：分组菜单无 path，页面菜单需 path + component */
-  private assertMenuModule(dto: {
-    path?: string | null;
-    component?: string | null;
-    type?: string;
-  }) {
+  /** 模块仅支持 menu：无 path 为分组菜单，有 path 为页面菜单 */
+  private async assertMenuModule(
+    dto: {
+      path?: string | null;
+      parentId?: number | null;
+      type?: string;
+    },
+    selfId?: number,
+  ) {
     if (dto.type && dto.type !== 'menu') {
       throw new BadRequestException('模块类型仅支持菜单');
     }
+
     const hasPath = Boolean(dto.path);
-    const hasComponent = Boolean(dto.component);
-    if (hasPath !== hasComponent) {
-      throw new BadRequestException('页面菜单需同时配置路由与组件，分组菜单两者均留空');
+
+    if (dto.parentId) {
+      const parent = await this.prisma.adminModule.findUnique({ where: { id: dto.parentId } });
+      if (!parent) throw new BadRequestException('上级菜单不存在');
+      if (parent.path) {
+        throw new BadRequestException('页面菜单下不能再挂子菜单，请选择分组菜单作为上级');
+      }
+      if (selfId) {
+        await this.assertNotDescendant(selfId, dto.parentId);
+      }
+    }
+
+    if (selfId && hasPath) {
+      const childCount = await this.prisma.adminModule.count({ where: { parentId: selfId } });
+      if (childCount > 0) {
+        throw new BadRequestException('已有子菜单的分组不能设置为页面菜单');
+      }
+    }
+  }
+
+  /** 防止将菜单挂到自身或子孙节点下 */
+  private async assertNotDescendant(selfId: number, parentId: number) {
+    if (selfId === parentId) {
+      throw new BadRequestException('不能将菜单设置到自身下');
+    }
+    let curId: number | null = parentId;
+    while (curId) {
+      if (curId === selfId) {
+        throw new BadRequestException('不能将菜单设置到其子菜单下');
+      }
+      const row = await this.prisma.adminModule.findUnique({
+        where: { id: curId },
+        select: { parentId: true },
+      });
+      curId = row?.parentId ?? null;
     }
   }
 }
