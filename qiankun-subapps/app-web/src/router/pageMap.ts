@@ -1,10 +1,12 @@
 import type { ComponentType } from 'react';
-import { AboutPage } from '../features/about';
-import { BlogPage } from '../features/blog';
-import { ContactPage } from '../features/contact';
-import { HomePage } from '../features/home';
-import { LinksPage } from '../features/links';
-import { ProjectsPage } from '../features/projects';
+import {
+  AboutPage,
+  BlogPage,
+  ContactPage,
+  HomePage,
+  LinksPage,
+  ProjectsPage,
+} from '../pages';
 import type { WebPageKey } from './routes';
 
 /**

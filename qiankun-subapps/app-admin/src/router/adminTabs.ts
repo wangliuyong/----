@@ -9,14 +9,16 @@ import {
   SettingOutlined,
 } from '@ant-design/icons';
 import type { ComponentType } from 'react';
-import { AboutPage } from '../features/about';
-import { ArticlesPage } from '../features/articles';
-import { ContactPage } from '../features/contact';
-import { LinksPage } from '../features/links';
-import { MessagesPage } from '../features/messages';
-import { NavPage } from '../features/nav';
-import { ProjectsPage } from '../features/projects';
-import { SitePage } from '../features/site';
+import {
+  AboutPage,
+  ArticlesPage,
+  ContactPage,
+  LinksPage,
+  MessagesPage,
+  NavPage,
+  ProjectsPage,
+  SitePage,
+} from '../pages';
 
 /**
  * 后台 Tab 单一数据源：顺序、文案、图标、页面组件
