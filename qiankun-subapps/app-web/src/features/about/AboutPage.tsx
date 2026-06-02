@@ -1,4 +1,3 @@
-import { useEffect, useState } from 'react';
 import {
   AppLinkRow,
   AppMark,
@@ -6,20 +5,12 @@ import {
   PageTitle,
   SectionTitle,
   SubApp,
-} from '../../../_shared/components';
-import { fetchSiteConfig, type SiteProfile } from '../../../_shared/siteConfig';
-import { profile as fallbackProfile } from '../data/profile';
+} from '../../../../_shared/components';
+import { useAbout } from './hooks/useAbout';
 
-/** 关于我（原 app-about） */
-export default function AboutPage({ apiBase }: { apiBase: string }) {
-  const [profile, setProfile] = useState<SiteProfile>(fallbackProfile);
-
-  useEffect(() => {
-    fetchSiteConfig(apiBase)
-      .then((cfg) => setProfile(cfg.about))
-      .catch(() => setProfile(fallbackProfile));
-  }, [apiBase]);
-
+/** 关于我 — 展示 Profile（原 app-about） */
+export default function AboutPage() {
+  const { profile } = useAbout();
   const {
     name,
     title,

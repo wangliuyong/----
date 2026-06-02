@@ -1,0 +1,1 @@
+export { useWebQuery } from './useWebQuery';

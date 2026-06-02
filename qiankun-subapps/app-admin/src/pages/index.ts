@@ -1,6 +1,7 @@
 export { default as AboutPage } from './about';
 export { default as ArticlesPage } from './articles';
 export { default as ContactPage } from './contact';
+export { default as LinksPage } from './links';
 export { default as LoginPage } from './login';
 export { default as MessagesPage } from './messages';
 export { default as NavPage } from './nav';

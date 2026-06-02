@@ -1,5 +1,4 @@
 import { apiUrl } from '../../../_shared/api';
-import { clearAuth, getToken } from './auth';
 import type {
   Article,
   ContactConfig,
@@ -10,6 +9,7 @@ import type {
   Project,
   SiteConfig,
 } from '../types';
+import { clearAuth, getToken } from './auth';
 
 /** 带 JWT 的管理端请求 */
 async function adminFetch<T>(
@@ -41,7 +41,7 @@ async function adminFetch<T>(
   return res.json() as Promise<T>;
 }
 
-/** 登录 */
+/** 登录（无需 JWT） */
 export async function login(
   apiBase: string,
   username: string,
@@ -120,6 +120,21 @@ export const adminApi = {
     adminFetch<void>(apiBase, `/admin/projects/${id}`, { method: 'DELETE' }),
 
   listLinks: (apiBase: string) => adminFetch<LinkItem[]>(apiBase, '/admin/links'),
+
+  createLink: (apiBase: string, data: Partial<LinkItem>) =>
+    adminFetch<LinkItem>(apiBase, '/admin/links', {
+      method: 'POST',
+      body: JSON.stringify(data),
+    }),
+
+  updateLink: (apiBase: string, id: number, data: Partial<LinkItem>) =>
+    adminFetch<LinkItem>(apiBase, `/admin/links/${id}`, {
+      method: 'PUT',
+      body: JSON.stringify(data),
+    }),
+
+  deleteLink: (apiBase: string, id: number) =>
+    adminFetch<void>(apiBase, `/admin/links/${id}`, { method: 'DELETE' }),
 
   listMessages: (apiBase: string) =>
     adminFetch<Message[]>(apiBase, '/admin/messages'),

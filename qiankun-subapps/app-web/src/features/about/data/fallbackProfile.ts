@@ -1,7 +1,7 @@
-import type { SiteProfile } from '../../../_shared/siteConfig';
+import type { SiteProfile } from '../../../../../_shared/siteConfig';
 
 /** 关于页静态资料（API 未就绪时兜底） */
-export const profile: SiteProfile = {
+export const fallbackProfile: SiteProfile = {
   name: '王刘永',
   title: '前端开发工程师（6 年经验）',
   location: '中国 · 杭州',

@@ -2,8 +2,8 @@ import { Navigate, createBrowserRouter, type RouteObject } from 'react-router-do
 import LoginRoute from './guards/LoginRoute';
 import RequireAuth from './guards/RequireAuth';
 import AdminLayout from './layouts/AdminLayout';
-import { ADMIN_PAGE_MAP } from './pageMap';
-import { ADMIN_TABS, getRouterBasename } from './routes';
+import { ADMIN_PAGE_MAP, ADMIN_TABS } from './adminTabs';
+import { getRouterBasename } from './routes';
 
 /**
  * Data Router 默认在导航时会 revalidate loader。

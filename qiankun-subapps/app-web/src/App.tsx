@@ -1,38 +1,26 @@
 import { useMemo } from 'react';
 import { usePathname } from '../../_shared/hooks';
 import type { HostProps } from '../../_shared/mountApp';
-import { resolveWebPage } from './routes';
-import AboutPage from './pages/AboutPage';
-import BlogPage from './pages/BlogPage';
-import ContactPage from './pages/ContactPage';
-import HomePage from './pages/HomePage';
-import LinksPage from './pages/LinksPage';
-import ProjectsPage from './pages/ProjectsPage';
+import { ApiBaseProvider } from './context/ApiBaseContext';
+import { HostPropsProvider } from './context/HostPropsContext';
+import { WEB_PAGE_MAP, resolveWebPage } from './router';
 
 interface AppProps {
   apiBase: string;
   hostProps?: HostProps;
 }
 
-/** 前台统一子应用：监听基座 pathname，渲染对应页面（保留各页原有样式与逻辑） */
+/** 前台统一子应用：监听基座 pathname，按 pageMap 渲染对应 feature 页面 */
 export default function App({ apiBase, hostProps }: AppProps) {
   const pathname = usePathname();
-  const page = useMemo(() => resolveWebPage(pathname), [pathname]);
+  const pageKey = useMemo(() => resolveWebPage(pathname), [pathname]);
+  const Page = WEB_PAGE_MAP[pageKey];
 
-  switch (page) {
-    case 'home':
-      return <HomePage apiBase={apiBase} />;
-    case 'about':
-      return <AboutPage apiBase={apiBase} />;
-    case 'blog':
-      return <BlogPage apiBase={apiBase} />;
-    case 'projects':
-      return <ProjectsPage apiBase={apiBase} />;
-    case 'contact':
-      return <ContactPage apiBase={apiBase} hostProps={hostProps} />;
-    case 'links':
-      return <LinksPage apiBase={apiBase} />;
-    default:
-      return <HomePage apiBase={apiBase} />;
-  }
+  return (
+    <ApiBaseProvider apiBase={apiBase}>
+      <HostPropsProvider hostProps={hostProps}>
+        <Page />
+      </HostPropsProvider>
+    </ApiBaseProvider>
+  );
 }

@@ -1,32 +1,15 @@
-import { useEffect, useState } from 'react';
-import { apiUrl, fetchJson } from '../../../_shared/api';
 import {
   AppButtonGhost,
   AppCard,
   AppError,
   PageTitle,
   SubApp,
-} from '../../../_shared/components';
-
-interface Project {
-  id: number;
-  name: string;
-  desc: string;
-  techStack?: string;
-  githubUrl?: string;
-  previewUrl?: string;
-}
+} from '../../../../_shared/components';
+import { useProjects } from './hooks/useProjects';
 
 /** 作品集列表与外链（原 app-projects） */
-export default function ProjectsPage({ apiBase }: { apiBase: string }) {
-  const [projects, setProjects] = useState<Project[]>([]);
-  const [error, setError] = useState('');
-
-  useEffect(() => {
-    fetchJson<Project[]>(apiUrl(apiBase, '/project/list'))
-      .then(setProjects)
-      .catch(() => setError('项目列表加载失败'));
-  }, [apiBase]);
+export default function ProjectsPage() {
+  const { projects, error } = useProjects();
 
   if (error) {
     return (

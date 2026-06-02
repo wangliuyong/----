@@ -1,22 +1,2 @@
-import type { ComponentType } from 'react';
-import {
-  AboutPage,
-  ArticlesPage,
-  ContactPage,
-  MessagesPage,
-  NavPage,
-  ProjectsPage,
-  SitePage,
-} from '../pages';
-import type { AdminTab } from '../types';
-
-/** Tab 与页面组件映射，新增后台页时在此注册 */
-export const ADMIN_PAGE_MAP: Record<AdminTab, ComponentType> = {
-  site: SitePage,
-  nav: NavPage,
-  articles: ArticlesPage,
-  projects: ProjectsPage,
-  about: AboutPage,
-  contact: ContactPage,
-  messages: MessagesPage,
-};
+/** 路由页面映射由 adminTabs 统一导出，保留本文件便于 createRouter 引用习惯 */
+export { ADMIN_PAGE_MAP } from './adminTabs';

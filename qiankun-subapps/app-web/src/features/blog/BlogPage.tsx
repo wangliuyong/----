@@ -1,5 +1,3 @@
-import { useCallback, useEffect, useMemo, useState } from 'react';
-import { apiUrl, fetchJson } from '../../../_shared/api';
 import {
   AppButton,
   AppInput,
@@ -8,74 +6,30 @@ import {
   ArticleBody,
   PageTitle,
   SubApp,
-} from '../../../_shared/components';
-import { useBlogRoute } from '../../../_shared/hooks';
-import { formatDate } from '../../../_shared/utils';
-import { renderMarkdownHtml } from '../utils/markdown';
-
-interface Article {
-  id: number;
-  title: string;
-  summary?: string;
-  content: string;
-  category?: string;
-  tags?: string;
-  publishedAt: string;
-}
+} from '../../../../_shared/components';
+import { formatDate } from '../../../../_shared/utils';
+import PageLoading from '../../components/_common/PageLoading';
+import { renderMarkdownHtml } from '../../utils/markdown';
+import { useBlog } from './hooks/useBlog';
 
 /** 博客：列表 / 详情 / 分类标签筛选（原 app-blog） */
-export default function BlogPage({ apiBase }: { apiBase: string }) {
-  const { mode, articleId } = useBlogRoute();
-  const [articles, setArticles] = useState<Article[]>([]);
-  const [detail, setDetail] = useState<Article | null>(null);
-  const [filterCategory, setFilterCategory] = useState('');
-  const [filterTag, setFilterTag] = useState('');
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState('');
-
-  const load = useCallback(async () => {
-    setLoading(true);
-    setError('');
-    try {
-      if (mode === 'detail' && articleId) {
-        const data = await fetchJson<Article>(
-          apiUrl(apiBase, `/article/${articleId}`),
-        );
-        setDetail(data);
-        setArticles([]);
-      } else {
-        const params = new URLSearchParams();
-        if (filterCategory) params.set('category', filterCategory);
-        if (filterTag) params.set('tag', filterTag);
-        const qs = params.toString() ? `?${params}` : '';
-        const list = await fetchJson<Article[]>(
-          apiUrl(apiBase, `/article/list${qs}`),
-        );
-        setArticles(list);
-        setDetail(null);
-      }
-    } catch {
-      setError('博客加载失败');
-    } finally {
-      setLoading(false);
-    }
-  }, [apiBase, mode, articleId, filterCategory, filterTag]);
-
-  useEffect(() => {
-    void load();
-  }, [load]);
-
-  const categories = useMemo(
-    () => [...new Set(articles.map((a) => a.category).filter(Boolean))] as string[],
-    [articles],
-  );
+export default function BlogPage() {
+  const {
+    mode,
+    articles,
+    detail,
+    filterCategory,
+    setFilterCategory,
+    filterTag,
+    setFilterTag,
+    categories,
+    loading,
+    error,
+    reload,
+  } = useBlog();
 
   if (loading) {
-    return (
-      <SubApp>
-        <p className="text-faint">加载中...</p>
-      </SubApp>
-    );
+    return <PageLoading />;
   }
 
   if (error) {
@@ -124,7 +78,7 @@ export default function BlogPage({ apiBase }: { apiBase: string }) {
           value={filterTag}
           onChange={(e) => setFilterTag(e.target.value)}
         />
-        <AppButton onClick={() => void load()}>筛选</AppButton>
+        <AppButton onClick={() => void reload()}>筛选</AppButton>
       </div>
 
       <div className="space-y-4">

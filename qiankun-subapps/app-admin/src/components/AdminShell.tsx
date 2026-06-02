@@ -1,19 +1,8 @@
-import {
-  CommentOutlined,
-  FileTextOutlined,
-  HomeOutlined,
-  InfoCircleOutlined,
-  LogoutOutlined,
-  MailOutlined,
-  MenuOutlined,
-  ProjectOutlined,
-  SettingOutlined,
-} from '@ant-design/icons';
+import { HomeOutlined, LogoutOutlined } from '@ant-design/icons';
 import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import type { ReactNode } from 'react';
-import { ADMIN_TABS, ADMIN_TAB_LABELS } from '../router/routes';
-import type { AdminTab } from '../types';
+import { ADMIN_TAB_CONFIG, type AdminTab } from '../router/adminTabs';
 import { isAdminStandalone } from '../utils/runtime';
 
 const { Header, Sider, Content } = Layout;
@@ -22,16 +11,6 @@ const { Header, Sider, Content } = Layout;
 const publicSiteHref = isAdminStandalone()
   ? (import.meta.env.VITE_PUBLIC_URL || 'http://localhost:3000')
   : '/';
-
-const TAB_ICONS: Record<AdminTab, ReactNode> = {
-  site: <SettingOutlined />,
-  nav: <MenuOutlined />,
-  articles: <FileTextOutlined />,
-  projects: <ProjectOutlined />,
-  about: <InfoCircleOutlined />,
-  contact: <MailOutlined />,
-  messages: <CommentOutlined />,
-};
 
 interface AdminShellProps {
   username: string;
@@ -51,10 +30,10 @@ export default function AdminShell({
 }: AdminShellProps) {
   const { token } = theme.useToken();
 
-  const menuItems: MenuProps['items'] = ADMIN_TABS.map((key) => ({
+  const menuItems: MenuProps['items'] = ADMIN_TAB_CONFIG.map(({ key, label, Icon }) => ({
     key,
-    icon: TAB_ICONS[key],
-    label: ADMIN_TAB_LABELS[key],
+    icon: <Icon />,
+    label,
   }));
 
   return (
