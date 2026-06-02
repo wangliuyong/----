@@ -1,12 +1,15 @@
-import { BrowserRouter } from 'react-router-dom';
-import AdminRouteTable from './routeTable';
-import { getRouterBasename } from './routes';
+import { useMemo } from 'react';
+import { RouterProvider } from 'react-router-dom';
+import { RouteCacheProvider } from './cache';
+import { createAdminRouter } from './createRouter';
 
-/** 管理后台路由入口：BrowserRouter + 路由表 */
+/** 管理后台路由入口：Data Router + Outlet 级缓存 */
 export default function AdminRouter() {
+  const router = useMemo(() => createAdminRouter(), []);
+
   return (
-    <BrowserRouter basename={getRouterBasename()}>
-      <AdminRouteTable />
-    </BrowserRouter>
+    <RouteCacheProvider>
+      <RouterProvider router={router} />
+    </RouteCacheProvider>
   );
 }

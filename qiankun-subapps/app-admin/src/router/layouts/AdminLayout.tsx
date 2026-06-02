@@ -1,15 +1,16 @@
-import { Outlet, useLocation, useNavigate } from 'react-router-dom';
+import { useLocation, useNavigate } from 'react-router-dom';
 import AdminShell from '../../components/AdminShell';
 import { clearAuth, getUsername } from '../../utils/auth';
+import { CachedOutlet, useRouteCache } from '../cache';
 import { adminTabPath, resolveAdminTab } from '../routes';
 
 /**
- * 后台主布局：侧栏导航 + 顶栏 + 子路由 Outlet
- * 子路由组件在 routeTable.tsx 中注册
+ * 后台主布局：侧栏 + CachedOutlet（useOutlet 路由缓存）
  */
 export default function AdminLayout() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { clearCache } = useRouteCache();
   const tab = resolveAdminTab(location.pathname);
 
   return (
@@ -19,10 +20,11 @@ export default function AdminLayout() {
       onTabChange={(nextTab) => navigate(adminTabPath(nextTab))}
       onLogout={() => {
         clearAuth();
+        clearCache();
         navigate('/login', { replace: true });
       }}
     >
-      <Outlet />
+      <CachedOutlet />
     </AdminShell>
   );
 }
