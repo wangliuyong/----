@@ -57,7 +57,8 @@ echo "==> 打包项目文件..."
 TAR_FILE="/tmp/personal-site-deploy.tar.gz"
 ENV_FILE="/tmp/personal-site.env"
 cd "$PROJECT_ROOT"
-tar czf "$TAR_FILE" \
+# macOS 打包时跳过 xattr，避免 Linux 解压时出现大量 LIBARCHIVE 警告
+COPYFILE_DISABLE=1 tar czf "$TAR_FILE" \
   --exclude='node_modules' \
   --exclude='.next' \
   --exclude='dist' \
