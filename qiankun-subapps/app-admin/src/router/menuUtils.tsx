@@ -45,6 +45,12 @@ export function resolveMenuPath(pathname: string, menus: AdminMenuNode[]): strin
   return match?.path ?? getDefaultMenuPath(menus);
 }
 
+/** 根据菜单 path 获取页面标题 */
+export function getMenuTitleByPath(path: string, menus: AdminMenuNode[]): string {
+  const match = flattenLeafMenus(menus).find((m) => m.path === path);
+  return match?.name ?? '内容管理系统';
+}
+
 /** 是否为侧栏分组节点（兼容旧 dir） */
 export function isSidebarGroup(node: AdminMenuNode) {
   return node.type === 'dir' || (node.type === 'menu' && !node.path);

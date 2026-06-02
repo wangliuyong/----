@@ -3,6 +3,7 @@ import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AdminMenuNode } from '../types/rbac';
+import { usePageTitle } from '../context/PageTitleContext';
 import { buildMenuItems, findOpenGroupKeysByPath, isMenuGroupKey } from '../router/menuUtils';
 import { isAdminStandalone } from '../utils/runtime';
 
@@ -41,6 +42,7 @@ export default function AdminShell({
   onLogout,
   children,
 }: AdminShellProps) {
+  const pageTitle = usePageTitle();
   const { token } = theme.useToken();
   const initialCollapsed = readSiderCollapsed();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
@@ -173,7 +175,7 @@ export default function AdminShell({
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => handleSiderCollapse(!collapsed)}
             />
-            <Typography.Text type="secondary">内容管理系统</Typography.Text>
+            <Typography.Text type="secondary">{pageTitle}</Typography.Text>
           </Space>
           <Space size="middle">
             <Typography.Text>你好，{username}</Typography.Text>

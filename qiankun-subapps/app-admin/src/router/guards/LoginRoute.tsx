@@ -1,7 +1,9 @@
 import { Navigate, useLocation, useNavigate } from 'react-router-dom';
+import { useEffect } from 'react';
 import { useAuth } from '../../context/AuthContext';
 import { LoginPage } from '../../pages';
 import { getDefaultMenuPath } from '../menuUtils';
+import { formatDocumentTitle, LOGIN_PAGE_TITLE } from '../pageTitle';
 import { isLoggedIn } from '../../utils/auth';
 
 interface LoginLocationState {
@@ -14,6 +16,10 @@ export default function LoginRoute() {
   const location = useLocation();
   const { profile, reloadProfile } = useAuth();
   const from = (location.state as LoginLocationState | null)?.from;
+
+  useEffect(() => {
+    document.title = formatDocumentTitle(LOGIN_PAGE_TITLE);
+  }, []);
 
   if (isLoggedIn() && profile) {
     const target = from || `/${getDefaultMenuPath(profile.menus)}`;

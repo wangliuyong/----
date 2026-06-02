@@ -2,6 +2,7 @@ import { Navigate, createBrowserRouter, type RouteObject } from 'react-router-do
 import ForbiddenPage from '../pages/forbidden';
 import type { AdminMenuNode } from '../types/rbac';
 import LoginRoute from './guards/LoginRoute';
+import PageTitleGuard from './guards/PageTitleGuard';
 import RequireAuth from './guards/RequireAuth';
 import AdminLayout from './layouts/AdminLayout';
 import { flattenLeafMenus } from './menuUtils';
@@ -28,11 +29,16 @@ export function createAdminRouter(menus: AdminMenuNode[]) {
         Component: RequireAuth,
         children: [
           {
-            Component: AdminLayout,
+            Component: PageTitleGuard,
             children: [
-              { index: true, element: <Navigate to={`/${defaultPath}`} replace /> },
-              ...adminTabRoutes,
-              { path: '403', Component: ForbiddenPage },
+              {
+                Component: AdminLayout,
+                children: [
+                  { index: true, element: <Navigate to={`/${defaultPath}`} replace /> },
+                  ...adminTabRoutes,
+                  { path: '403', Component: ForbiddenPage },
+                ],
+              },
             ],
           },
         ],
