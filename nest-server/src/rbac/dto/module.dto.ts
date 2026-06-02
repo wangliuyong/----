@@ -11,7 +11,7 @@ export class CreateModuleDto {
   @IsString()
   code!: string;
 
-  @IsIn(['dir', 'menu'])
+  @IsIn(['menu'])
   type!: string;
 
   @IsOptional()
@@ -46,7 +46,7 @@ export class UpdateModuleDto {
   name?: string;
 
   @IsOptional()
-  @IsIn(['dir', 'menu'])
+  @IsIn(['menu'])
   type?: string;
 
   @IsOptional()

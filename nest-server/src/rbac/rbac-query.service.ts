@@ -74,7 +74,10 @@ export class RbacQueryService {
 
     const viewableMenuIds = new Set<number>();
     if (isSuper) {
-      modules.filter((m) => m.type === 'menu').forEach((m) => viewableMenuIds.add(m.id));
+      modules
+        .filter((m) => m.type === 'menu' || m.type === 'dir')
+        .filter((m) => m.path)
+        .forEach((m) => viewableMenuIds.add(m.id));
     } else {
       const menuPerms = await this.prisma.adminPermission.findMany({
         where: { code: { in: permissionCodes }, type: 'menu' },
@@ -109,6 +112,7 @@ export class RbacQueryService {
       code: m.code,
       name: m.name,
       type: m.type,
+      path: m.path,
       parentId: m.parentId,
       permissions: m.permissions.map((p) => ({
         id: p.id,

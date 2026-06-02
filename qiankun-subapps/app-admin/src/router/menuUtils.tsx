@@ -34,17 +34,22 @@ export function resolveMenuPath(pathname: string, menus: AdminMenuNode[]): strin
   return match?.path ?? getDefaultMenuPath(menus);
 }
 
-/** 查找 path 所属一级目录 code（SubMenu openKeys） */
+/** 是否为侧栏分组节点（兼容旧 dir） */
+export function isSidebarGroup(node: AdminMenuNode) {
+  return node.type === 'dir' || (node.type === 'menu' && !node.path);
+}
+
+/** 查找 path 所属分组菜单 code */
 export function findDirCodeByPath(path: string, menus: AdminMenuNode[]): string {
   let found = menus[0]?.code ?? '';
-  const walk = (nodes: AdminMenuNode[], dirCode: string) => {
+  const walk = (nodes: AdminMenuNode[], groupCode: string) => {
     for (const node of nodes) {
-      const currentDir = node.type === 'dir' ? node.code : dirCode;
+      const currentGroup = isSidebarGroup(node) ? node.code : groupCode;
       if (node.type === 'menu' && node.path === path) {
-        found = currentDir;
+        found = currentGroup;
         return true;
       }
-      if (node.children?.length && walk(node.children, currentDir)) return true;
+      if (node.children?.length && walk(node.children, currentGroup)) return true;
     }
     return false;
   };
@@ -52,11 +57,11 @@ export function findDirCodeByPath(path: string, menus: AdminMenuNode[]): string 
   return found;
 }
 
-/** 动态菜单 -> Ant Design Menu items */
+/** 动态菜单 -> Ant Design Menu items（仅菜单，不含权限点） */
 export function buildMenuItems(menus: AdminMenuNode[]): MenuProps['items'] {
   return menus.map((node) => {
     const Icon = resolveIcon(node.icon);
-    if (node.type === 'dir') {
+    if (isSidebarGroup(node)) {
       return {
         key: node.code,
         icon: <Icon />,
@@ -64,12 +69,24 @@ export function buildMenuItems(menus: AdminMenuNode[]): MenuProps['items'] {
         children: node.children?.length ? buildMenuItems(node.children) : [],
       };
     }
-    return {
-      key: node.path ?? node.code,
-      icon: <Icon />,
-      label: node.name,
-    };
-  });
+    if (node.type === 'menu' && node.path) {
+      return {
+        key: node.path,
+        icon: <Icon />,
+        label: node.name,
+      };
+    }
+    return null;
+  }).filter(Boolean) as MenuProps['items'];
+}
+
+/** 点击分组菜单时不导航 */
+export function isMenuGroupKey(key: string, menus: AdminMenuNode[]): boolean {
+  for (const node of menus) {
+    if (isSidebarGroup(node) && node.code === key) return true;
+    if (node.children?.length && isMenuGroupKey(key, node.children)) return true;
+  }
+  return false;
 }
 
 /** 扁平模块列表转树（模块管理页） */

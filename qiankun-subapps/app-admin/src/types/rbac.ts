@@ -69,6 +69,7 @@ export interface PermissionAssignNode {
   code: string;
   name: string;
   type: string;
+  path?: string | null;
   parentId: number | null;
   permissions: AdminPermissionItem[];
 }

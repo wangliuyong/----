@@ -1,31 +1,12 @@
-import { Button, Form, Input, Modal, Select, Space, Tag, Tree, message } from 'antd';
+import { Button, Form, Input, Modal, Select, Tag, Tree, message } from 'antd';
 import type { DataNode } from 'antd/es/tree';
 import { useCallback, useEffect, useMemo, useState } from 'react';
 import AdminCrudPage from '../../../components/AdminCrudPage';
 import PermissionGuard from '../../../components/PermissionGuard';
 import { useApiBase } from '../../../context/ApiBaseContext';
+import { buildPermissionAssignTreeData } from '../../../router/moduleTreeUtils';
 import type { AdminRoleRecord, PermissionAssignNode } from '../../../types/rbac';
 import { adminApi } from '../../../utils/adminApi';
-
-/** 将扁平模块列表转为权限分配 Tree */
-function buildPermissionTreeData(nodes: PermissionAssignNode[]): DataNode[] {
-  const roots = nodes.filter((n) => !n.parentId && n.type === 'dir');
-  return roots.map((dir) => ({
-    key: `dir-${dir.id}`,
-    title: dir.name,
-    children: nodes
-      .filter((n) => n.parentId === dir.id)
-      .map((menu) => ({
-        key: `menu-${menu.id}`,
-        title: menu.name,
-        children: menu.permissions.map((p) => ({
-          key: p.id,
-          title: `${p.name} (${p.code})`,
-          isLeaf: true,
-        })),
-      })),
-  }));
-}
 
 /** 角色管理：CRUD + 权限树分配 */
 export default function RolesPage() {
@@ -54,7 +35,7 @@ export default function RolesPage() {
     load();
   }, [load]);
 
-  const treeData = useMemo(() => buildPermissionTreeData(permTree), [permTree]);
+  const treeData = useMemo(() => buildPermissionAssignTreeData(permTree), [permTree]);
 
   const openAssign = async (role: AdminRoleRecord) => {
     setActiveRole(role);

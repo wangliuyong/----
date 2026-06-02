@@ -18,12 +18,14 @@ export class ModuleService {
   }
 
   async create(dto: CreateModuleDto) {
-    return this.prisma.adminModule.create({ data: dto });
+    this.assertMenuModule(dto);
+    return this.prisma.adminModule.create({ data: { ...dto, type: 'menu' } });
   }
 
   async update(id: number, dto: UpdateModuleDto) {
-    await this.ensureExists(id);
-    return this.prisma.adminModule.update({ where: { id }, data: dto });
+    const existing = await this.ensureExists(id);
+    this.assertMenuModule({ ...existing, ...dto });
+    return this.prisma.adminModule.update({ where: { id }, data: { ...dto, type: 'menu' } });
   }
 
   async remove(id: number) {
@@ -39,5 +41,21 @@ export class ModuleService {
     const row = await this.prisma.adminModule.findUnique({ where: { id } });
     if (!row) throw new NotFoundException('模块不存在');
     return row;
+  }
+
+  /** 模块仅支持 menu：分组菜单无 path，页面菜单需 path + component */
+  private assertMenuModule(dto: {
+    path?: string | null;
+    component?: string | null;
+    type?: string;
+  }) {
+    if (dto.type && dto.type !== 'menu') {
+      throw new BadRequestException('模块类型仅支持菜单');
+    }
+    const hasPath = Boolean(dto.path);
+    const hasComponent = Boolean(dto.component);
+    if (hasPath !== hasComponent) {
+      throw new BadRequestException('页面菜单需同时配置路由与组件，分组菜单两者均留空');
+    }
   }
 }

@@ -3,7 +3,7 @@ import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
 import type { MenuProps } from 'antd';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AdminMenuNode } from '../types/rbac';
-import { buildMenuItems, findDirCodeByPath } from '../router/menuUtils';
+import { buildMenuItems, findDirCodeByPath, isMenuGroupKey } from '../router/menuUtils';
 import { isAdminStandalone } from '../utils/runtime';
 
 const { Header, Sider, Content } = Layout;
@@ -95,7 +95,7 @@ export default function AdminShell({
 
   const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
     const keyStr = String(key);
-    if (menus.some((m) => m.code === keyStr && m.type === 'dir')) return;
+    if (isMenuGroupKey(keyStr, menus)) return;
     onNavigate(keyStr);
   };
 

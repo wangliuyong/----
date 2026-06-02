@@ -12,7 +12,8 @@ export interface RbacPermissionDef {
 export interface RbacModuleDef {
   code: string;
   name: string;
-  type: 'dir' | 'menu';
+  /** 均为 menu：无 path 为分组菜单，有 path 为页面菜单 */
+  type: 'menu';
   path?: string;
   icon?: string;
   component?: string;
@@ -51,7 +52,7 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
   {
     code: 'site-config',
     name: '站点配置',
-    type: 'dir',
+    type: 'menu',
     icon: 'SettingOutlined',
     sort: 1,
     children: [
@@ -100,7 +101,7 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
   {
     code: 'content',
     name: '内容管理',
-    type: 'dir',
+    type: 'menu',
     icon: 'AppstoreOutlined',
     sort: 2,
     children: [
@@ -139,7 +140,7 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
   {
     code: 'interaction',
     name: '互动管理',
-    type: 'dir',
+    type: 'menu',
     icon: 'CommentOutlined',
     sort: 3,
     children: [
@@ -158,7 +159,7 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
   {
     code: 'system',
     name: '系统管理',
-    type: 'dir',
+    type: 'menu',
     icon: 'SafetyOutlined',
     sort: 4,
     children: [
