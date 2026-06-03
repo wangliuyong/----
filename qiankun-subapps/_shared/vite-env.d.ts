@@ -1,4 +1,6 @@
 /// <reference types="vite/client" />
+/// <reference types="react" />
+/// <reference types="react-dom" />
 
 /** 各子应用 vite.config 在 development 下注入的开发端口（可选 fallback） */
 declare const __SUBAPP_DEV_PORT__: number | undefined;

@@ -1,0 +1,16 @@
+{
+  "extends": "../app-web/tsconfig.json",
+  "compilerOptions": {
+    "baseUrl": "../app-web",
+    "paths": {
+      "react": ["node_modules/@types/react/index.d.ts"],
+      "react/jsx-runtime": ["node_modules/@types/react/jsx-runtime.d.ts"],
+      "react-dom": ["node_modules/@types/react-dom/index.d.ts"],
+      "react-dom/client": ["node_modules/@types/react-dom/client.d.ts"],
+      "vite": ["node_modules/vite/dist/node/index.d.ts"]
+    },
+    "noUnusedLocals": false,
+    "noUnusedParameters": false
+  },
+  "include": ["./**/*.ts", "./**/*.tsx", "./vite-env.d.ts"]
+}
