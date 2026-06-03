@@ -1,0 +1,18 @@
+/**
+ * 本地 Web 字体 — 通过 @fontsource 将 woff2 文件打包进构建产物，
+ * 替代 Google Fonts 远程 @import，避免外网依赖与 FOIT/FOUT 不可控。
+ *
+ * 字重与 tokens.scss 中 --ed-sans / --ed-serif 的用法一致：
+ * - IBM Plex Sans：400 / 500 / 600（正文、导航、按钮）
+ * - Noto Serif SC：400 / 600 / 700（标题、强调）
+ */
+
+/* IBM Plex Sans — 拉丁字符集（英文 UI） */
+@import '@fontsource/ibm-plex-sans/latin-400.css';
+@import '@fontsource/ibm-plex-sans/latin-500.css';
+@import '@fontsource/ibm-plex-sans/latin-600.css';
+
+/* Noto Serif SC — 简体中文字符集（标题衬线） */
+@import '@fontsource/noto-serif-sc/chinese-simplified-400.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-600.css';
+@import '@fontsource/noto-serif-sc/chinese-simplified-700.css';
