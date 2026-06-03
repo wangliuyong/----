@@ -1,6 +1,6 @@
 'use client';
 
-import { useCallback, useState, type CSSProperties } from 'react';
+import { useCallback, useEffect, useState, type CSSProperties } from 'react';
 import { useAiChat } from '@/hooks/useAiChat';
 import { useAiPanelPlacement } from '@/hooks/useAiPanelPlacement';
 import { useAiWidgetDrag } from '@/hooks/useAiWidgetDrag';
@@ -17,6 +17,7 @@ import { MascotAvatar } from './MascotAvatar';
 export function AiAssistantWidget() {
   const [hovered, setHovered] = useState(false);
   const [chatOpen, setChatOpen] = useState(false);
+  const [panelFullscreen, setPanelFullscreen] = useState(false);
   const { messages, streaming, sendMessage, clearMessages } = useAiChat();
 
   const handleOpen = useCallback(() => {
@@ -26,8 +27,23 @@ export function AiAssistantWidget() {
 
   const handleClose = useCallback(() => {
     setChatOpen(false);
+    setPanelFullscreen(false);
     setHovered(false);
   }, []);
+
+  const togglePanelFullscreen = useCallback(() => {
+    setPanelFullscreen((v) => !v);
+  }, []);
+
+  /** Esc 退出全屏（仍保持聊天打开） */
+  useEffect(() => {
+    if (!chatOpen || !panelFullscreen) return;
+    const onKeyDown = (e: KeyboardEvent) => {
+      if (e.key === 'Escape') setPanelFullscreen(false);
+    };
+    window.addEventListener('keydown', onKeyDown);
+    return () => window.removeEventListener('keydown', onKeyDown);
+  }, [chatOpen, panelFullscreen]);
 
   const { top, dragging, bindMascot } = useAiWidgetDrag(handleOpen);
   const { centerY: panelCenterY, maxHeight: panelMaxHeight } = useAiPanelPlacement(chatOpen);
@@ -49,7 +65,7 @@ export function AiAssistantWidget() {
 
   return (
     <div
-      className={`ai-widget ${chatOpen ? 'ai-widget--chat-open' : ''} ${hovered ? 'ai-widget--hovered' : ''} ${dragging ? 'ai-widget--dragging' : ''} ${folded ? 'ai-widget--folded' : ''}`}
+      className={`ai-widget ${chatOpen ? 'ai-widget--chat-open' : ''} ${panelFullscreen ? 'ai-widget--panel-fullscreen' : ''} ${hovered ? 'ai-widget--hovered' : ''} ${dragging ? 'ai-widget--dragging' : ''} ${folded ? 'ai-widget--folded' : ''}`}
       style={widgetStyle}
       aria-label="AI 站点助手"
     >
@@ -113,11 +129,22 @@ export function AiAssistantWidget() {
         <MascotAvatar peekedOut={hovered && !dragging} />
       </button>
 
+      {chatOpen && panelFullscreen && (
+        <button
+          type="button"
+          className="ai-widget__backdrop"
+          aria-label="退出全屏"
+          onClick={() => setPanelFullscreen(false)}
+        />
+      )}
+
       <section className="ai-widget__panel-wrap" aria-hidden={!chatOpen}>
         {chatOpen && (
           <ChatPanel
             messages={messages}
             streaming={streaming}
+            fullscreen={panelFullscreen}
+            onToggleFullscreen={togglePanelFullscreen}
             onSend={sendMessage}
             onClear={clearMessages}
             onClose={handleClose}

@@ -53,6 +53,11 @@
 }
 
 /* ========== 折叠态漫画喊话气泡 ========== */
+/* 半透明：不遮挡背后页面内容 */
+$shout-visible-opacity: 0.78;
+$shout-text-opacity: 0.82;
+$shout-wave-opacity: 0.5;
+
 /* 锯齿爆炸轮廓（clip-path），右侧尖角指向狗狗 */
 $shout-bubble-clip: polygon(
   4% 18%,
@@ -114,6 +119,7 @@ $shout-bubble-clip: polygon(
   flex-shrink: 0;
   color: var(--ed-text);
   overflow: visible;
+  opacity: $shout-wave-opacity;
 }
 
 .ai-widget__shout-wave {
@@ -123,12 +129,13 @@ $shout-bubble-clip: polygon(
 .ai-widget__shout-bubble {
   position: relative;
   padding: 0.42rem 0.72rem 0.42rem 0.62rem;
-  background: var(--ed-surface-elevated);
+  background: color-mix(in srgb, var(--ed-surface-elevated) 48%, transparent);
+  backdrop-filter: blur(8px) saturate(1.1);
   clip-path: $shout-bubble-clip;
-  /* drop-shadow 跟随 clip-path 轮廓，模拟漫画描边 + 轻阴影 */
+  /* 轻描边 + 弱阴影，降低视觉遮挡感 */
   filter:
-    drop-shadow(0 0 0 1px var(--ed-line))
-    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.08));
+    drop-shadow(0 0 0 1px color-mix(in srgb, var(--ed-line) 45%, transparent))
+    drop-shadow(0 2px 4px rgba(0, 0, 0, 0.04));
 }
 
 .ai-widget__shout-text {
@@ -139,7 +146,12 @@ $shout-bubble-clip: polygon(
   letter-spacing: 0.02em;
   white-space: nowrap;
   color: var(--ed-text);
+  opacity: $shout-text-opacity;
   transition: opacity 0.22s ease;
+}
+
+.ai-widget__shout-em {
+  color: color-mix(in srgb, var(--ed-accent) 75%, transparent);
 }
 
 /* 悬停文案默认隐藏，由 --hovered 切换 */
@@ -147,13 +159,9 @@ $shout-bubble-clip: polygon(
   display: none;
 }
 
-.ai-widget__shout-em {
-  color: var(--ed-accent);
-}
-
 .ai-widget--folded .ai-widget__shout,
 .ai-widget--hovered .ai-widget__shout {
-  opacity: 1;
+  opacity: $shout-visible-opacity;
   transform: translateY(-50%) translateX(0) scale(1);
 }
 
@@ -216,11 +224,11 @@ $shout-bubble-clip: polygon(
   }
   70% {
     transform: translateY(-50%) translateX(-2px) scale(1.05);
-    opacity: 1;
+    opacity: $shout-visible-opacity;
   }
   100% {
     transform: translateY(-50%) translateX(0) scale(1);
-    opacity: 1;
+    opacity: $shout-visible-opacity;
   }
 }
 
@@ -250,11 +258,11 @@ $shout-bubble-clip: polygon(
 @keyframes ai-shout-wave-pulse {
   0%,
   100% {
-    opacity: 0.35;
+    opacity: 0.2;
     transform: scaleX(0.85);
   }
   50% {
-    opacity: 1;
+    opacity: 0.55;
     transform: scaleX(1.08);
   }
 }
@@ -482,11 +490,34 @@ $shout-bubble-clip: polygon(
 }
 
 /* ========== 聊天面板（视口安全区内竖直居中，fixed 定位） ========== */
+.ai-widget__backdrop {
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  margin: 0;
+  padding: 0;
+  border: none;
+  background: color-mix(in srgb, var(--ed-text) 18%, transparent);
+  backdrop-filter: blur(3px);
+  cursor: pointer;
+  animation: ai-backdrop-in 0.35s ease;
+}
+
+@keyframes ai-backdrop-in {
+  from {
+    opacity: 0;
+  }
+  to {
+    opacity: 1;
+  }
+}
+
 .ai-widget__panel-wrap {
   position: fixed;
   right: 16px;
   top: var(--ai-panel-center-y, 50%);
-  width: min(28rem, calc(100vw - 2rem));
+  z-index: 1;
+  width: min(20rem, calc(100vw - 2rem));
   max-height: var(--ai-panel-max-h, calc(100vh - 5rem));
   height: var(--ai-panel-max-h, calc(100vh - 5rem));
   transform: translateY(-50%) translateX(calc(100% + 32px)) scale(0.94);
@@ -496,7 +527,9 @@ $shout-bubble-clip: polygon(
   transition:
     transform 0.5s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.4s ease,
-    visibility 0.4s;
+    visibility 0.4s,
+    width 0.45s cubic-bezier(0.22, 1, 0.36, 1),
+    right 0.45s cubic-bezier(0.22, 1, 0.36, 1);
   transform-origin: center right;
   filter: drop-shadow(0 24px 48px rgba(20, 16, 12, 0.12));
 }
@@ -506,6 +539,23 @@ $shout-bubble-clip: polygon(
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
+}
+
+/* 全屏：居中加宽，保留顶底安全区 */
+.ai-widget--panel-fullscreen .ai-widget__panel-wrap {
+  right: 50%;
+  width: min(48rem, calc(100vw - 2.5rem));
+  transform: translate(50%, -50%);
+  transform-origin: center center;
+  filter: drop-shadow(0 32px 64px rgba(20, 16, 12, 0.16));
+}
+
+.ai-widget--chat-open.ai-widget--panel-fullscreen .ai-widget__panel-wrap {
+  transform: translate(50%, -50%) scale(1);
+}
+
+.ai-widget--panel-fullscreen .ai-bubble__body {
+  max-width: 78%;
 }
 
 /* ========== 面板主体 — Ink & Sand 玻璃拟态 ========== */
@@ -552,8 +602,8 @@ $shout-bubble-clip: polygon(
   display: flex;
   align-items: center;
   justify-content: space-between;
-  gap: 12px;
-  padding: 1rem 1.1rem 0.95rem;
+  gap: 8px;
+  padding: 0.85rem 0.9rem 0.8rem;
   border-bottom: 1px solid color-mix(in srgb, var(--ed-line) 55%, transparent);
   background: color-mix(in srgb, var(--ed-accent-soft) 35%, transparent);
 }
@@ -586,26 +636,27 @@ $shout-bubble-clip: polygon(
 .ai-panel__identity {
   display: flex;
   align-items: center;
-  gap: 12px;
+  gap: 10px;
+  flex: 1;
   min-width: 0;
 }
 
 .ai-panel__avatar-ring {
   position: relative;
   flex-shrink: 0;
-  width: 44px;
-  height: 44px;
+  width: 38px;
+  height: 38px;
   display: grid;
   place-items: center;
-  border-radius: 14px;
+  border-radius: 12px;
   background: color-mix(in srgb, var(--ed-surface) 80%, transparent);
   border: 1px solid color-mix(in srgb, var(--ed-accent-border) 60%, transparent);
   box-shadow: 0 4px 12px color-mix(in srgb, var(--ed-accent) 12%, transparent);
   overflow: hidden;
 
-  .mascot-avatar--mini {
-    width: 36px;
-    height: 36px;
+  .assistant-avatar--md {
+    width: 32px;
+    height: 32px;
   }
 }
 
@@ -622,27 +673,48 @@ $shout-bubble-clip: polygon(
 }
 
 .ai-panel__brand {
+  flex: 1;
   min-width: 0;
+  overflow: hidden;
 }
 
 .ai-panel__title {
   margin: 0;
   font-family: var(--ed-serif);
-  font-size: 1.125rem;
+  font-size: 1rem;
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.02em;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ai-panel__sub {
   display: flex;
   align-items: center;
-  gap: 6px;
-  margin: 0.2rem 0 0;
-  font-size: 0.6875rem;
-  letter-spacing: 0.06em;
-  text-transform: uppercase;
+  gap: 5px;
+  margin: 0.15rem 0 0;
+  font-size: 0.625rem;
+  letter-spacing: 0.04em;
   color: var(--ed-muted);
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+
+.ai-panel__sub-en {
+  flex-shrink: 0;
+  text-transform: uppercase;
+  font-weight: 600;
+  letter-spacing: 0.08em;
+}
+
+.ai-panel__sub-cn {
+  flex-shrink: 1;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
 }
 
 .ai-panel__dot {
@@ -655,7 +727,7 @@ $shout-bubble-clip: polygon(
 .ai-panel__tools {
   display: flex;
   align-items: center;
-  gap: 6px;
+  gap: 4px;
   flex-shrink: 0;
 }
 
@@ -684,13 +756,13 @@ $shout-bubble-clip: polygon(
   }
 }
 
-.ai-panel__close {
+.ai-panel__icon-btn {
   display: flex;
   align-items: center;
   justify-content: center;
-  width: 36px;
-  height: 36px;
-  border-radius: 12px;
+  width: 32px;
+  height: 32px;
+  border-radius: 10px;
   color: var(--ed-muted);
   border: 1px solid color-mix(in srgb, var(--ed-line) 50%, transparent);
   background: color-mix(in srgb, var(--ed-surface) 60%, transparent);
@@ -701,11 +773,20 @@ $shout-bubble-clip: polygon(
     border-color 0.2s,
     transform 0.2s;
 
-  &:hover {
+  &:hover:not(:disabled) {
     background: var(--ed-accent-soft);
     border-color: color-mix(in srgb, var(--ed-accent-border) 50%, transparent);
     color: var(--ed-text);
     transform: scale(1.04);
+  }
+
+  &:disabled {
+    opacity: 0.35;
+    cursor: not-allowed;
+  }
+
+  &--ghost:hover:not(:disabled) {
+    color: var(--ed-accent);
   }
 }
 
@@ -751,15 +832,35 @@ $shout-bubble-clip: polygon(
 }
 
 .ai-panel__welcome-mascot {
-  width: 88px;
-  height: 70px;
+  width: 96px;
+  height: 96px;
   margin-bottom: 0.75rem;
-  opacity: 0.92;
+  display: grid;
+  place-items: center;
+  opacity: 0.95;
+}
 
-  .mascot-avatar {
+/* ========== 聊天框线稿头像（PNG） ========== */
+.assistant-avatar {
+  display: block;
+  object-fit: contain;
+  object-position: center;
+  user-select: none;
+  pointer-events: none;
+
+  &--sm {
     width: 100%;
     height: 100%;
-    transform: translateX(0);
+  }
+
+  &--md {
+    width: 38px;
+    height: 38px;
+  }
+
+  &--lg {
+    width: 88px;
+    height: 88px;
   }
 }
 
@@ -775,7 +876,7 @@ $shout-bubble-clip: polygon(
 .ai-panel__welcome-title {
   margin: 0.5rem 0 0;
   font-family: var(--ed-serif);
-  font-size: 1.375rem;
+  font-size: 1.1rem;
   font-weight: 600;
   line-height: 1.3;
   letter-spacing: -0.02em;
@@ -784,7 +885,7 @@ $shout-bubble-clip: polygon(
 .ai-panel__welcome-lead {
   margin: 0.55rem 0 0;
   max-width: 18rem;
-  font-size: 0.8125rem;
+  font-size: 0.75rem;
   line-height: 1.65;
   color: var(--ed-muted);
 }
@@ -804,8 +905,8 @@ $shout-bubble-clip: polygon(
   width: 100%;
   padding: 0.72rem 0.85rem;
   text-align: left;
-  font-size: 0.8125rem;
-  line-height: 1.4;
+  font-size: 0.75rem;
+  line-height: 1.45;
   color: var(--ed-text);
   border: 1px solid color-mix(in srgb, var(--ed-line) 65%, transparent);
   border-radius: 14px;
@@ -932,7 +1033,7 @@ $shout-bubble-clip: polygon(
     flex: 1;
     min-width: 0;
     padding: 0.45rem 0;
-    font-size: 0.875rem;
+    font-size: 0.8125rem;
     font-family: inherit;
     border: none;
     background: transparent;
@@ -990,26 +1091,31 @@ html.dark .ai-panel__composer-inner button {
   color: var(--ed-btn-fg);
 }
 
-/* ========== 消息气泡 ========== */
+/* ========== 消息气泡（用户 / 助手统一形状，仅配色区分） ========== */
 .ai-bubble {
   display: flex;
   flex-direction: column;
   gap: 6px;
   animation: ai-msg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 
+  &__body {
+    max-width: 88%;
+    padding: 0.65rem 0.95rem;
+    font-size: 0.8125rem;
+    line-height: 1.58;
+    border-radius: 16px;
+  }
+
   &--user {
     align-items: flex-end;
 
     .ai-bubble__body {
-      max-width: 85%;
-      padding: 0.65rem 0.95rem;
       color: var(--ed-btn-fg);
       background: linear-gradient(
         135deg,
         color-mix(in srgb, var(--ed-accent) 92%, #fff),
         var(--ed-accent)
       );
-      border-radius: 18px 18px 6px 18px;
       box-shadow: 0 6px 16px color-mix(in srgb, var(--ed-accent) 28%, transparent);
     }
 
@@ -1022,24 +1128,9 @@ html.dark .ai-panel__composer-inner button {
     align-items: flex-start;
 
     .ai-bubble__body {
-      position: relative;
-      max-width: 92%;
-      padding: 0.75rem 0.95rem 0.75rem 1rem;
       background: color-mix(in srgb, var(--ed-surface) 85%, transparent);
       border: 1px solid color-mix(in srgb, var(--ed-line) 55%, transparent);
-      border-radius: 6px 18px 18px 18px;
       box-shadow: 0 4px 14px color-mix(in srgb, var(--ed-text) 5%, transparent);
-
-      &::before {
-        content: '';
-        position: absolute;
-        left: 0;
-        top: 12px;
-        bottom: 12px;
-        width: 3px;
-        border-radius: 0 3px 3px 0;
-        background: linear-gradient(180deg, var(--ed-accent), color-mix(in srgb, var(--ed-accent) 40%, transparent));
-      }
     }
   }
 
@@ -1052,15 +1143,15 @@ html.dark .ai-panel__composer-inner button {
 
   &__avatar {
     flex-shrink: 0;
-    width: 26px;
-    height: 26px;
+    width: 28px;
+    height: 28px;
     display: grid;
     place-items: center;
     border-radius: 8px;
     border: 1px solid color-mix(in srgb, var(--ed-accent-border) 50%, transparent);
-    background: var(--ed-accent-soft);
+    background: var(--ed-surface-elevated);
     overflow: hidden;
-    padding: 2px;
+    padding: 1px;
   }
 
   &__name {
@@ -1069,11 +1160,6 @@ html.dark .ai-panel__composer-inner button {
     letter-spacing: 0.06em;
     text-transform: uppercase;
     color: var(--ed-muted);
-  }
-
-  &__body {
-    font-size: 0.875rem;
-    line-height: 1.6;
   }
 
   &__md {
@@ -1100,12 +1186,12 @@ html.dark .ai-panel__composer-inner button {
     h3 {
       margin: 0.75rem 0 0.35rem;
       font-family: var(--ed-serif);
-      font-size: 1rem;
+      font-size: 0.9375rem;
       line-height: 1.35;
     }
 
     code {
-      font-size: 0.8125rem;
+      font-size: 0.75rem;
       padding: 0.1em 0.35em;
       border-radius: 6px;
       background: color-mix(in srgb, var(--ed-accent-soft) 80%, transparent);
@@ -1135,7 +1221,7 @@ html.dark .ai-panel__composer-inner button {
 
   &__md-loading {
     margin: 0;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     color: var(--ed-muted);
   }
 
@@ -1226,7 +1312,7 @@ html.dark .ai-panel__composer-inner button {
     margin: 0;
     padding: 0.85rem;
     overflow-x: auto;
-    font-size: 0.8125rem;
+    font-size: 0.75rem;
     line-height: 1.55;
     background: var(--ed-code-bg);
     color: var(--ed-code-fg);
@@ -1259,10 +1345,15 @@ html.dark .ai-panel__composer-inner button {
 
 @media (max-width: 480px) {
   .ai-widget__panel-wrap {
-    width: calc(100vw - 1rem);
+    width: min(20rem, calc(100vw - 1rem));
     right: 0.5rem;
     max-height: var(--ai-panel-max-h, calc(100vh - 4rem));
     height: var(--ai-panel-max-h, calc(100vh - 4rem));
+  }
+
+  .ai-widget--panel-fullscreen .ai-widget__panel-wrap {
+    right: 50%;
+    width: calc(100vw - 1rem);
   }
 
   .ai-widget__mascot {
@@ -1318,6 +1409,7 @@ html.dark .ai-panel__composer-inner button {
   .ai-widget__mascot,
   .ai-widget__panel-wrap,
   .ai-bubble,
+  .ai-widget__backdrop,
   .ai-panel__welcome,
   .ai-panel__progress,
   .ai-panel__streaming-dot {

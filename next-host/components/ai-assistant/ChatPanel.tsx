@@ -2,7 +2,7 @@
 
 import { FormEvent, useEffect, useRef, useState } from 'react';
 import { MessageBubble } from './MessageBubble';
-import { MascotAvatar } from './MascotAvatar';
+import { AssistantAvatar } from './AssistantAvatar';
 import type { ChatMessage } from '@/hooks/useAiChat';
 
 /** 空状态快捷提问 */
@@ -15,6 +15,8 @@ const SUGGESTIONS = [
 interface ChatPanelProps {
   messages: ChatMessage[];
   streaming: boolean;
+  fullscreen: boolean;
+  onToggleFullscreen: () => void;
   onSend: (text: string) => void;
   onClear: () => void;
   onClose: () => void;
@@ -24,7 +26,15 @@ interface ChatPanelProps {
  * AI 聊天面板 — 现代化玻璃拟态布局
  * 头部身份区 · 欢迎空状态 · 消息线程 · 底部输入坞
  */
-export function ChatPanel({ messages, streaming, onSend, onClear, onClose }: ChatPanelProps) {
+export function ChatPanel({
+  messages,
+  streaming,
+  fullscreen,
+  onToggleFullscreen,
+  onSend,
+  onClear,
+  onClose,
+}: ChatPanelProps) {
   const [input, setInput] = useState('');
   const listRef = useRef<HTMLDivElement>(null);
 
@@ -53,28 +63,48 @@ export function ChatPanel({ messages, streaming, onSend, onClear, onClose }: Cha
       <header className="ai-panel__head">
         <div className="ai-panel__identity">
           <div className="ai-panel__avatar-ring">
-            <MascotAvatar mini />
+            <AssistantAvatar size="md" />
             <span className="ai-panel__status" title="在线" />
           </div>
           <div className="ai-panel__brand">
             <h2 className="ai-panel__title">站点智询</h2>
-            <p className="ai-panel__sub">
-              Site Pup
+            <p className="ai-panel__sub" title="Site Pup · 知识库检索">
+              <span className="ai-panel__sub-en">Site Pup</span>
               <span className="ai-panel__dot" aria-hidden />
-              知识库检索
+              <span className="ai-panel__sub-cn">检索助手</span>
             </p>
           </div>
         </div>
         <div className="ai-panel__tools">
           <button
             type="button"
-            className="ai-panel__ghost"
+            className="ai-panel__icon-btn ai-panel__icon-btn--ghost"
             onClick={onClear}
             disabled={isEmpty && !streaming}
+            aria-label="清空对话"
           >
-            清空
+            <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+              <path d="M3 6h18M8 6V4h8v2M19 6l-1 14H6L5 6" />
+            </svg>
           </button>
-          <button type="button" className="ai-panel__close" onClick={onClose} aria-label="关闭">
+          <button
+            type="button"
+            className="ai-panel__icon-btn"
+            onClick={onToggleFullscreen}
+            aria-label={fullscreen ? '退出全屏' : '全屏'}
+            aria-pressed={fullscreen}
+          >
+            {fullscreen ? (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M9 9H5V5M15 9h4V5M9 15H5v4M15 15h4v4" />
+              </svg>
+            ) : (
+              <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
+                <path d="M8 3H5a2 2 0 00-2 2v3M16 3h3a2 2 0 012 2v3M8 21H5a2 2 0 01-2-2v-3M16 21h3a2 2 0 002-2v-3" />
+              </svg>
+            )}
+          </button>
+          <button type="button" className="ai-panel__icon-btn" onClick={onClose} aria-label="关闭">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
@@ -87,7 +117,7 @@ export function ChatPanel({ messages, streaming, onSend, onClear, onClose }: Cha
         {isEmpty ? (
           <div className="ai-panel__welcome">
             <div className="ai-panel__welcome-mascot" aria-hidden>
-              <MascotAvatar peekedOut />
+              <AssistantAvatar size="lg" />
             </div>
             <p className="ai-panel__welcome-eyebrow">Ink &amp; Sand · AI</p>
             <h3 className="ai-panel__welcome-title">有什么想了解的？</h3>

@@ -4,7 +4,7 @@ import { lazy, Suspense } from 'react';
 import { ChartBlock } from './ChartBlock';
 import { CodeBlock } from './CodeBlock';
 import type { ChatMessage } from '@/hooks/useAiChat';
-import { MascotAvatar } from './MascotAvatar';
+import { AssistantAvatar } from './AssistantAvatar';
 
 const ReactMarkdown = lazy(() => import('react-markdown'));
 
@@ -21,7 +21,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
       {!isUser && (
         <div className="ai-bubble__meta">
           <span className="ai-bubble__avatar" aria-hidden>
-            <MascotAvatar mini />
+            <AssistantAvatar size="sm" />
           </span>
           <span className="ai-bubble__name">Site Pup</span>
         </div>
