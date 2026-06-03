@@ -1,5 +1,5 @@
 import { EyeOutlined, ReloadOutlined, SearchOutlined } from '@ant-design/icons';
-import { Button, Card, Form, Input, Modal, Select, Space, Table, Tag } from 'antd';
+import { Button, Card, Form, Input, Modal, Space, Table, Tag } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { useCallback, useEffect, useState } from 'react';
 import {
@@ -19,7 +19,7 @@ const LEVEL_COLORS: Record<string, string> = {
   verbose: 'default',
 };
 
-/** 路由 logs/app — 应用运行日志（只读 + 筛选 + 分页） */
+/** 路由 logs/app — 应用错误日志（只读 + 筛选 + 分页） */
 export default function AppLogsPage() {
   const [form] = Form.useForm<AppLogQuery>();
   const [loading, setLoading] = useState(true);
@@ -101,27 +101,13 @@ export default function AppLogsPage() {
 
   return (
     <>
-      <Card title="应用运行日志">
+      <Card title="应用错误日志">
         <Form
           form={form}
           layout="inline"
           style={{ marginBottom: 16 }}
           onFinish={handleSearch}
         >
-          <Form.Item name="level" label="级别">
-            <Select
-              allowClear
-              placeholder="全部"
-              style={{ width: 120 }}
-              options={[
-                { label: 'ERROR', value: 'error' },
-                { label: 'WARN', value: 'warn' },
-                { label: 'INFO', value: 'info' },
-                { label: 'DEBUG', value: 'debug' },
-                { label: 'VERBOSE', value: 'verbose' },
-              ]}
-            />
-          </Form.Item>
           <Form.Item name="keyword" label="关键词">
             <Input allowClear placeholder="搜索消息内容" style={{ width: 200 }} />
           </Form.Item>
@@ -151,7 +137,7 @@ export default function AppLogsPage() {
             showTotal: (total) => `共 ${total} 条`,
           }}
           onChange={handleTableChange}
-          locale={{ emptyText: '暂无运行日志' }}
+          locale={{ emptyText: '暂无错误日志' }}
         />
       </Card>
 

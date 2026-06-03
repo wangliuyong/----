@@ -84,7 +84,11 @@ export class AiIngestService {
       case 'logs': {
         const [auditLogs, appLogs] = await Promise.all([
           this.prisma.adminAuditLog.findMany({ orderBy: { createdAt: 'desc' }, take: 2000 }),
-          this.prisma.appLog.findMany({ orderBy: { createdAt: 'desc' }, take: 2000 }),
+          this.prisma.appLog.findMany({
+            where: { level: 'error' },
+            orderBy: { createdAt: 'desc' },
+            take: 2000,
+          }),
         ]);
         return loadSystemLogs(auditLogs, appLogs);
       }

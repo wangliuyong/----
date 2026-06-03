@@ -35,9 +35,9 @@ export class QueryAuditLogsDto extends PaginatedQueryDto {
   module?: string;
 }
 
-/** 应用运行日志查询参数 */
+/** 应用错误日志查询参数（库内仅含 error，level 参数已忽略） */
 export class QueryAppLogsDto extends PaginatedQueryDto {
-  /** 日志级别：info / warn / error / debug / verbose */
+  /** @deprecated 仅记录 error，此字段不再生效 */
   @IsOptional()
   @IsString()
   level?: string;

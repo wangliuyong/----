@@ -7,7 +7,7 @@ import { AuditLogInterceptor } from './audit-log.interceptor';
 import { AuditLogService } from './audit-log.service';
 
 /**
- * 全局日志模块：应用运行日志落库 + 管理后台审计拦截 + 日志查询 API。
+ * 全局日志模块：应用 error 日志落库 + 管理后台审计拦截 + 日志查询 API。
  */
 @Global()
 @Module({

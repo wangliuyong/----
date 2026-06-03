@@ -6,7 +6,7 @@ import { AppLogService } from './logging/app-log.service';
 async function bootstrap() {
   const app = await NestFactory.create(AppModule, { bufferLogs: true });
 
-  /** 应用运行日志写入 SQLite AppLog 表 */
+  /** 应用 error 日志写入 SQLite AppLog 表（info/warn 等仅控制台） */
   const appLog = app.get(AppLogService);
   app.useLogger(appLog);
 

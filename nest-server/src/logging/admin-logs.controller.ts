@@ -9,7 +9,7 @@ import { QueryAppLogsDto, QueryAuditLogsDto } from './dto/query-logs.dto';
 /**
  * 管理后台日志查询 API（需 JWT + 权限点）。
  * - 操作审计日志：记录后台写操作与登录
- * - 应用运行日志：Nest 运行期 info/warn/error 等
+ * - 应用运行日志：仅持久化 Nest 运行期 error
  */
 @Controller('api/admin/logs')
 @UseGuards(JwtAuthGuard, PermissionsGuard)
@@ -26,7 +26,7 @@ export class AdminLogsController {
     return this.auditLog.findPage(query);
   }
 
-  /** 分页查询应用运行日志 */
+  /** 分页查询应用错误日志（仅 error） */
   @Get('app')
   @RequirePermissions('admin:logs:app:view')
   listAppLogs(@Query() query: QueryAppLogsDto) {
