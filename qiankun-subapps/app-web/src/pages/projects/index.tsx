@@ -26,7 +26,7 @@ export default function ProjectsPage() {
         {projects.map((item) => (
           <AppCard as="article" key={item.id} className="p-5">
             <h2 className="text-xl font-bold font-serif">{item.name}</h2>
-            <p className="text-muted mt-2">{item.desc}</p>
+            <p className="text-muted mt-2 line-clamp-2">{item.desc}</p>
             {item.techStack && (
               <p className="text-sm text-faint mt-2">技术栈：{item.techStack}</p>
             )}

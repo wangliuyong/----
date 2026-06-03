@@ -14,7 +14,7 @@ export default function SiteLayout({
         <QiankunProvider>{children}</QiankunProvider>
       </main>
       <footer className="site-footer">
-        © 2026 | 本项目基于 Next.js + NestJS + Qiankun + Docker + Nginx 搭建
+        © 2026 | 本项目基于 Next.js · React · TypeScript · Qiankun · NestJS · Prisma · SQLite · Docker · Nginx 搭建
       </footer>
     </div>
   );
