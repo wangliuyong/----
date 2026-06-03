@@ -12,10 +12,18 @@ import { getStandaloneHostProps } from './utils/runtime';
 
 registerSubAppDevPort(4001);
 
+/** 当前实例挂载的 #root，unmount 时精确卸载，避免误伤其他子应用 */
+let appMountEl: HTMLElement | null = null;
+
 renderWithQiankun({
   bootstrap: async () => console.log('[app-web] bootstrap'),
-  mount: (props: HostProps) => mountReactApp(App, props),
-  unmount: async () => unmountReactApp(),
+  mount: (props: HostProps) => {
+    appMountEl = mountReactApp(App, props);
+  },
+  unmount: async () => {
+    unmountReactApp(appMountEl);
+    appMountEl = null;
+  },
   update: async () => {},
 });
 

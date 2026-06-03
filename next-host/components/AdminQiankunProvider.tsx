@@ -1,6 +1,7 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
+import { WebMicroContainer } from '@/components/StableMicroAppContainer';
 import { initQiankun } from '@/utils/qiankun';
 
 interface AdminQiankunProviderProps {
@@ -53,7 +54,7 @@ export function AdminQiankunProvider({ children }: AdminQiankunProviderProps) {
       )}
 
       {/* Qiankun 子应用挂载点：占满视口，滚动由子应用内容区承担 */}
-      <div id="micro-container" className="h-full w-full overflow-hidden" />
+      <WebMicroContainer className="h-full w-full overflow-hidden" />
     </div>
   );
 }

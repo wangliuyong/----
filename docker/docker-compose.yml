@@ -59,6 +59,14 @@ services:
       CORS_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
       JWT_SECRET: ${JWT_SECRET:-personal-site-prod-secret}
       ADMIN_PASSWORD: ${ADMIN_PASSWORD:-admin123}
+      # AI 小助手（OpenAI 兼容 API，部署时在 .env 中配置）
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_BASE_URL: ${OPENAI_BASE_URL:-https://api.openai.com/v1}
+      OPENAI_CHAT_MODEL: ${OPENAI_CHAT_MODEL:-gpt-4o-mini}
+      OPENAI_EMBEDDING_MODEL: ${OPENAI_EMBEDDING_MODEL:-text-embedding-3-small}
+      LANCE_DB_PATH: /app/data/lancedb
+      AI_CHUNK_SIZE: ${AI_CHUNK_SIZE:-800}
+      AI_CHUNK_OVERLAP: ${AI_CHUNK_OVERLAP:-100}
     volumes:
       - api-data:/app/data
     healthcheck:

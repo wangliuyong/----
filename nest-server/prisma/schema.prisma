@@ -128,3 +128,49 @@ model SiteConfig {
   aboutJson   String @default("{}")
   contactJson String @default("{}")
 }
+
+/** 管理后台操作审计日志 */
+model AdminAuditLog {
+  id        Int      @id @default(autoincrement())
+  userId    Int?
+  username  String?
+  action    String
+  module    String?
+  targetId  String?
+  detail    String?
+  ip        String?
+  createdAt DateTime @default(now())
+}
+
+/** 应用运行日志（供 AI 向量化与后台排查） */
+model AppLog {
+  id        Int      @id @default(autoincrement())
+  level     String
+  message   String
+  context   String?
+  stack     String?
+  createdAt DateTime @default(now())
+}
+
+/** AI 数据源同步记录 */
+model AiSyncRecord {
+  id         Int       @id @default(autoincrement())
+  sources    String
+  status     String
+  chunkCount Int       @default(0)
+  error      String?
+  startedAt  DateTime  @default(now())
+  finishedAt DateTime?
+}
+
+/** AI 小助手配置（单行，id 固定为 1；优先于环境变量） */
+model AiConfig {
+  id                   Int      @id @default(1)
+  openaiApiKey         String?
+  openaiBaseUrl        String   @default("https://api.openai.com/v1")
+  openaiChatModel      String?
+  openaiEmbeddingModel String?
+  /** 向量维度（通义 text-embedding-v3 默认 1024，OpenAI 默认 1536） */
+  embeddingDimensions  Int?
+  updatedAt            DateTime @updatedAt
+}

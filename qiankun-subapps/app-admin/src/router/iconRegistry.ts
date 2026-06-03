@@ -1,13 +1,17 @@
 import {
   AppstoreOutlined,
+  AuditOutlined,
   BlockOutlined,
+  BugOutlined,
   CommentOutlined,
+  FileSearchOutlined,
   FileTextOutlined,
   InfoCircleOutlined,
   LinkOutlined,
   MailOutlined,
   MenuOutlined,
   ProjectOutlined,
+  RobotOutlined,
   SafetyOutlined,
   SettingOutlined,
   TeamOutlined,
@@ -30,6 +34,10 @@ const ICON_MAP: Record<string, ComponentType> = {
   BlockOutlined,
   TeamOutlined,
   UserOutlined,
+  RobotOutlined,
+  FileSearchOutlined,
+  AuditOutlined,
+  BugOutlined,
 };
 
 export function resolveIcon(name: string | null | undefined): ComponentType {

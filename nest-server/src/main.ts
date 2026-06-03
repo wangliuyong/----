@@ -1,9 +1,14 @@
 import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
+import { AppLogService } from './logging/app-log.service';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule);
+  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+
+  /** 应用运行日志写入 SQLite AppLog 表 */
+  const appLog = app.get(AppLogService);
+  app.useLogger(appLog);
 
   // 开发环境 localhost + 生产环境 CORS_ORIGIN（部署时由 docker-compose 注入）
   const corsOrigins = [

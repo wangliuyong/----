@@ -6,6 +6,7 @@ import { RbacController } from './rbac.controller';
 import { RbacQueryService } from './rbac-query.service';
 import { RbacUserService } from './rbac-user.service';
 import { RoleService } from './role.service';
+import { RbacSyncService } from './rbac-sync.service';
 
 @Module({
   controllers: [RbacController],
@@ -16,6 +17,7 @@ import { RoleService } from './role.service';
     RoleService,
     RbacUserService,
     PermissionsGuard,
+    RbacSyncService,
   ],
   exports: [RbacQueryService, PermissionsGuard],
 })

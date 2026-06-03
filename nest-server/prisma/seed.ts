@@ -5,7 +5,7 @@ import {
   DEFAULT_CONTACT,
   DEFAULT_NAV,
 } from '../src/site/site.types';
-import { seedRbac, ensureAdminSuperRole } from './rbac-seed';
+import { seedRbac, ensureAdminSuperRole, syncRbacModules } from './rbac-seed';
 
 const prisma = new PrismaClient();
 
@@ -22,6 +22,8 @@ async function main() {
   // RBAC 菜单/权限/超管角色（仅 AdminModule 为空时初始化）
   await seedRbac(prisma, adminUser.id);
   await ensureAdminSuperRole(prisma, adminUser.id);
+  // 增量同步新菜单（如 AI 小助手管理），并为超管补全权限
+  await syncRbacModules(prisma);
 
   // 站点全局配置：已有记录时不覆盖（部署时保留后台修改的内容）
   await prisma.siteConfig.upsert({

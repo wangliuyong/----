@@ -23,6 +23,8 @@ export {
 } from './projects.api';
 export { createLink, deleteLink, listLinks, updateLink } from './links.api';
 export { deleteMessage, listMessages } from './messages.api';
+export { listAppLogs, listAuditLogs } from './logs.api';
+export type { AppLog, AuditLog, PaginatedResult } from './logs.api';
 export {
   createModule,
   createPermission,

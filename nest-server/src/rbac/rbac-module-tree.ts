@@ -47,6 +47,13 @@ export function viewUpdatePermissions(prefix: string, label: string): RbacPermis
   ];
 }
 
+/** 仅查看（日志类只读页面） */
+export function viewOnlyPermissions(prefix: string, label: string): RbacPermissionDef[] {
+  return [
+    { code: `${prefix}:view`, name: `${label}查看`, type: 'menu', sort: 0 },
+  ];
+}
+
 export const RBAC_MODULE_TREE: RbacModuleDef[] = [
   {
     code: 'site-config',
@@ -187,6 +194,46 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
           { code: 'admin:system:users:assign', name: '用户分配角色', type: 'button', sort: 4 },
           { code: 'admin:system:users:reset-password', name: '重置密码', type: 'button', sort: 5 },
         ],
+      },
+      {
+        code: 'system-ai-assistant',
+        name: 'AI小助手管理',
+        type: 'menu',
+        path: 'system/ai-assistant',
+        icon: 'RobotOutlined',
+        sort: 4,
+        permissions: [
+          { code: 'admin:ai-assistant:view', name: 'AI小助手查看', type: 'menu', sort: 0 },
+          { code: 'admin:ai-assistant:update', name: 'AI配置编辑', type: 'button', sort: 1 },
+          { code: 'admin:ai-assistant:sync', name: '同步数据源', type: 'button', sort: 2 },
+        ],
+      },
+    ],
+  },
+  {
+    code: 'logs',
+    name: '日志管理',
+    type: 'menu',
+    icon: 'FileSearchOutlined',
+    sort: 5,
+    children: [
+      {
+        code: 'logs-audit',
+        name: '操作审计日志',
+        type: 'menu',
+        path: 'logs/audit',
+        icon: 'AuditOutlined',
+        sort: 1,
+        permissions: viewOnlyPermissions('admin:logs:audit', '操作审计日志'),
+      },
+      {
+        code: 'logs-app',
+        name: '应用运行日志',
+        type: 'menu',
+        path: 'logs/app',
+        icon: 'BugOutlined',
+        sort: 2,
+        permissions: viewOnlyPermissions('admin:logs:app', '应用运行日志'),
       },
     ],
   },

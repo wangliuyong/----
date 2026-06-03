@@ -32,6 +32,7 @@ let qiankunStarted = false;
 let qiankunRegistered = false;
 let qiankunLoading: Promise<void> | null = null;
 
+/** 路由驱动的子应用：app-web / app-admin */
 const microApps = [
   {
     name: 'app-web',
@@ -52,6 +53,10 @@ const microApps = [
   },
 ];
 
+function resolveTheme(theme: string) {
+  return theme === 'dark' ? 'dark' : 'light';
+}
+
 /**
  * 仅在浏览器端动态加载 qiankun，避免 Next 打包/SSR 触发
  * "Cannot use import statement outside a module"
@@ -66,7 +71,7 @@ async function ensureQiankun(theme: string) {
 
   qiankunLoading = (async () => {
     const { initGlobalState, registerMicroApps, start } = await import('qiankun');
-    const resolved = theme === 'dark' ? 'dark' : 'light';
+    const resolved = resolveTheme(theme);
 
     if (!globalActions) {
       globalActions = initGlobalState({ theme: resolved });
@@ -91,7 +96,7 @@ async function ensureQiankun(theme: string) {
     if (!qiankunStarted) {
       start({
         prefetch: true,
-        // 与 vite-plugin-qiankun 开发模式兼容（子应用不在严格 JS 沙箱内）
+        singular: false,
         sandbox: false,
       });
       qiankunStarted = true;
@@ -106,9 +111,8 @@ export async function initQiankun(theme: string) {
   await ensureQiankun(theme);
 }
 
-/** 主题变更时仅更新全局状态 */
+/** 主题变更时同步 Qiankun 全局状态 */
 export function syncQiankunTheme(theme: string) {
-  globalActions?.setGlobalState({
-    theme: theme === 'dark' ? 'dark' : 'light',
-  });
+  const resolved = resolveTheme(theme);
+  globalActions?.setGlobalState({ theme: resolved });
 }
