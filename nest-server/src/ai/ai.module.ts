@@ -2,6 +2,7 @@ import { Module } from '@nestjs/common';
 import { RbacModule } from '../rbac/rbac.module';
 import { AdminAiController } from './admin-ai.controller';
 import { AiController } from './ai.controller';
+import { AiChatMemoryService } from './services/ai-chat-memory.service';
 import { AiChatService } from './services/ai-chat.service';
 import { AiConfigService } from './services/ai-config.service';
 import { AiEmbeddingsService } from './services/ai-embeddings.service';
@@ -17,6 +18,7 @@ import { AiVectorStoreService } from './services/ai-vector-store.service';
     AiEmbeddingsService,
     AiVectorStoreService,
     AiIngestService,
+    AiChatMemoryService,
     AiChatService,
   ],
   exports: [AiConfigService, AiEmbeddingsService, AiVectorStoreService],

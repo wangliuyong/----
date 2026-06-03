@@ -1,15 +1,18 @@
 import { Injectable } from '@nestjs/common';
+import { randomUUID } from 'node:crypto';
 import { ChatOpenAI } from '@langchain/openai';
 import { HumanMessage } from '@langchain/core/messages';
-import { createAgent } from 'langchain';
+import { createAgent, type ReactAgent } from 'langchain';
 import { createGenerateChartTool } from '../tools/generate-chart.tool';
 import { createFormatCodeTool } from '../tools/format-code.tool';
 import { createSearchKnowledgeTool } from '../tools/search-knowledge.tool';
+import { AiChatMemoryService } from './ai-chat-memory.service';
 import { AiConfigService } from './ai-config.service';
 import { AiVectorStoreService } from './ai-vector-store.service';
 
 /** SSE 事件类型 */
 export type AiChatEvent =
+  | { type: 'session'; sessionId: string }
   | { type: 'token'; content: string }
   | { type: 'tool_start'; name: string }
   | { type: 'tool_result'; name: string; content: string }
@@ -23,50 +26,61 @@ const SYSTEM_PROMPT = `你是「王刘永的个人站点」AI 小助手，负责
 2. 用户要求可视化、统计、图表时，调用 generate_chart 工具生成图表。
 3. 用户要求展示或格式化代码时，调用 format_code 工具。
 4. 检索无结果时诚实说明，不要编造内容。
-5. 使用简洁、友好的中文回答。`;
+5. 使用简洁、友好的中文回答。
+6. 同一会话内可看到历史消息，请结合上下文连贯作答，避免重复询问用户已提供的信息。`;
+
+type CachedAgent = {
+  key: string;
+  agent: ReactAgent;
+};
 
 /**
- * LangChain Agent 编排与 SSE 流式输出。
+ * LangChain Agent 编排与 SSE 流式输出；通过 MemorySaver + thread_id 实现多轮记忆。
  */
 @Injectable()
 export class AiChatService {
+  private cachedAgent: CachedAgent | null = null;
+
   constructor(
     private readonly vectorStore: AiVectorStoreService,
     private readonly aiConfig: AiConfigService,
+    private readonly chatMemory: AiChatMemoryService,
   ) {}
 
-  /** 流式聊天：yield SSE 事件 */
-  async *streamChat(userMessage: string): AsyncGenerator<AiChatEvent> {
+  /** 规范化会话 ID，无效时生成新 UUID */
+  resolveSessionId(sessionId?: string): string {
+    const id = sessionId?.trim();
+    if (id && id.length <= 128 && /^[\w-]+$/.test(id)) {
+      return id;
+    }
+    return randomUUID();
+  }
+
+  /** 清除会话记忆（LangGraph deleteThread） */
+  async clearSession(sessionId: string): Promise<void> {
+    await this.chatMemory.clearThread(this.resolveSessionId(sessionId));
+  }
+
+  /** 流式聊天：yield SSE 事件；同一 sessionId 自动带上历史上下文 */
+  async *streamChat(
+    userMessage: string,
+    sessionId?: string,
+  ): AsyncGenerator<AiChatEvent> {
+    const threadId = this.resolveSessionId(sessionId);
+
     try {
-      const resolved = await this.aiConfig.getResolvedConfig();
-      if (!resolved) {
+      yield { type: 'session', sessionId: threadId };
+
+      const agent = await this.getOrCreateAgent();
+      if (!agent) {
         yield { type: 'error', message: 'AI 服务未配置，请在管理后台设置 OPENAI_API_KEY' };
         return;
       }
 
-      const llm = new ChatOpenAI({
-        apiKey: resolved.apiKey,
-        model: resolved.chatModel,
-        temperature: 0.3,
-        streaming: true,
-        configuration: { baseURL: resolved.baseUrl },
-      });
-
-      const tools = [
-        createSearchKnowledgeTool(this.vectorStore),
-        createGenerateChartTool(),
-        createFormatCodeTool(),
-      ];
-
-      const agent = createAgent({
-        model: llm,
-        tools,
-        systemPrompt: SYSTEM_PROMPT,
-      });
-
-      const stream = await agent.stream({
-        messages: [new HumanMessage(userMessage)],
-      });
+      const stream = await agent.stream(
+        { messages: [new HumanMessage(userMessage)] },
+        { configurable: { thread_id: threadId } },
+      );
 
       for await (const chunk of stream) {
         const events = this.parseStreamChunk(chunk);
@@ -80,6 +94,43 @@ export class AiChatService {
       const message = e instanceof Error ? e.message : String(e);
       yield { type: 'error', message };
     }
+  }
+
+  /**
+   * 按当前 AI 配置构建或复用 Agent；checkpointer 使用 LangChain MemorySaver。
+   */
+  private async getOrCreateAgent(): Promise<ReactAgent | null> {
+    const resolved = await this.aiConfig.getResolvedConfig();
+    if (!resolved) return null;
+
+    const cacheKey = `${resolved.baseUrl}|${resolved.chatModel}`;
+    if (this.cachedAgent?.key === cacheKey) {
+      return this.cachedAgent.agent;
+    }
+
+    const llm = new ChatOpenAI({
+      apiKey: resolved.apiKey,
+      model: resolved.chatModel,
+      temperature: 0.3,
+      streaming: true,
+      configuration: { baseURL: resolved.baseUrl },
+    });
+
+    const tools = [
+      createSearchKnowledgeTool(this.vectorStore),
+      createGenerateChartTool(),
+      createFormatCodeTool(),
+    ];
+
+    const agent = createAgent({
+      model: llm,
+      tools,
+      systemPrompt: SYSTEM_PROMPT,
+      checkpointer: this.chatMemory.getCheckpointer(),
+    });
+
+    this.cachedAgent = { key: cacheKey, agent };
+    return agent;
   }
 
   /** 解析 Agent 流式 chunk 为 SSE 事件 */

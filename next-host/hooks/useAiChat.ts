@@ -3,8 +3,11 @@
 import { useCallback, useRef, useState } from 'react';
 import { API_BASE } from '@/utils/api';
 
+const SESSION_STORAGE_KEY = 'ai-assistant-session-id';
+
 /** SSE 流式事件类型（与 nest-server ai-chat.service 一致） */
 export type AiChatEvent =
+  | { type: 'session'; sessionId: string }
   | { type: 'token'; content: string }
   | { type: 'tool_start'; name: string }
   | { type: 'tool_result'; name: string; content: string }
@@ -22,6 +25,20 @@ export interface ChatMessage {
   content: string;
   blocks?: RichBlock[];
   loading?: boolean;
+}
+
+/** 读取或创建会话 ID，用于服务端 LangGraph thread_id 记忆 */
+function getOrCreateSessionId(): string {
+  if (typeof window === 'undefined') {
+    return `ssr-${Date.now()}`;
+  }
+  const stored = localStorage.getItem(SESSION_STORAGE_KEY);
+  if (stored && /^[\w-]+$/.test(stored) && stored.length <= 128) {
+    return stored;
+  }
+  const id = crypto.randomUUID();
+  localStorage.setItem(SESSION_STORAGE_KEY, id);
+  return id;
 }
 
 /** 解析 tool_result 中的 chart / code 块 */
@@ -47,12 +64,20 @@ function parseToolResult(content: string): RichBlock | null {
 
 /**
  * AI 聊天 SSE Hook
- * 对接 POST /api/ai/chat 流式响应
+ * 对接 POST /api/ai/chat；sessionId 对应 LangGraph MemorySaver 多轮记忆
  */
 export function useAiChat() {
   const [messages, setMessages] = useState<ChatMessage[]>([]);
   const [streaming, setStreaming] = useState(false);
   const abortRef = useRef<AbortController | null>(null);
+  const sessionIdRef = useRef<string>(getOrCreateSessionId());
+
+  const persistSessionId = (id: string) => {
+    sessionIdRef.current = id;
+    if (typeof window !== 'undefined') {
+      localStorage.setItem(SESSION_STORAGE_KEY, id);
+    }
+  };
 
   const sendMessage = useCallback(
     async (text: string) => {
@@ -83,7 +108,10 @@ export function useAiChat() {
         const res = await fetch(`${API_BASE}/ai/chat`, {
           method: 'POST',
           headers: { 'Content-Type': 'application/json' },
-          body: JSON.stringify({ message: trimmed }),
+          body: JSON.stringify({
+            message: trimmed,
+            sessionId: sessionIdRef.current,
+          }),
           signal: controller.signal,
         });
 
@@ -115,7 +143,9 @@ export function useAiChat() {
               continue;
             }
 
-            if (event.type === 'token') {
+            if (event.type === 'session') {
+              persistSessionId(event.sessionId);
+            } else if (event.type === 'token') {
               setMessages((prev) =>
                 prev.map((m) =>
                   m.id === assistantId ? { ...m, content: m.content + event.content } : m,
@@ -163,7 +193,22 @@ export function useAiChat() {
     [streaming],
   );
 
-  const clearMessages = useCallback(() => setMessages([]), []);
+  /** 清空 UI 并删除服务端会话记忆，再开启新会话 */
+  const clearMessages = useCallback(async () => {
+    const oldSessionId = sessionIdRef.current;
+    try {
+      await fetch(`${API_BASE}/ai/chat/session`, {
+        method: 'DELETE',
+        headers: { 'Content-Type': 'application/json' },
+        body: JSON.stringify({ sessionId: oldSessionId }),
+      });
+    } catch {
+      /* 清空记忆失败仍重置本地会话，避免阻塞用户 */
+    }
+    const newSessionId = crypto.randomUUID();
+    persistSessionId(newSessionId);
+    setMessages([]);
+  }, []);
 
   return { messages, streaming, sendMessage, clearMessages };
 }
