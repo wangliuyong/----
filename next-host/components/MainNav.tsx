@@ -11,8 +11,7 @@ import { SearchBar } from './SearchBar';
 /** 顶栏导航（站点名、导航、GitHub 从 API 动态加载） */
 export function MainNav() {
   const pathname = usePathname();
-  const { theme, setTheme } = useTheme();
-  const isDark = theme === 'dark';
+  const { resolvedTheme, setTheme } = useTheme();
   const { siteName, githubUrl, navItems } = useSiteConfig();
 
   return (
@@ -48,10 +47,12 @@ export function MainNav() {
           <button
             type="button"
             aria-label="切换暗黑模式"
-            onClick={() => setTheme(isDark ? 'light' : 'dark')}
+            onClick={() => setTheme(resolvedTheme === 'dark' ? 'light' : 'dark')}
             className="site-icon-btn"
           >
-            {isDark ? <Sun size={20} /> : <Moon size={20} />}
+            {/* 同时渲染两枚图标，用 dark: 切换，避免 SSR/客户端 theme 不一致导致 hydration 报错 */}
+            <Sun size={20} className="hidden dark:block" />
+            <Moon size={20} className="block dark:hidden" />
           </button>
         </nav>
       </div>

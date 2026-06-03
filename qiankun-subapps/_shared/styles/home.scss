@@ -138,7 +138,7 @@
 
 /* ---------- Section 通用 ---------- */
 .home-section {
-  padding: 40px 0;
+  padding: 24px 0;
   // border-top: 1px solid var(--home-line);
   animation: home-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
 
@@ -153,7 +153,7 @@
 
 .home-section-head {
   display: flex;
-  // align-items: baseline;
+  align-items: end;
   justify-content: space-between;
   gap: 16px;
   margin-bottom: 28px;
