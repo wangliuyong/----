@@ -140,8 +140,8 @@ export default function AdminShell({
         theme="dark"
       >
         <div className="admin-shell-sider__brand">
-          <span className="admin-shell-sider__brand-full">CMS 后台</span>
-          <span className="admin-shell-sider__brand-mini">CMS</span>
+          <span className="admin-shell-sider__brand-full">网站后台设置</span>
+          <span className="admin-shell-sider__brand-mini">后台</span>
         </div>
         <Menu
           className="admin-shell-menu"
