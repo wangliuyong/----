@@ -12,25 +12,28 @@ interface MessageBubbleProps {
   message: ChatMessage;
 }
 
-/** 单条聊天气泡：Markdown + 图表/代码富块 */
+/** 单条聊天气泡：用户 / 助手差异化布局 + Markdown 富内容 */
 export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
     <article className={`ai-bubble ai-bubble--${message.role}`}>
       {!isUser && (
-        <span className="ai-bubble__avatar" aria-hidden>
-          <MascotAvatar mini />
-        </span>
+        <div className="ai-bubble__meta">
+          <span className="ai-bubble__avatar" aria-hidden>
+            <MascotAvatar mini />
+          </span>
+          <span className="ai-bubble__name">Site Pup</span>
+        </div>
       )}
       <div className="ai-bubble__body">
         {isUser ? (
-          <p>{message.content}</p>
+          <p className="ai-bubble__text">{message.content}</p>
         ) : (
           <>
             {message.content ? (
               <div className="ai-bubble__md">
-                <Suspense fallback={<p className="ai-bubble__md-loading">…</p>}>
+                <Suspense fallback={<p className="ai-bubble__md-loading">正在排版…</p>}>
                   <ReactMarkdown>{message.content}</ReactMarkdown>
                 </Suspense>
               </div>
