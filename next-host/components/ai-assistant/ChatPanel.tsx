@@ -37,18 +37,18 @@ export function ChatPanel({ messages, streaming, onSend, onClear, onClose }: Cha
   };
 
   return (
-    <div className="dog-ai-panel" role="region" aria-label="站点智询">
-      <header className="dog-ai-panel__head">
-        <div className="dog-ai-panel__brand">
-          <p className="dog-ai-panel__eyebrow">Site Pup</p>
-          <h2 className="dog-ai-panel__title">站点智询</h2>
-          <p className="dog-ai-panel__sub">基于博客 · 项目 · 留言的知识检索</p>
+    <div className="ai-panel" role="region" aria-label="站点智询">
+      <header className="ai-panel__head">
+        <div className="ai-panel__brand">
+          <p className="ai-panel__eyebrow">Site Pup</p>
+          <h2 className="ai-panel__title">站点智询</h2>
+          <p className="ai-panel__sub">基于博客 · 项目 · 留言的知识检索</p>
         </div>
-        <div className="dog-ai-panel__tools">
-          <button type="button" className="dog-ai-panel__ghost" onClick={onClear}>
+        <div className="ai-panel__tools">
+          <button type="button" className="ai-panel__ghost" onClick={onClear}>
             清空
           </button>
-          <button type="button" className="dog-ai-panel__close" onClick={onClose} aria-label="关闭">
+          <button type="button" className="ai-panel__close" onClick={onClose} aria-label="关闭">
             <svg width="18" height="18" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
               <path d="M18 6L6 18M6 6l12 12" />
             </svg>
@@ -56,13 +56,13 @@ export function ChatPanel({ messages, streaming, onSend, onClear, onClose }: Cha
         </div>
       </header>
 
-      <div className="dog-ai-panel__scroll" ref={listRef}>
+      <div className="ai-panel__scroll" ref={listRef}>
         {messages.length === 0 ? (
-          <div className="dog-ai-panel__empty">
-            <p className="dog-ai-panel__empty-lead">
+          <div className="ai-panel__empty">
+            <p className="ai-panel__empty-lead">
               向站点提问，我会从已同步的知识库中检索回答。
             </p>
-            <ul className="dog-ai-panel__chips">
+            <ul className="ai-panel__chips">
               {SUGGESTIONS.map((s) => (
                 <li key={s}>
                   <button type="button" onClick={() => onSend(s)} disabled={streaming}>
@@ -73,7 +73,7 @@ export function ChatPanel({ messages, streaming, onSend, onClear, onClose }: Cha
             </ul>
           </div>
         ) : (
-          <div className="dog-ai-panel__thread">
+          <div className="ai-panel__thread">
             {messages.map((m) => (
               <MessageBubble key={m.id} message={m} />
             ))}
@@ -81,7 +81,7 @@ export function ChatPanel({ messages, streaming, onSend, onClear, onClose }: Cha
         )}
       </div>
 
-      <form className="dog-ai-panel__composer" onSubmit={handleSubmit}>
+      <form className="ai-panel__composer" onSubmit={handleSubmit}>
         <input
           type="text"
           value={input}

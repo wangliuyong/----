@@ -1,39 +1,46 @@
 /**
  * AI 小助手样式
- * 默认双爪趴在右缘 → 悬停探出 → 点击打开聊天 → 关闭恢复
+ * 线条萌犬 SVG · 右下角 → 悬停探出 → 点击打开聊天
  */
 
-/* ========== 全局容器 ========== */
-.dog-widget {
+/* ========== 全局容器（右侧，top 由 JS 控制） ========== */
+.ai-widget {
   position: fixed;
   right: 0;
-  top: 50%;
   z-index: 9000;
-  transform: translateY(-50%);
   pointer-events: none;
+  transition: top 0.38s cubic-bezier(0.22, 1, 0.36, 1);
 
   > * {
     pointer-events: auto;
   }
+
+  &--dragging {
+    transition: none;
+    user-select: none;
+  }
 }
 
-/* ========== 趴在右缘的狗狗按钮 ========== */
-.dog-widget__mascot {
+/* ========== 坐姿狗狗按钮 ========== */
+.ai-widget__mascot {
   position: relative;
   display: flex;
   flex-direction: column;
   align-items: flex-end;
-  gap: 4px;
+  justify-content: flex-end;
+  gap: 0;
   padding: 0;
   margin: 0;
   border: none;
   background: transparent;
-  cursor: pointer;
+  cursor: grab;
   overflow: hidden;
   opacity: 1;
   transform: translateX(0);
-  /* 折叠宽度：仅露出爪 + 半张脸 */
+  touch-action: none;
+  /* 折叠：仅露出身体与尾巴 */
   width: 52px;
+  height: 96px;
   transition:
     width 0.55s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.4s ease 0.15s,
@@ -41,12 +48,16 @@
   -webkit-tap-highlight-color: transparent;
 }
 
-.dog-widget--hovered .dog-widget__mascot,
-.dog-widget__mascot:hover {
-  width: 118px;
+.ai-widget--dragging .ai-widget__mascot {
+  cursor: grabbing;
 }
 
-.dog-widget--chat-open .dog-widget__mascot {
+.ai-widget--hovered .ai-widget__mascot,
+.ai-widget__mascot:hover {
+  width: 120px;
+}
+
+.ai-widget--chat-open .ai-widget__mascot {
   width: 52px;
   opacity: 0;
   transform: translateX(16px);
@@ -57,67 +68,76 @@
     transform 0.35s cubic-bezier(0.22, 1, 0.36, 1);
 }
 
-/* ========== 萌狗 SVG ========== */
-.dog-avatar {
+/* ========== 线条萌犬 SVG ========== */
+.mascot-avatar {
   flex-shrink: 0;
-  width: 118px;
-  height: 82px;
-  color: var(--ed-accent);
-  /* 默认向右偏移，只露出趴在墙沿的部分 */
-  transform: translateX(58px);
+  width: 120px;
+  height: 96px;
+  color: var(--ed-text);
+  transform: translateX(68px);
   transition: transform 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+
+  &--mini {
+    width: 100%;
+    height: 100%;
+    transform: none;
+    display: block;
+  }
 }
 
-.dog-avatar--walked-out,
-.dog-widget--hovered .dog-avatar,
-.dog-widget__mascot:hover .dog-avatar {
-  transform: translateX(0);
-  animation: dog-walk-out 0.6s cubic-bezier(0.22, 1, 0.36, 1);
-}
-
-.dog-avatar__svg {
+.mascot-avatar__svg {
   width: 100%;
   height: 100%;
   overflow: visible;
   display: block;
 }
 
-.dog-avatar__tail {
-  transform-origin: 128px 48px;
-  animation: dog-wag 0.55s ease-in-out infinite alternate;
+.mascot-avatar__spark {
+  transform-origin: 86px 28px;
+  animation: mascot-spark 1.8s ease-in-out infinite;
 }
 
-.dog-avatar__ear--left {
-  transform-origin: 52px 28px;
-  animation: dog-ear-left 2.4s ease-in-out infinite;
+.mascot-avatar__tail {
+  transform-origin: 100px 48px;
+  animation: mascot-tail-sway 0.7s ease-in-out infinite alternate;
 }
 
-.dog-avatar__ear--right {
-  transform-origin: 78px 24px;
-  animation: dog-ear-right 2.4s ease-in-out 0.3s infinite;
+.mascot-avatar__ear--left {
+  transform-origin: 26px 22px;
+  animation: mascot-ear-left 2.8s ease-in-out infinite;
 }
 
-.dog-avatar__eyes {
-  animation: dog-blink 4.5s ease-in-out infinite;
+.mascot-avatar__ear--right {
+  transform-origin: 40px 18px;
+  animation: mascot-ear-right 2.8s ease-in-out 0.35s infinite;
 }
 
-.dog-avatar__tongue {
-  transform-origin: 66px 55px;
-  animation: dog-tongue 2s ease-in-out infinite;
+.mascot-avatar__head {
+  transform-origin: 38px 42px;
 }
 
-/* 悬停时爪子轻轻抓挠 */
-.dog-avatar--walked-out .dog-avatar__paws,
-.dog-widget--hovered .dog-avatar__paws {
-  animation: dog-paw-tap 0.8s ease-in-out infinite;
+.mascot-avatar__eyes {
+  animation: mascot-blink 5s ease-in-out infinite;
 }
 
-@keyframes dog-walk-out {
+.mascot-avatar--peeked-out,
+.ai-widget--hovered .mascot-avatar,
+.ai-widget__mascot:hover .mascot-avatar {
+  transform: translateX(0);
+  animation: mascot-peek-out 0.6s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mascot-avatar--peeked-out .mascot-avatar__head,
+.ai-widget--hovered .mascot-avatar__head {
+  animation: mascot-puppy-bounce 1.4s ease-in-out infinite;
+}
+
+@keyframes mascot-peek-out {
   0% {
-    transform: translateX(58px);
+    transform: translateX(68px);
   }
   40% {
-    transform: translateX(-4px);
+    transform: translateX(-3px);
   }
   70% {
     transform: translateX(2px);
@@ -127,16 +147,26 @@
   }
 }
 
-@keyframes dog-wag {
-  from {
-    transform: rotate(-10deg);
+@keyframes mascot-puppy-bounce {
+  0%,
+  100% {
+    transform: translateY(0);
   }
-  to {
-    transform: rotate(16deg);
+  50% {
+    transform: translateY(-3px);
   }
 }
 
-@keyframes dog-ear-left {
+@keyframes mascot-tail-sway {
+  from {
+    transform: rotate(-5deg);
+  }
+  to {
+    transform: rotate(8deg);
+  }
+}
+
+@keyframes mascot-ear-left {
   0%,
   100% {
     transform: rotate(0deg);
@@ -146,7 +176,7 @@
   }
 }
 
-@keyframes dog-ear-right {
+@keyframes mascot-ear-right {
   0%,
   100% {
     transform: rotate(0deg);
@@ -156,46 +186,38 @@
   }
 }
 
-@keyframes dog-blink {
+@keyframes mascot-blink {
   0%,
-  42%,
   44%,
+  46%,
   100% {
     transform: scaleY(1);
   }
-  43% {
-    transform: scaleY(0.08);
+  45% {
+    transform: scaleY(0.06);
   }
 }
 
-@keyframes dog-tongue {
+@keyframes mascot-spark {
   0%,
   100% {
-    transform: scaleY(1);
+    opacity: 1;
+    transform: scale(1) rotate(0deg);
   }
   50% {
-    transform: scaleY(1.1);
+    opacity: 0.65;
+    transform: scale(0.92) rotate(-6deg);
   }
 }
 
-@keyframes dog-paw-tap {
-  0%,
-  100% {
-    transform: translateY(0);
-  }
-  50% {
-    transform: translateY(-2px);
-  }
-}
-
-/* ========== 聊天面板 ========== */
-.dog-widget__panel-wrap {
+/* ========== 聊天面板（在狗狗上方弹出） ========== */
+.ai-widget__panel-wrap {
   position: absolute;
   right: 12px;
-  top: 50%;
+  bottom: calc(100% + 12px);
   width: min(22rem, calc(100vw - 2rem));
-  max-height: min(34rem, calc(100vh - 4rem));
-  transform: translateY(-50%) translateX(calc(100% + 24px)) scale(0.92);
+  max-height: min(34rem, calc(100vh - 8rem));
+  transform: translateX(calc(100% + 24px)) scale(0.92);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -203,17 +225,17 @@
     transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.35s ease,
     visibility 0.35s;
-  transform-origin: right center;
+  transform-origin: right bottom;
 }
 
-.dog-widget--chat-open .dog-widget__panel-wrap {
-  transform: translateY(-50%) translateX(0) scale(1);
+.ai-widget--chat-open .ai-widget__panel-wrap {
+  transform: translateX(0) scale(1);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
 }
 
-.dog-ai-panel {
+.ai-panel {
   display: flex;
   flex-direction: column;
   width: 100%;
@@ -228,7 +250,7 @@
   backdrop-filter: blur(20px) saturate(1.2);
 }
 
-.dog-ai-panel__head {
+.ai-panel__head {
   display: flex;
   align-items: flex-start;
   justify-content: space-between;
@@ -238,7 +260,7 @@
   background: linear-gradient(135deg, var(--ed-accent-soft) 0%, transparent 60%);
 }
 
-.dog-ai-panel__eyebrow {
+.ai-panel__eyebrow {
   margin: 0;
   font-size: 0.6875rem;
   letter-spacing: 0.14em;
@@ -247,7 +269,7 @@
   font-weight: 600;
 }
 
-.dog-ai-panel__title {
+.ai-panel__title {
   margin: 0.15rem 0 0;
   font-family: var(--ed-serif);
   font-size: 1.25rem;
@@ -255,20 +277,20 @@
   line-height: 1.2;
 }
 
-.dog-ai-panel__sub {
+.ai-panel__sub {
   margin: 0.25rem 0 0;
   font-size: 0.75rem;
   color: var(--ed-muted);
 }
 
-.dog-ai-panel__tools {
+.ai-panel__tools {
   display: flex;
   align-items: center;
   gap: 4px;
   flex-shrink: 0;
 }
 
-.dog-ai-panel__ghost {
+.ai-panel__ghost {
   font-size: 0.75rem;
   color: var(--ed-muted);
   padding: 4px 8px;
@@ -282,7 +304,7 @@
   }
 }
 
-.dog-ai-panel__close {
+.ai-panel__close {
   display: flex;
   align-items: center;
   justify-content: center;
@@ -299,21 +321,21 @@
   }
 }
 
-.dog-ai-panel__scroll {
+.ai-panel__scroll {
   flex: 1;
   overflow-y: auto;
   padding: 0.85rem 1rem;
   min-height: 220px;
 }
 
-.dog-ai-panel__empty-lead {
+.ai-panel__empty-lead {
   margin: 0 0 1rem;
   font-size: 0.875rem;
   line-height: 1.6;
   color: var(--ed-muted);
 }
 
-.dog-ai-panel__chips {
+.ai-panel__chips {
   list-style: none;
   margin: 0;
   padding: 0;
@@ -346,13 +368,13 @@
   }
 }
 
-.dog-ai-panel__thread {
+.ai-panel__thread {
   display: flex;
   flex-direction: column;
   gap: 12px;
 }
 
-.dog-ai-panel__composer {
+.ai-panel__composer {
   display: flex;
   gap: 8px;
   padding: 0.75rem 1rem 1rem;
@@ -406,20 +428,20 @@
   }
 }
 
-html.dark .dog-ai-panel__composer button {
+html.dark .ai-panel__composer button {
   color: var(--ed-btn-fg);
 }
 
 /* ========== 消息气泡 ========== */
-.dog-ai-bubble {
+.ai-bubble {
   display: flex;
   gap: 8px;
-  animation: dog-msg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
+  animation: ai-msg-in 0.45s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   &--user {
     flex-direction: row-reverse;
 
-    .dog-ai-bubble__body {
+    .ai-bubble__body {
       background: var(--ed-accent);
       color: var(--ed-btn-fg);
       border-radius: 12px 12px 4px 12px;
@@ -427,7 +449,7 @@ html.dark .dog-ai-panel__composer button {
   }
 
   &--assistant {
-    .dog-ai-bubble__body {
+    .ai-bubble__body {
       background: var(--ed-surface);
       border: 1px solid var(--ed-line);
       border-radius: 4px 12px 12px 12px;
@@ -440,10 +462,11 @@ html.dark .dog-ai-panel__composer button {
     height: 28px;
     display: grid;
     place-items: center;
-    font-size: 0.875rem;
     border: 1px solid var(--ed-accent-border);
     border-radius: 50%;
     background: var(--ed-accent-soft);
+    overflow: hidden;
+    padding: 2px;
   }
 
   &__body {
@@ -487,7 +510,7 @@ html.dark .dog-ai-panel__composer button {
       height: 6px;
       border-radius: 50%;
       background: var(--ed-faint);
-      animation: dog-dot 1.2s ease-in-out infinite;
+      animation: ai-dot 1.2s ease-in-out infinite;
 
       &:nth-child(2) {
         animation-delay: 0.15s;
@@ -499,7 +522,7 @@ html.dark .dog-ai-panel__composer button {
   }
 }
 
-@keyframes dog-msg-in {
+@keyframes ai-msg-in {
   from {
     opacity: 0;
     transform: translateY(8px);
@@ -510,7 +533,7 @@ html.dark .dog-ai-panel__composer button {
   }
 }
 
-@keyframes dog-dot {
+@keyframes ai-dot {
   0%,
   80%,
   100% {
@@ -524,7 +547,7 @@ html.dark .dog-ai-panel__composer button {
 }
 
 /* ========== 图表 / 代码块 ========== */
-.dog-ai-chart {
+.ai-chart {
   margin-top: 0.5rem;
   border-radius: 8px;
   overflow: hidden;
@@ -539,7 +562,7 @@ html.dark .dog-ai-panel__composer button {
   }
 }
 
-.dog-ai-code {
+.ai-code {
   margin-top: 0.5rem;
   border-radius: 8px;
   overflow: hidden;
@@ -567,44 +590,50 @@ html.dark .dog-ai-panel__composer button {
 }
 
 @media (max-width: 480px) {
-  .dog-widget__panel-wrap {
+  .ai-widget__panel-wrap {
     width: calc(100vw - 1rem);
     right: 0.5rem;
+    max-height: min(28rem, calc(100vh - 10rem));
   }
 
-  .dog-widget__mascot {
-    width: 46px;
+  .ai-widget__mascot {
+    width: 44px;
+    height: 84px;
   }
 
-  .dog-widget--hovered .dog-widget__mascot,
-  .dog-widget__mascot:hover {
-    width: 100px;
+  .ai-widget--hovered .ai-widget__mascot,
+  .ai-widget__mascot:hover {
+    width: 104px;
   }
 
-  .dog-avatar {
-    width: 100px;
-    height: 70px;
-    transform: translateX(50px);
+  .mascot-avatar {
+    width: 104px;
+    height: 84px;
+    transform: translateX(60px);
   }
 }
 
 @media (prefers-reduced-motion: reduce) {
-  .dog-avatar,
-  .dog-avatar__tail,
-  .dog-avatar__ear--left,
-  .dog-avatar__ear--right,
-  .dog-avatar__eyes,
-  .dog-avatar__tongue,
-  .dog-avatar__paws,
-  .dog-widget__mascot,
-  .dog-widget__panel-wrap,
-  .dog-ai-bubble {
+  .ai-widget {
+    transition: none;
+  }
+
+  .mascot-avatar,
+  .mascot-avatar__spark,
+  .mascot-avatar__tail,
+  .mascot-avatar__ear--left,
+  .mascot-avatar__ear--right,
+  .mascot-avatar__eyes,
+  .mascot-avatar__head,
+  .ai-widget__mascot,
+  .ai-widget__panel-wrap,
+  .ai-bubble {
     animation: none !important;
     transition: none;
   }
 
-  .dog-avatar--walked-out,
-  .dog-widget--hovered .dog-avatar {
+  .mascot-avatar--peeked-out,
+  .ai-widget--hovered .mascot-avatar {
     transform: translateX(0);
   }
 }

@@ -4,6 +4,7 @@ import { lazy, Suspense } from 'react';
 import { ChartBlock } from './ChartBlock';
 import { CodeBlock } from './CodeBlock';
 import type { ChatMessage } from '@/hooks/useAiChat';
+import { MascotAvatar } from './MascotAvatar';
 
 const ReactMarkdown = lazy(() => import('react-markdown'));
 
@@ -16,20 +17,20 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   const isUser = message.role === 'user';
 
   return (
-    <article className={`dog-ai-bubble dog-ai-bubble--${message.role}`}>
+    <article className={`ai-bubble ai-bubble--${message.role}`}>
       {!isUser && (
-        <span className="dog-ai-bubble__avatar" aria-hidden>
-          🐕
+        <span className="ai-bubble__avatar" aria-hidden>
+          <MascotAvatar mini />
         </span>
       )}
-      <div className="dog-ai-bubble__body">
+      <div className="ai-bubble__body">
         {isUser ? (
           <p>{message.content}</p>
         ) : (
           <>
             {message.content ? (
-              <div className="dog-ai-bubble__md">
-                <Suspense fallback={<p className="dog-ai-bubble__md-loading">…</p>}>
+              <div className="ai-bubble__md">
+                <Suspense fallback={<p className="ai-bubble__md-loading">…</p>}>
                   <ReactMarkdown>{message.content}</ReactMarkdown>
                 </Suspense>
               </div>
@@ -42,7 +43,7 @@ export function MessageBubble({ message }: MessageBubbleProps) {
               ),
             )}
             {message.loading && !message.content && !message.blocks?.length && (
-              <div className="dog-ai-bubble__typing" aria-live="polite">
+              <div className="ai-bubble__typing" aria-live="polite">
                 <span />
                 <span />
                 <span />

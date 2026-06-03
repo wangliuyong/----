@@ -2,14 +2,16 @@
 
 import { useCallback, useState } from 'react';
 import { useAiChat } from '@/hooks/useAiChat';
+import { useAiWidgetDrag } from '@/hooks/useAiWidgetDrag';
 import { ChatPanel } from './ChatPanel';
-import { DogAvatar } from './DogAvatar';
+import { MascotAvatar } from './MascotAvatar';
 
 /**
  * 全局 AI 小助手
- * - 默认：萌狗双爪趴在屏幕右缘，仅露出脑袋与爪子
- * - 悬停：狗狗慢慢向左探出
- * - 点击：打开聊天面板；关闭后恢复原状
+ * - 默认：线条萌犬吸附在右侧，仅露出半边
+ * - 悬停：向左探出完整形象
+ * - 拖动：上下移动，松手吸附上 / 中 / 下
+ * - 点击：打开聊天面板
  */
 export function AiAssistantWidget() {
   const [hovered, setHovered] = useState(false);
@@ -26,29 +28,31 @@ export function AiAssistantWidget() {
     setHovered(false);
   }, []);
 
+  const { top, dragging, bindMascot } = useAiWidgetDrag(handleOpen);
+
   return (
     <div
-      className={`dog-widget ${chatOpen ? 'dog-widget--chat-open' : ''} ${hovered ? 'dog-widget--hovered' : ''}`}
+      className={`ai-widget ${chatOpen ? 'ai-widget--chat-open' : ''} ${hovered ? 'ai-widget--hovered' : ''} ${dragging ? 'ai-widget--dragging' : ''}`}
+      style={{ top: `${top}px` }}
       aria-label="AI 站点助手"
     >
-      {/* 趴在右缘的狗狗：悬停探出，点击打开聊天 */}
       <button
         type="button"
-        className="dog-widget__mascot"
-        aria-label="打开站点智询"
+        className="ai-widget__mascot"
+        aria-label="拖动调整位置，点击打开站点智询"
         aria-expanded={chatOpen}
-        onMouseEnter={() => !chatOpen && setHovered(true)}
+        onMouseEnter={() => !chatOpen && !dragging && setHovered(true)}
         onMouseLeave={() => setHovered(false)}
-        onClick={handleOpen}
+        onPointerDown={bindMascot.onPointerDown}
+        onPointerMove={bindMascot.onPointerMove}
+        onPointerUp={bindMascot.onPointerUp}
+        onPointerCancel={bindMascot.onPointerCancel}
+        onClick={(e) => bindMascot.onClick(e)}
       >
-        <DogAvatar walkedOut={hovered} />
+        <MascotAvatar peekedOut={hovered && !dragging} />
       </button>
 
-      {/* 聊天面板：点击打开，关闭按钮收起 */}
-      <section
-        className="dog-widget__panel-wrap"
-        aria-hidden={!chatOpen}
-      >
+      <section className="ai-widget__panel-wrap" aria-hidden={!chatOpen}>
         {chatOpen && (
           <ChatPanel
             messages={messages}
