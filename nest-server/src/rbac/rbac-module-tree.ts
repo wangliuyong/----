@@ -195,15 +195,24 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
           { code: 'admin:system:users:reset-password', name: '重置密码', type: 'button', sort: 5 },
         ],
       },
+    ],
+  },
+  {
+    code: 'ai-assistant',
+    name: 'AI小助手管理',
+    type: 'menu',
+    icon: 'RobotOutlined',
+    sort: 5,
+    children: [
       {
         code: 'system-ai-assistant',
-        name: 'AI小助手管理',
+        name: '数据配置管理',
         type: 'menu',
         path: 'system/ai-assistant',
-        icon: 'RobotOutlined',
-        sort: 4,
+        icon: 'DatabaseOutlined',
+        sort: 1,
         permissions: [
-          { code: 'admin:ai-assistant:view', name: 'AI小助手查看', type: 'menu', sort: 0 },
+          { code: 'admin:ai-assistant:view', name: '数据配置查看', type: 'menu', sort: 0 },
           { code: 'admin:ai-assistant:update', name: 'AI配置编辑', type: 'button', sort: 1 },
           { code: 'admin:ai-assistant:sync', name: '同步数据源', type: 'button', sort: 2 },
         ],
@@ -215,7 +224,7 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
     name: '日志管理',
     type: 'menu',
     icon: 'FileSearchOutlined',
-    sort: 5,
+    sort: 6,
     children: [
       {
         code: 'logs-audit',

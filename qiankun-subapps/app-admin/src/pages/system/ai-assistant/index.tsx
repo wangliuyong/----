@@ -27,7 +27,7 @@ import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
 import { useAiConfig } from './AiConfigCard';
 
-/** 路由 system/ai-assistant — AI 小助手管理（数据源同步 + 向量统计） */
+/** 路由 system/ai-assistant — 数据配置管理（数据源同步 + 向量统计） */
 export default function AiAssistantPage() {
   const [loading, setLoading] = useState(true);
   const [syncModalOpen, setSyncModalOpen] = useState(false);
@@ -143,7 +143,7 @@ export default function AiAssistantPage() {
         title={
           <span>
             <RobotOutlined style={{ marginRight: 8 }} />
-            AI 小助手管理
+            数据配置管理
           </span>
         }
         extra={

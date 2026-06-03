@@ -1,0 +1,9 @@
+{
+  "name": "@qiankun-subapps/shared",
+  "private": true,
+  "version": "1.0.0",
+  "type": "module",
+  "dependencies": {
+    "dayjs": "^1.11.21"
+  }
+}
