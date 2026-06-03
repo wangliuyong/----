@@ -1,4 +1,4 @@
-import { RobotOutlined, SyncOutlined } from '@ant-design/icons';
+import { RobotOutlined, SettingOutlined, SyncOutlined } from '@ant-design/icons';
 import {
   Button,
   Card,
@@ -6,6 +6,7 @@ import {
   Col,
   Modal,
   Row,
+  Space,
   Statistic,
   Table,
   Tag,
@@ -24,7 +25,7 @@ import {
 } from '../../../api/ai.api';
 import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
-import AiConfigCard from './AiConfigCard';
+import { useAiConfig } from './AiConfigCard';
 
 /** 路由 system/ai-assistant — AI 小助手管理（数据源同步 + 向量统计） */
 export default function AiAssistantPage() {
@@ -49,6 +50,8 @@ export default function AiAssistantPage() {
       setLoading(false);
     }
   }, []);
+
+  const aiConfig = useAiConfig({ onSaved: () => void loadData() });
 
   useEffect(() => {
     void loadData();
@@ -144,22 +147,31 @@ export default function AiAssistantPage() {
           </span>
         }
         extra={
-          <PermissionGuard code="admin:ai-assistant:sync">
+          <Space wrap>
+            {aiConfig.configStatus}
             <Button
               type="primary"
-              icon={<SyncOutlined />}
-              onClick={() => {
-                setSyncResults(null);
-                setSyncModalOpen(true);
-              }}
+              icon={<SettingOutlined />}
+              loading={aiConfig.loading && !aiConfig.modalOpen}
+              onClick={aiConfig.open}
             >
-              一键同步数据源
+              AI配置
             </Button>
-          </PermissionGuard>
+            <PermissionGuard code="admin:ai-assistant:sync">
+              <Button
+                type="primary"
+                icon={<SyncOutlined />}
+                onClick={() => {
+                  setSyncResults(null);
+                  setSyncModalOpen(true);
+                }}
+              >
+                向量化数据
+              </Button>
+            </PermissionGuard>
+          </Space>
         }
       >
-        <AiConfigCard onSaved={() => void loadData()} />
-
         <Row gutter={16} style={{ marginBottom: 24 }}>
           {AI_SOURCE_OPTIONS.map((opt) => (
             <Col span={6} key={opt.value}>
@@ -208,6 +220,8 @@ export default function AiAssistantPage() {
           />
         )}
       </Modal>
+
+      {aiConfig.modal}
     </>
   );
 }
