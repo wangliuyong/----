@@ -7,7 +7,7 @@ import { webApi } from '../../utils/webApi';
 /** 首页 Hero 默认文案（站点配置未就绪时） */
 export const FALLBACK_HERO = {
   name: '王刘永',
-  title: '前端开发工程师',
+  title: '全栈开发工程师',
   intro:
     '六年一线经验，专注微前端架构、数据可视化与工程化。用克制的设计与可靠的代码，构建可长期维护的产品体验。',
 };
