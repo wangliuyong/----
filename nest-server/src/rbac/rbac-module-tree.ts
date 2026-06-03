@@ -217,6 +217,18 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
           { code: 'admin:ai-assistant:sync', name: '同步数据源', type: 'button', sort: 2 },
         ],
       },
+      {
+        code: 'ai-assistant-knowledge',
+        name: '知识库管理',
+        type: 'menu',
+        path: 'ai-assistant/knowledge',
+        icon: 'BookOutlined',
+        sort: 2,
+        permissions: [
+          { code: 'admin:ai-knowledge:view', name: '知识库查看', type: 'menu', sort: 0 },
+          { code: 'admin:ai-knowledge:delete', name: '知识库删除', type: 'button', sort: 1 },
+        ],
+      },
     ],
   },
   {

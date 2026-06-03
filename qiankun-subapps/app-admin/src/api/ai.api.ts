@@ -95,3 +95,69 @@ export function updateAiConfig(payload: UpdateAiConfigPayload) {
     body: JSON.stringify(payload),
   });
 }
+
+/** 知识库向量块列表项 */
+export interface KnowledgeChunkItem {
+  id: string;
+  source: AiDataSource | string;
+  sourceId: string;
+  title: string;
+  slug: string;
+  textPreview: string;
+  textLength: number;
+}
+
+/** 知识库向量块详情 */
+export interface KnowledgeChunkDetail extends KnowledgeChunkItem {
+  text: string;
+}
+
+export interface KnowledgeChunkQuery {
+  page?: number;
+  pageSize?: number;
+  source?: AiDataSource;
+  keyword?: string;
+}
+
+export interface PaginatedKnowledgeChunks {
+  items: KnowledgeChunkItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/** 知识库向量块分页列表 */
+export function listKnowledgeChunks(query: KnowledgeChunkQuery = {}) {
+  const params = new URLSearchParams();
+  if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
+  if (query.source) params.set('source', query.source);
+  if (query.keyword?.trim()) params.set('keyword', query.keyword.trim());
+  const qs = params.toString();
+  return request<PaginatedKnowledgeChunks>(
+    `/admin/ai/knowledge/chunks${qs ? `?${qs}` : ''}`,
+  );
+}
+
+/** 知识库单条详情 */
+export function getKnowledgeChunk(id: string) {
+  return request<KnowledgeChunkDetail>(
+    `/admin/ai/knowledge/chunks/${encodeURIComponent(id)}`,
+  );
+}
+
+/** 删除单条向量块 */
+export function deleteKnowledgeChunk(id: string) {
+  return request<{ deleted: number }>(
+    `/admin/ai/knowledge/chunks/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
+  );
+}
+
+/** 批量删除向量块 */
+export function batchDeleteKnowledgeChunks(ids: string[]) {
+  return request<{ deleted: number }>('/admin/ai/knowledge/chunks/batch-delete', {
+    method: 'POST',
+    body: JSON.stringify({ ids }),
+  });
+}

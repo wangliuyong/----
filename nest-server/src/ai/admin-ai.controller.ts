@@ -1,8 +1,21 @@
-import { Body, Controller, Get, Post, Put, UseGuards } from '@nestjs/common';
+import {
+  Body,
+  Controller,
+  Delete,
+  Get,
+  NotFoundException,
+  Param,
+  Post,
+  Put,
+  Query,
+  UseGuards,
+} from '@nestjs/common';
 import { JwtAuthGuard } from '../auth/jwt-auth.guard';
 import { RequirePermissions } from '../rbac/decorators/require-permissions.decorator';
 import { PermissionsGuard } from '../rbac/guards/permissions.guard';
 import { PrismaService } from '../prisma/prisma.service';
+import { DeleteKnowledgeChunksDto } from './dto/delete-knowledge-chunks.dto';
+import { ListKnowledgeChunksDto } from './dto/list-knowledge-chunks.dto';
 import { UpdateAiConfigDto } from './dto/update-ai-config.dto';
 import { SyncDto } from './dto/sync.dto';
 import { AiConfigService } from './services/ai-config.service';
@@ -92,5 +105,47 @@ export class AdminAiController {
     const vectorStats = await this.vectorStore.statsBySource();
     const configured = await this.aiConfig.isConfigured();
     return { vectorStats, configured };
+  }
+
+  /** 知识库向量块分页列表（LanceDB） */
+  @Get('knowledge/chunks')
+  @RequirePermissions('admin:ai-knowledge:view')
+  listKnowledgeChunks(@Query() query: ListKnowledgeChunksDto) {
+    return this.vectorStore.listChunks({
+      page: query.page,
+      pageSize: query.pageSize,
+      source: query.source,
+      keyword: query.keyword,
+    });
+  }
+
+  /** 单条向量块详情 */
+  @Get('knowledge/chunks/:id')
+  @RequirePermissions('admin:ai-knowledge:view')
+  async getKnowledgeChunk(@Param('id') id: string) {
+    const chunk = await this.vectorStore.getChunkById(id);
+    if (!chunk) {
+      throw new NotFoundException('向量记录不存在');
+    }
+    return chunk;
+  }
+
+  /** 删除单条向量块 */
+  @Delete('knowledge/chunks/:id')
+  @RequirePermissions('admin:ai-knowledge:delete')
+  async deleteKnowledgeChunk(@Param('id') id: string) {
+    const deleted = await this.vectorStore.deleteByIds([id]);
+    if (!deleted) {
+      throw new NotFoundException('向量记录不存在或已删除');
+    }
+    return { deleted: 1 };
+  }
+
+  /** 批量删除向量块 */
+  @Post('knowledge/chunks/batch-delete')
+  @RequirePermissions('admin:ai-knowledge:delete')
+  async batchDeleteKnowledgeChunks(@Body() dto: DeleteKnowledgeChunksDto) {
+    const deleted = await this.vectorStore.deleteByIds(dto.ids);
+    return { deleted };
   }
 }

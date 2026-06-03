@@ -26,6 +26,31 @@ export interface VectorSearchResult {
   score: number;
 }
 
+/** 管理端知识库列表项（不含 vector 数组，减小传输体积） */
+export interface KnowledgeChunkListItem {
+  id: string;
+  source: string;
+  sourceId: string;
+  title: string;
+  slug: string;
+  textPreview: string;
+  textLength: number;
+}
+
+export interface ListKnowledgeChunksParams {
+  source?: string;
+  keyword?: string;
+  page?: number;
+  pageSize?: number;
+}
+
+export interface ListKnowledgeChunksResult {
+  items: KnowledgeChunkListItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
 const TABLE_NAME = 'knowledge_chunks';
 
 /**
@@ -39,7 +64,7 @@ export class AiVectorStoreService {
   /** 当前表对应的向量维度 */
   private tableDim = 0;
 
-  constructor(private readonly embeddings: AiEmbeddingsService) {}
+  constructor(private readonly embeddings: AiEmbeddingsService) { }
 
   /** 配置变更后清除表缓存，下次操作按新维度重建 */
   resetTable() {
@@ -97,10 +122,118 @@ export class AiVectorStoreService {
   async deleteBySource(source: string) {
     const table = await this.getTable();
     try {
-      await table.delete(`source = '${source.replace(/'/g, "''")}'`);
+      await table.delete(`source = '${this.escapeSqlLiteral(source)}'`);
     } catch {
       /* 表为空或无匹配时忽略 */
     }
+  }
+
+  /** 按主键删除单条或多条向量记录 */
+  async deleteByIds(ids: string[]): Promise<number> {
+    if (!ids.length) return 0;
+    const table = await this.getTable();
+    let deleted = 0;
+    for (const id of ids) {
+      const trimmed = id?.trim();
+      if (!trimmed) continue;
+      try {
+        await table.delete(`id = '${this.escapeSqlLiteral(trimmed)}'`);
+        deleted += 1;
+      } catch {
+        /* 无匹配或已删除时忽略 */
+      }
+    }
+    return deleted;
+  }
+
+  /**
+   * 分页列出 LanceDB 中的向量块（内存过滤 + 切片；适合管理端浏览与删除）。
+   */
+  async listChunks(params: ListKnowledgeChunksParams = {}): Promise<ListKnowledgeChunksResult> {
+    const page = Math.max(1, params.page ?? 1);
+    const pageSize = Math.min(100, Math.max(1, params.pageSize ?? 20));
+
+    try {
+      const table = await this.getTable();
+      let rows = (await table.query().toArray()) as VectorChunkRecord[];
+
+      if (params.source?.trim()) {
+        const source = params.source.trim();
+        rows = rows.filter((r) => r.source === source);
+      }
+
+      const keyword = params.keyword?.trim().toLowerCase();
+      if (keyword) {
+        rows = rows.filter(
+          (r) =>
+            String(r.text ?? '')
+              .toLowerCase()
+              .includes(keyword) ||
+            String(r.title ?? '')
+              .toLowerCase()
+              .includes(keyword) ||
+            String(r.sourceId ?? '')
+              .toLowerCase()
+              .includes(keyword) ||
+            String(r.slug ?? '')
+              .toLowerCase()
+              .includes(keyword),
+        );
+      }
+
+      rows.sort((a, b) => String(b.id).localeCompare(String(a.id)));
+      const total = rows.length;
+      const start = (page - 1) * pageSize;
+      const slice = rows.slice(start, start + pageSize);
+
+      const items: KnowledgeChunkListItem[] = slice.map((r) => {
+        const text = String(r.text ?? '');
+        const previewLen = 240;
+        return {
+          id: String(r.id),
+          source: String(r.source ?? ''),
+          sourceId: String(r.sourceId ?? ''),
+          title: String(r.title ?? ''),
+          slug: String(r.slug ?? ''),
+          textPreview: text.length > previewLen ? `${text.slice(0, previewLen)}…` : text,
+          textLength: text.length,
+        };
+      });
+
+      return { items, total, page, pageSize };
+    } catch {
+      return { items: [], total: 0, page, pageSize };
+    }
+  }
+
+  /** 单条详情（含完整文本，供管理端弹窗查看） */
+  async getChunkById(id: string): Promise<(KnowledgeChunkListItem & { text: string }) | null> {
+    const trimmed = id?.trim();
+    if (!trimmed) return null;
+    try {
+      const table = await this.getTable();
+      const rows = (await table.query().toArray()) as VectorChunkRecord[];
+      const row = rows.find((r) => String(r.id) === trimmed);
+      if (!row) return null;
+      const text = String(row.text ?? '');
+      return {
+        id: String(row.id),
+        source: String(row.source ?? ''),
+        sourceId: String(row.sourceId ?? ''),
+        title: String(row.title ?? ''),
+        slug: String(row.slug ?? ''),
+        textPreview: text,
+        textLength: text.length,
+        text,
+      };
+    } catch {
+      return null;
+    }
+  }
+
+  /** LanceDB delete 过滤值转义（单引号） */
+  private escapeSqlLiteral(value: string): string {
+    return value.replace(/'/g, "''");
   }
 
   async addChunks(
