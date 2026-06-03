@@ -24,9 +24,13 @@ export function MascotAvatar({ peekedOut = false, mini = false }: MascotAvatarPr
   if (mini) {
     return (
       <svg className="mascot-avatar mascot-avatar--mini" viewBox="0 0 32 32" aria-hidden>
+        <g className="mascot-avatar__ear mascot-avatar__ear--left">
+          <path d="M5 7L7 2L11 6" fill="var(--ed-bg)" {...shared} />
+        </g>
+        <g className="mascot-avatar__ear mascot-avatar__ear--right">
+          <path d="M18 6L21 1L25 7" fill="var(--ed-bg)" {...shared} />
+        </g>
         <circle cx="13" cy="14" r="9" fill="var(--ed-bg)" {...shared} />
-        <path d="M8 10L10 4L14 9" fill="var(--ed-bg)" {...shared} />
-        <path d="M14 9L17 3L20 10" fill="var(--ed-bg)" {...shared} />
         <circle cx="10.5" cy="13" r="1.5" fill="currentColor" stroke="none" />
         <circle cx="15.5" cy="13" r="1.5" fill="currentColor" stroke="none" />
         <ellipse cx="13" cy="16.5" rx="1.8" ry="1.3" fill="currentColor" stroke="none" />
@@ -78,27 +82,29 @@ export function MascotAvatar({ peekedOut = false, mini = false }: MascotAvatarPr
           </g>
         </g>
 
-        {/* 左耳 */}
+        {/* 耳朵（头后层） */}
         <g className="mascot-avatar__ear mascot-avatar__ear--left">
-          <path d="M18 34L24 10L36 28Z" fill="var(--ed-bg)" {...shared} />
+          <path d="M11 28L17 4L29 22Z" fill="var(--ed-bg)" {...shared} />
         </g>
-
-        {/* 右耳 */}
         <g className="mascot-avatar__ear mascot-avatar__ear--right">
-          <path d="M32 30L40 8L50 26Z" fill="var(--ed-bg)" {...shared} />
+          <path d="M37 24L45 2L55 20Z" fill="var(--ed-bg)" {...shared} />
         </g>
 
-        {/* 头 */}
+        {/* 头部（盖住耳根） */}
+        <circle cx="38" cy="42" r="26" fill="var(--ed-bg)" {...shared} />
+
+        {/* 五官：默认闭眼，探出时睁眼 */}
         <g className="mascot-avatar__head">
-          <circle cx="38" cy="42" r="26" fill="var(--ed-bg)" {...shared} />
-
-          {/* 圆眼 */}
           <g className="mascot-avatar__eyes">
-            <circle cx="28" cy="40" r="4" fill="currentColor" stroke="none" />
-            <circle cx="46" cy="40" r="4" fill="currentColor" stroke="none" />
+            <g className="mascot-avatar__eyes-closed">
+              <path d="M24 40Q28 37 32 40" {...shared} fill="none" strokeWidth={3.2} />
+              <path d="M42 40Q46 37 50 40" {...shared} fill="none" strokeWidth={3.2} />
+            </g>
+            <g className="mascot-avatar__eyes-open">
+              <circle cx="28" cy="40" r="4" fill="currentColor" stroke="none" />
+              <circle cx="46" cy="40" r="4" fill="currentColor" stroke="none" />
+            </g>
           </g>
-
-          {/* 鼻 */}
           <ellipse cx="37" cy="50" rx="5" ry="3.8" fill="currentColor" stroke="none" />
         </g>
       </svg>

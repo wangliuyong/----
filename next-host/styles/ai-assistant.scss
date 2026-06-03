@@ -52,6 +52,213 @@
   cursor: grabbing;
 }
 
+/* ========== 折叠态漫画喊话气泡 ========== */
+/* 锯齿爆炸轮廓（clip-path），右侧尖角指向狗狗 */
+$shout-bubble-clip: polygon(
+  4% 18%,
+  0% 8%,
+  8% 0%,
+  18% 6%,
+  28% 0%,
+  38% 8%,
+  50% 2%,
+  62% 10%,
+  72% 0%,
+  82% 8%,
+  92% 2%,
+  100% 12%,
+  96% 24%,
+  100% 36%,
+  94% 48%,
+  100% 58%,
+  92% 68%,
+  100% 78%,
+  94% 88%,
+  100% 100%,
+  88% 94%,
+  78% 100%,
+  68% 92%,
+  58% 100%,
+  48% 90%,
+  38% 100%,
+  28% 92%,
+  18% 100%,
+  8% 94%,
+  0% 100%,
+  4% 88%,
+  0% 76%,
+  6% 64%,
+  0% 52%,
+  6% 40%,
+  0% 28%
+);
+
+.ai-widget__shout {
+  position: absolute;
+  right: 46px;
+  top: 50%;
+  display: flex;
+  align-items: center;
+  gap: 1px;
+  pointer-events: none;
+  opacity: 0;
+  transform: translateY(-50%) translateX(10px) scale(0.6);
+  transform-origin: right center;
+  transition:
+    opacity 0.32s ease,
+    transform 0.38s cubic-bezier(0.22, 1, 0.36, 1),
+    right 0.55s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.ai-widget__shout-waves {
+  flex-shrink: 0;
+  color: var(--ed-text);
+  overflow: visible;
+}
+
+.ai-widget__shout-wave {
+  transform-origin: 20px 10px;
+}
+
+.ai-widget__shout-bubble {
+  position: relative;
+  padding: 0.42rem 0.72rem 0.42rem 0.62rem;
+  background: var(--ed-surface-elevated);
+  clip-path: $shout-bubble-clip;
+  /* drop-shadow 跟随 clip-path 轮廓，模拟漫画描边 + 轻阴影 */
+  filter:
+    drop-shadow(0 0 0 1px var(--ed-line))
+    drop-shadow(0 2px 6px rgba(0, 0, 0, 0.08));
+}
+
+.ai-widget__shout-text {
+  display: block;
+  font-size: 0.75rem;
+  font-weight: 600;
+  line-height: 1.35;
+  letter-spacing: 0.02em;
+  white-space: nowrap;
+  color: var(--ed-text);
+  transition: opacity 0.22s ease;
+}
+
+/* 悬停文案默认隐藏，由 --hovered 切换 */
+.ai-widget__shout-text--hover {
+  display: none;
+}
+
+.ai-widget__shout-em {
+  color: var(--ed-accent);
+}
+
+.ai-widget--folded .ai-widget__shout,
+.ai-widget--hovered .ai-widget__shout {
+  opacity: 1;
+  transform: translateY(-50%) translateX(0) scale(1);
+}
+
+.ai-widget--folded .ai-widget__shout {
+  animation:
+    ai-shout-pop-in 0.55s cubic-bezier(0.34, 1.56, 0.64, 1) forwards,
+    ai-shout-wiggle 1.8s ease-in-out 0.55s infinite;
+}
+
+/* 悬停探出：气泡随狗狗左移，文案切为「汪汪汪！」 */
+.ai-widget--hovered .ai-widget__shout {
+  right: 118px;
+  animation: ai-shout-wiggle 1.2s ease-in-out infinite;
+}
+
+.ai-widget--hovered .ai-widget__shout-text--idle {
+  display: none;
+}
+
+.ai-widget--hovered .ai-widget__shout-text--hover {
+  display: block;
+  animation: ai-shout-text-pulse 1.2s ease-in-out infinite;
+}
+
+.ai-widget--folded .ai-widget__shout-text--idle {
+  animation: ai-shout-text-pulse 1.8s ease-in-out 0.55s infinite;
+}
+
+.ai-widget--folded .ai-widget__shout-wave--1,
+.ai-widget--hovered .ai-widget__shout-wave--1 {
+  animation: ai-shout-wave-pulse 1.2s ease-in-out 0.55s infinite;
+}
+
+.ai-widget--folded .ai-widget__shout-wave--2,
+.ai-widget--hovered .ai-widget__shout-wave--2 {
+  animation: ai-shout-wave-pulse 1.2s ease-in-out 0.7s infinite;
+}
+
+.ai-widget--folded .ai-widget__shout-wave--3,
+.ai-widget--hovered .ai-widget__shout-wave--3 {
+  animation: ai-shout-wave-pulse 1.2s ease-in-out 0.85s infinite;
+}
+
+.ai-widget--hovered .ai-widget__shout-wave--1 {
+  animation-delay: 0s;
+}
+
+.ai-widget--hovered .ai-widget__shout-wave--2 {
+  animation-delay: 0.12s;
+}
+
+.ai-widget--hovered .ai-widget__shout-wave--3 {
+  animation-delay: 0.24s;
+}
+
+@keyframes ai-shout-pop-in {
+  0% {
+    transform: translateY(-50%) translateX(8px) scale(0.6);
+    opacity: 0;
+  }
+  70% {
+    transform: translateY(-50%) translateX(-2px) scale(1.05);
+    opacity: 1;
+  }
+  100% {
+    transform: translateY(-50%) translateX(0) scale(1);
+    opacity: 1;
+  }
+}
+
+@keyframes ai-shout-wiggle {
+  0%,
+  100% {
+    transform: translateY(-50%) translateX(0) scale(1) rotate(0deg);
+  }
+  25% {
+    transform: translateY(calc(-50% - 1px)) translateX(-1px) scale(1.02) rotate(-1.2deg);
+  }
+  75% {
+    transform: translateY(calc(-50% + 1px)) translateX(-2px) scale(1.03) rotate(1.2deg);
+  }
+}
+
+@keyframes ai-shout-text-pulse {
+  0%,
+  100% {
+    letter-spacing: 0.02em;
+  }
+  50% {
+    letter-spacing: 0.06em;
+  }
+}
+
+@keyframes ai-shout-wave-pulse {
+  0%,
+  100% {
+    opacity: 0.35;
+    transform: scaleX(0.85);
+  }
+  50% {
+    opacity: 1;
+    transform: scaleX(1.08);
+  }
+}
+
 .ai-widget--hovered .ai-widget__mascot,
 .ai-widget__mascot:hover {
   width: 120px;
@@ -103,21 +310,58 @@
 }
 
 .mascot-avatar__ear--left {
-  transform-origin: 26px 22px;
-  animation: mascot-ear-left 2.8s ease-in-out infinite;
+  transform-origin: 20px 25px;
+  animation: mascot-ear-left 1.6s ease-in-out infinite alternate;
 }
 
 .mascot-avatar__ear--right {
-  transform-origin: 40px 18px;
-  animation: mascot-ear-right 2.8s ease-in-out 0.35s infinite;
+  transform-origin: 46px 22px;
+  animation: mascot-ear-right 1.6s ease-in-out 0.2s infinite alternate;
+}
+
+/* 迷你头像耳部旋转中心 */
+.mascot-avatar--mini .mascot-avatar__ear--left {
+  transform-origin: 8px 6.5px;
+}
+
+.mascot-avatar--mini .mascot-avatar__ear--right {
+  transform-origin: 21px 6.5px;
 }
 
 .mascot-avatar__head {
   transform-origin: 38px 42px;
 }
 
-.mascot-avatar__eyes {
-  animation: mascot-blink 5s ease-in-out infinite;
+.mascot-avatar__eyes-closed,
+.mascot-avatar__eyes-open {
+  transition:
+    opacity 0.28s ease,
+    transform 0.32s cubic-bezier(0.22, 1, 0.36, 1);
+}
+
+.mascot-avatar__eyes-closed {
+  opacity: 1;
+  transform: scale(1);
+}
+
+.mascot-avatar__eyes-open {
+  opacity: 0;
+  transform: scale(0.35);
+  transform-origin: 37px 40px;
+}
+
+/* 探出时：闭眼隐藏、睁眼显现 */
+.mascot-avatar--peeked-out .mascot-avatar__eyes-closed,
+.ai-widget--hovered .mascot-avatar__eyes-closed {
+  opacity: 0;
+  transform: scale(0.85);
+}
+
+.mascot-avatar--peeked-out .mascot-avatar__eyes-open,
+.ai-widget--hovered .mascot-avatar__eyes-open {
+  opacity: 1;
+  transform: scale(1);
+  animation: mascot-blink 5s ease-in-out 0.35s infinite;
 }
 
 .mascot-avatar--peeked-out,
@@ -130,6 +374,17 @@
 .mascot-avatar--peeked-out .mascot-avatar__head,
 .ai-widget--hovered .mascot-avatar__head {
   animation: mascot-puppy-bounce 1.4s ease-in-out infinite;
+}
+
+/* 悬停时耳朵摆得更欢 */
+.mascot-avatar--peeked-out .mascot-avatar__ear--left,
+.ai-widget--hovered .mascot-avatar__ear--left {
+  animation: mascot-ear-wiggle-left 0.55s ease-in-out infinite alternate;
+}
+
+.mascot-avatar--peeked-out .mascot-avatar__ear--right,
+.ai-widget--hovered .mascot-avatar__ear--right {
+  animation: mascot-ear-wiggle-right 0.55s ease-in-out 0.12s infinite alternate;
 }
 
 @keyframes mascot-peek-out {
@@ -167,22 +422,38 @@
 }
 
 @keyframes mascot-ear-left {
-  0%,
-  100% {
-    transform: rotate(0deg);
+  from {
+    transform: rotate(-4deg);
   }
-  50% {
-    transform: rotate(-5deg);
+  to {
+    transform: rotate(10deg);
   }
 }
 
 @keyframes mascot-ear-right {
-  0%,
-  100% {
-    transform: rotate(0deg);
+  from {
+    transform: rotate(4deg);
   }
-  50% {
-    transform: rotate(5deg);
+  to {
+    transform: rotate(-10deg);
+  }
+}
+
+@keyframes mascot-ear-wiggle-left {
+  from {
+    transform: rotate(-8deg);
+  }
+  to {
+    transform: rotate(14deg);
+  }
+}
+
+@keyframes mascot-ear-wiggle-right {
+  from {
+    transform: rotate(8deg);
+  }
+  to {
+    transform: rotate(-14deg);
   }
 }
 
@@ -210,14 +481,15 @@
   }
 }
 
-/* ========== 聊天面板（在狗狗上方弹出） ========== */
+/* ========== 聊天面板（视口安全区内竖直居中，fixed 定位） ========== */
 .ai-widget__panel-wrap {
-  position: absolute;
+  position: fixed;
   right: 12px;
-  bottom: calc(100% + 12px);
+  top: var(--ai-panel-center-y, 50%);
   width: min(22rem, calc(100vw - 2rem));
-  max-height: min(34rem, calc(100vh - 8rem));
-  transform: translateX(calc(100% + 24px)) scale(0.92);
+  max-height: var(--ai-panel-max-h, calc(100vh - 5rem));
+  height: var(--ai-panel-max-h, calc(100vh - 5rem));
+  transform: translateY(-50%) translateX(calc(100% + 24px)) scale(0.92);
   opacity: 0;
   visibility: hidden;
   pointer-events: none;
@@ -225,11 +497,11 @@
     transform 0.45s cubic-bezier(0.22, 1, 0.36, 1),
     opacity 0.35s ease,
     visibility 0.35s;
-  transform-origin: right bottom;
+  transform-origin: center right;
 }
 
 .ai-widget--chat-open .ai-widget__panel-wrap {
-  transform: translateX(0) scale(1);
+  transform: translateY(-50%) translateX(0) scale(1);
   opacity: 1;
   visibility: visible;
   pointer-events: auto;
@@ -239,7 +511,8 @@
   display: flex;
   flex-direction: column;
   width: 100%;
-  max-height: min(34rem, calc(100vh - 4rem));
+  height: var(--ai-panel-max-h, calc(100vh - 5rem));
+  max-height: var(--ai-panel-max-h, calc(100vh - 5rem));
   border: 1px solid var(--ed-line);
   border-radius: 16px 4px 4px 16px;
   background: color-mix(in srgb, var(--ed-surface-elevated) 92%, transparent);
@@ -325,7 +598,7 @@
   flex: 1;
   overflow-y: auto;
   padding: 0.85rem 1rem;
-  min-height: 220px;
+  min-height: 0;
 }
 
 .ai-panel__empty-lead {
@@ -589,11 +862,36 @@ html.dark .ai-panel__composer button {
   }
 }
 
+@media (max-width: 768px) {
+  .ai-widget__shout {
+    right: 42px;
+    max-width: calc(100vw - 4rem);
+  }
+
+  .ai-widget--hovered .ai-widget__shout {
+    right: 112px;
+  }
+
+  .ai-widget__shout-waves {
+    width: 20px;
+    height: 17px;
+  }
+
+  .ai-widget__shout-text {
+    font-size: 0.6875rem;
+  }
+
+  .ai-widget__shout-bubble {
+    padding: 0.35rem 0.58rem 0.35rem 0.5rem;
+  }
+}
+
 @media (max-width: 480px) {
   .ai-widget__panel-wrap {
     width: calc(100vw - 1rem);
     right: 0.5rem;
-    max-height: min(28rem, calc(100vh - 10rem));
+    max-height: var(--ai-panel-max-h, calc(100vh - 4rem));
+    height: var(--ai-panel-max-h, calc(100vh - 4rem));
   }
 
   .ai-widget__mascot {
@@ -611,6 +909,24 @@ html.dark .ai-panel__composer button {
     height: 84px;
     transform: translateX(60px);
   }
+
+  .ai-widget__shout {
+    right: 38px;
+    max-width: calc(100vw - 3.5rem);
+  }
+
+  .ai-widget--hovered .ai-widget__shout {
+    right: 100px;
+  }
+
+  .ai-widget__shout-waves {
+    width: 18px;
+    height: 15px;
+  }
+
+  .ai-widget__shout-text {
+    font-size: 0.625rem;
+  }
 }
 
 @media (prefers-reduced-motion: reduce) {
@@ -623,8 +939,11 @@ html.dark .ai-panel__composer button {
   .mascot-avatar__tail,
   .mascot-avatar__ear--left,
   .mascot-avatar__ear--right,
-  .mascot-avatar__eyes,
+  .mascot-avatar__eyes-open,
   .mascot-avatar__head,
+  .ai-widget__shout,
+  .ai-widget__shout-wave,
+  .ai-widget__shout-text,
   .ai-widget__mascot,
   .ai-widget__panel-wrap,
   .ai-bubble {
