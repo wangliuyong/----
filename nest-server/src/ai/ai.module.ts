@@ -7,6 +7,7 @@ import { AiChatService } from './services/ai-chat.service';
 import { AiConfigService } from './services/ai-config.service';
 import { AiEmbeddingsService } from './services/ai-embeddings.service';
 import { AiIngestService } from './services/ai-ingest.service';
+import { AiSyncCandidatesService } from './services/ai-sync-candidates.service';
 import { AiVectorStoreService } from './services/ai-vector-store.service';
 
 /** AI 小助手模块：RAG 向量库 + LangChain Agent + 管理端同步 */
@@ -18,6 +19,7 @@ import { AiVectorStoreService } from './services/ai-vector-store.service';
     AiEmbeddingsService,
     AiVectorStoreService,
     AiIngestService,
+    AiSyncCandidatesService,
     AiChatMemoryService,
     AiChatService,
   ],

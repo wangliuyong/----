@@ -153,6 +153,26 @@ export class AiVectorStoreService {
     }
   }
 
+  /**
+   * 按数据源 + 业务 sourceId 删除向量块（增量同步时用，不清空整库来源）。
+   */
+  async deleteBySourceAndSourceIds(source: string, sourceIds: string[]): Promise<void> {
+    if (!sourceIds.length) return;
+    const table = await this.getTable();
+    const src = this.escapeSqlLiteral(source);
+    for (const sourceId of sourceIds) {
+      const sid = sourceId?.trim();
+      if (!sid) continue;
+      try {
+        await table.delete(
+          `source = '${src}' AND sourceId = '${this.escapeSqlLiteral(sid)}'`,
+        );
+      } catch {
+        /* 无匹配时忽略 */
+      }
+    }
+  }
+
   /** 按主键删除单条或多条向量记录 */
   async deleteByIds(ids: string[]): Promise<number> {
     if (!ids.length) return 0;

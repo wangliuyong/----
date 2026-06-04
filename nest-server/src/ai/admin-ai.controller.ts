@@ -17,10 +17,12 @@ import { PrismaService } from '../prisma/prisma.service';
 import { DeleteKnowledgeChunksDto } from './dto/delete-knowledge-chunks.dto';
 import { ListKnowledgeChunksDto } from './dto/list-knowledge-chunks.dto';
 import { UpdateAiConfigDto } from './dto/update-ai-config.dto';
+import { SyncCandidatesQueryDto } from './dto/sync-candidates-query.dto';
 import { SyncDto } from './dto/sync.dto';
 import { AiConfigService } from './services/ai-config.service';
 import { AiEmbeddingsService } from './services/ai-embeddings.service';
 import { AiIngestService } from './services/ai-ingest.service';
+import { AiSyncCandidatesService } from './services/ai-sync-candidates.service';
 import { AiVectorStoreService } from './services/ai-vector-store.service';
 
 /** 管理端 AI 小助手 API */
@@ -29,6 +31,7 @@ import { AiVectorStoreService } from './services/ai-vector-store.service';
 export class AdminAiController {
   constructor(
     private readonly ingestService: AiIngestService,
+    private readonly syncCandidates: AiSyncCandidatesService,
     private readonly vectorStore: AiVectorStoreService,
     private readonly prisma: PrismaService,
     private readonly aiConfig: AiConfigService,
@@ -52,18 +55,25 @@ export class AdminAiController {
     return config;
   }
 
-  /** 多选数据源一键同步向量化 */
+  /** 可向量化勾选的候选列表（按数据源分页加载） */
+  @Get('sync/candidates')
+  @RequirePermissions('admin:ai-assistant:view')
+  listSyncCandidates(@Query() query: SyncCandidatesQueryDto) {
+    return this.syncCandidates.listBySource(query.source);
+  }
+
+  /** 按勾选记录增量向量化（非全表默认同步） */
   @Post('sync')
   @RequirePermissions('admin:ai-assistant:sync')
   async sync(@Body() dto: SyncDto) {
     const record = await this.prisma.aiSyncRecord.create({
       data: {
-        sources: JSON.stringify(dto.sources),
+        sources: JSON.stringify(dto.items),
         status: 'running',
       },
     });
 
-    const results = await this.ingestService.syncSources(dto.sources);
+    const results = await this.ingestService.syncItems(dto.items);
     const chunkCount = results.reduce((sum, r) => sum + r.chunkCount, 0);
     const hasError = results.some((r) => r.error);
     const errorMsg = results

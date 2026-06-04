@@ -3,9 +3,23 @@ import { request } from './client';
 /** 可同步的数据源 */
 export type AiDataSource = 'articles' | 'projects' | 'messages' | 'logs';
 
+/** 同步勾选的一条数据源记录 */
+export interface SyncItemPayload {
+  source: AiDataSource;
+  ids: string[];
+}
+
+/** 可向量化勾选的候选 */
+export interface SyncCandidateItem {
+  id: string;
+  title: string;
+  subtitle?: string;
+}
+
 /** 单数据源同步结果 */
 export interface SourceSyncResult {
   source: AiDataSource;
+  ids: string[];
   chunkCount: number;
   error?: string;
 }
@@ -17,10 +31,16 @@ export interface AiSyncResponse {
   chunkCount: number;
 }
 
+/** 同步记录中的勾选明细 */
+export interface AiSyncRecordItem {
+  source: AiDataSource | string;
+  ids: string[];
+}
+
 /** 同步记录 */
 export interface AiSyncRecord {
   id: number;
-  sources: string[];
+  sources: AiSyncRecordItem[] | string[];
   status: string;
   chunkCount: number;
   error: string | null;
@@ -65,11 +85,18 @@ export const AI_SOURCE_OPTIONS: { label: string; value: AiDataSource }[] = [
   { label: '系统日志', value: 'logs' },
 ];
 
-/** 触发多选数据源同步 */
-export function syncAiSources(sources: AiDataSource[]) {
+/** 获取某数据源下可向量化勾选的候选列表 */
+export function getAiSyncCandidates(source: AiDataSource) {
+  return request<SyncCandidateItem[]>(
+    `/admin/ai/sync/candidates?source=${encodeURIComponent(source)}`,
+  );
+}
+
+/** 按勾选记录触发向量化（非全表） */
+export function syncAiItems(items: SyncItemPayload[]) {
   return request<AiSyncResponse>('/admin/ai/sync', {
     method: 'POST',
-    body: JSON.stringify({ sources }),
+    body: JSON.stringify({ items }),
   });
 }
 

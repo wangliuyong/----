@@ -2,15 +2,12 @@ import { RobotOutlined, SettingOutlined, SyncOutlined } from '@ant-design/icons'
 import {
   Button,
   Card,
-  Checkbox,
   Col,
-  Modal,
   Row,
   Space,
   Statistic,
   Table,
   Tag,
-  message,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useCallback, useEffect, useState } from 'react';
@@ -18,25 +15,18 @@ import {
   AI_SOURCE_OPTIONS,
   getAiStats,
   getAiSyncStatus,
-  syncAiSources,
-  type AiDataSource,
   type AiSyncRecord,
-  type SourceSyncResult,
 } from '../../../api/ai.api';
 import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
 import { useAiConfig } from './AiConfigCard';
+import SyncDataModal, { formatSyncRecordSources } from './SyncDataModal';
 
-/** 路由 system/ai-assistant — 数据配置管理（数据源同步 + 向量统计） */
+/** 路由 system/ai-assistant — 数据配置管理（按条选择向量化 + 向量统计） */
 export default function AiAssistantPage() {
   const [loading, setLoading] = useState(true);
   const [syncModalOpen, setSyncModalOpen] = useState(false);
-  const [selectedSources, setSelectedSources] = useState<AiDataSource[]>([
-    'articles',
-    'projects',
-  ]);
   const [syncing, setSyncing] = useState(false);
-  const [syncResults, setSyncResults] = useState<SourceSyncResult[] | null>(null);
   const [records, setRecords] = useState<AiSyncRecord[]>([]);
   const [stats, setStats] = useState<Record<string, number>>({});
 
@@ -57,47 +47,21 @@ export default function AiAssistantPage() {
     void loadData();
   }, [loadData]);
 
-  const handleSync = async () => {
-    if (!selectedSources.length) {
-      message.warning('请至少选择一个数据源');
-      return;
-    }
-    setSyncing(true);
-    setSyncResults(null);
-    try {
-      const res = await syncAiSources(selectedSources);
-      setSyncResults(res.results);
-      const failed = res.results.filter((r) => r.error);
-      if (failed.length) {
-        message.error(`同步失败：${failed.map((r) => `${r.source}: ${r.error}`).join('；')}`);
-      } else if (res.chunkCount === 0) {
-        message.warning('同步完成，但未产生向量块（数据源可能为空）');
-        setSyncModalOpen(false)
-      } else {
-        message.success(`同步完成，共写入 ${res.chunkCount} 个向量块`);
-        setSyncModalOpen(false)
-      }
-      await loadData();
-    } finally {
-      setSyncing(false);
-    }
-  };
-
   if (loading) return <PageLoading />;
 
   const recordColumns: ColumnsType<AiSyncRecord> = [
     {
-      title: '数据源',
+      title: '同步范围',
       dataIndex: 'sources',
-      render: (sources: string[]) =>
-        sources.map((s) => {
-          const opt = AI_SOURCE_OPTIONS.find((o) => o.value === s);
-          return (
-            <Tag key={s} style={{ marginBottom: 4 }}>
-              {opt?.label ?? s}
-            </Tag>
-          );
-        }),
+      render: (sources: AiSyncRecord['sources']) => {
+        const parts = formatSyncRecordSources(sources);
+        if (!parts.length) return '-';
+        return parts.map((p) => (
+          <Tag key={p.label} style={{ marginBottom: 4 }}>
+            {p.count > 0 ? `${p.label}(${p.count}条)` : p.label}
+          </Tag>
+        ));
+      },
     },
     {
       title: '状态',
@@ -120,20 +84,6 @@ export default function AiAssistantPage() {
       dataIndex: 'error',
       ellipsis: true,
       render: (v: string | null) => v ?? '-',
-    },
-  ];
-
-  const resultColumns: ColumnsType<SourceSyncResult> = [
-    {
-      title: '数据源',
-      dataIndex: 'source',
-      render: (s: AiDataSource) => AI_SOURCE_OPTIONS.find((o) => o.value === s)?.label ?? s,
-    },
-    { title: '向量块数', dataIndex: 'chunkCount', width: 100 },
-    {
-      title: '错误',
-      dataIndex: 'error',
-      render: (v?: string) => (v ? <Tag color="red">{v}</Tag> : '-'),
     },
   ];
 
@@ -161,10 +111,7 @@ export default function AiAssistantPage() {
               <Button
                 type="primary"
                 icon={<SyncOutlined />}
-                onClick={() => {
-                  setSyncResults(null);
-                  setSyncModalOpen(true);
-                }}
+                onClick={() => setSyncModalOpen(true)}
               >
                 向量化数据
               </Button>
@@ -191,35 +138,13 @@ export default function AiAssistantPage() {
         </Card>
       </Card>
 
-      <Modal
-        title="选择数据源同步"
+      <SyncDataModal
         open={syncModalOpen}
-        onCancel={() => !syncing && setSyncModalOpen(false)}
-        onOk={handleSync}
-        okText="确定同步"
-        confirmLoading={syncing}
-        width={480}
-      >
-        <p style={{ marginBottom: 12, color: '#666' }}>
-          选择要向量化的数据源，同步后将写入 LanceDB 向量库供 AI 小助手检索。
-        </p>
-        <Checkbox.Group
-          options={AI_SOURCE_OPTIONS}
-          value={selectedSources}
-          onChange={(vals) => setSelectedSources(vals as AiDataSource[])}
-          style={{ display: 'flex', flexDirection: 'column', gap: 8 }}
-        />
-        {syncResults && (
-          <Table
-            style={{ marginTop: 16 }}
-            rowKey="source"
-            size="small"
-            columns={resultColumns}
-            dataSource={syncResults}
-            pagination={false}
-          />
-        )}
-      </Modal>
+        syncing={syncing}
+        onSyncingChange={setSyncing}
+        onClose={() => setSyncModalOpen(false)}
+        onSuccess={loadData}
+      />
 
       {aiConfig.modal}
     </>

@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import { RecursiveCharacterTextSplitter } from '@langchain/textsplitters';
 import { PrismaService } from '../../prisma/prisma.service';
 import type { AiDataSource } from '../dto/sync.dto';
+import type { SyncItemDto } from '../dto/sync.dto';
 import { loadArticles } from '../loaders/article.loader';
 import { loadMessages } from '../loaders/message.loader';
 import { loadProjects } from '../loaders/project.loader';
@@ -11,12 +12,15 @@ import { AiVectorStoreService } from './ai-vector-store.service';
 /** 单数据源同步结果 */
 export interface SourceSyncResult {
   source: AiDataSource;
+  /** 本次提交的记录 id 列表 */
+  ids: string[];
   chunkCount: number;
   error?: string;
 }
 
 /**
- * 文档摄取服务：从 Prisma 拉取各数据源 → 分块 → 向量化写入 LanceDB。
+ * 文档摄取服务：按管理端勾选的记录 id → 分块 → 向量化写入 LanceDB。
+ * 仅更新选中记录的向量块，不默认全表同步。
  */
 @Injectable()
 export class AiIngestService {
@@ -28,28 +32,43 @@ export class AiIngestService {
     private readonly vectorStore: AiVectorStoreService,
   ) {}
 
-  /** 按选定数据源执行同步 */
-  async syncSources(sources: AiDataSource[]): Promise<SourceSyncResult[]> {
+  /** 按勾选的 items 执行增量同步 */
+  async syncItems(items: SyncItemDto[]): Promise<SourceSyncResult[]> {
     const results: SourceSyncResult[] = [];
 
-    for (const source of sources) {
+    for (const item of items) {
+      const ids = [...new Set(item.ids.map((id) => id.trim()).filter(Boolean))];
+      if (!ids.length) {
+        results.push({
+          source: item.source,
+          ids: [],
+          chunkCount: 0,
+          error: '未选择任何记录',
+        });
+        continue;
+      }
+
       try {
-        const chunkCount = await this.syncOne(source);
-        results.push({ source, chunkCount });
+        const chunkCount = await this.syncOne(item.source, ids);
+        results.push({ source: item.source, ids, chunkCount });
       } catch (e) {
         const message = e instanceof Error ? e.message : String(e);
-        results.push({ source, chunkCount: 0, error: message });
+        results.push({ source: item.source, ids, chunkCount: 0, error: message });
       }
     }
 
     return results;
   }
 
-  /** 同步单个数据源 */
-  private async syncOne(source: AiDataSource): Promise<number> {
-    const documents = await this.loadDocuments(source);
+  /**
+   * 同步单数据源下指定记录：先删除这些 sourceId 的旧向量，再写入新分块。
+   */
+  private async syncOne(source: AiDataSource, ids: string[]): Promise<number> {
+    const sourceIdsForStore = this.resolveVectorSourceIds(source, ids);
+    await this.vectorStore.deleteBySourceAndSourceIds(source, sourceIdsForStore);
+
+    const documents = await this.loadDocuments(source, ids);
     if (!documents.length) {
-      await this.vectorStore.deleteBySource(source);
       return 0;
     }
 
@@ -58,8 +77,6 @@ export class AiIngestService {
       chunkOverlap: this.chunkOverlap,
     });
     const splits = await splitter.splitDocuments(documents);
-
-    await this.vectorStore.deleteBySource(source);
 
     const chunks = splits.map((doc) => ({
       text: doc.pageContent,
@@ -72,28 +89,67 @@ export class AiIngestService {
     return this.vectorStore.addChunks(chunks);
   }
 
-  /** 从数据库加载指定数据源的 Document 列表 */
-  private async loadDocuments(source: AiDataSource) {
+  /** 与 LanceDB metadata.sourceId 对齐的 id 列表 */
+  private resolveVectorSourceIds(source: AiDataSource, ids: string[]): string[] {
+    if (source === 'logs') {
+      return ids.map((id) => {
+        if (id.startsWith('audit:') || id.startsWith('app:')) return id;
+        return id;
+      });
+    }
+    return ids.map((id) => String(Number(id)));
+  }
+
+  /** 按 id 从数据库加载 Document */
+  private async loadDocuments(source: AiDataSource, ids: string[]) {
     switch (source) {
-      case 'articles':
-        return loadArticles(await this.prisma.article.findMany());
-      case 'projects':
-        return loadProjects(await this.prisma.project.findMany());
-      case 'messages':
-        return loadMessages(await this.prisma.message.findMany());
+      case 'articles': {
+        const numericIds = this.parseNumericIds(ids);
+        if (!numericIds.length) return [];
+        return loadArticles(
+          await this.prisma.article.findMany({ where: { id: { in: numericIds } } }),
+        );
+      }
+      case 'projects': {
+        const numericIds = this.parseNumericIds(ids);
+        if (!numericIds.length) return [];
+        return loadProjects(
+          await this.prisma.project.findMany({ where: { id: { in: numericIds } } }),
+        );
+      }
+      case 'messages': {
+        const numericIds = this.parseNumericIds(ids);
+        if (!numericIds.length) return [];
+        return loadMessages(
+          await this.prisma.message.findMany({ where: { id: { in: numericIds } } }),
+        );
+      }
       case 'logs': {
+        const auditIds = ids
+          .filter((id) => id.startsWith('audit:'))
+          .map((id) => Number(id.slice('audit:'.length)))
+          .filter((n) => !Number.isNaN(n));
+        const appIds = ids
+          .filter((id) => id.startsWith('app:'))
+          .map((id) => Number(id.slice('app:'.length)))
+          .filter((n) => !Number.isNaN(n));
+
         const [auditLogs, appLogs] = await Promise.all([
-          this.prisma.adminAuditLog.findMany({ orderBy: { createdAt: 'desc' }, take: 2000 }),
-          this.prisma.appLog.findMany({
-            where: { level: 'error' },
-            orderBy: { createdAt: 'desc' },
-            take: 2000,
-          }),
+          auditIds.length
+            ? this.prisma.adminAuditLog.findMany({ where: { id: { in: auditIds } } })
+            : [],
+          appIds.length
+            ? this.prisma.appLog.findMany({ where: { id: { in: appIds } } })
+            : [],
         ]);
         return loadSystemLogs(auditLogs, appLogs);
       }
       default:
         return [];
     }
+  }
+
+  private parseNumericIds(ids: string[]): number[] {
+    return [...new Set(ids.map((id) => Number(id)).filter((n) => !Number.isNaN(n) && n > 0))];
   }
 }
