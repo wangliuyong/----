@@ -67,6 +67,8 @@ services:
       LANCE_DB_PATH: /app/data/lancedb
       AI_CHUNK_SIZE: ${AI_CHUNK_SIZE:-800}
       AI_CHUNK_OVERLAP: ${AI_CHUNK_OVERLAP:-100}
+      # 轻量服务器限制 API 堆内存，与 web 容器合计不超过 2GB
+      # NODE_OPTIONS: ${API_NODE_OPTIONS:---max-old-space-size=512}
     volumes:
       - api-data:/app/data
     healthcheck:

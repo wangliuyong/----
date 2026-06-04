@@ -24,9 +24,14 @@ export function SearchBar() {
   const loadIndex = useCallback(async () => {
     try {
       const [articles, projects] = await Promise.all([
-        fetch(`${API_BASE}/article/list`).then((r) => r.json()),
-        fetch(`${API_BASE}/project/list`).then((r) => r.json()),
+        fetch(`${API_BASE}/article/list`).then((r) => (r.ok ? r.json() : [])),
+        fetch(`${API_BASE}/project/list`).then((r) => (r.ok ? r.json() : [])),
       ]);
+
+      if (!Array.isArray(articles) || !Array.isArray(projects)) {
+        setItems([]);
+        return;
+      }
 
       const merged: SearchItem[] = [
         ...articles.map((a: { id: number; title: string; summary?: string }) => ({

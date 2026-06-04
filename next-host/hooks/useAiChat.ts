@@ -27,6 +27,14 @@ export interface ChatMessage {
   loading?: boolean;
 }
 
+/** 生成会话 ID；HTTP 非安全上下文下 crypto.randomUUID 不可用 */
+function createSessionId(): string {
+  if (typeof crypto !== 'undefined' && typeof crypto.randomUUID === 'function') {
+    return crypto.randomUUID();
+  }
+  return `sess-${Date.now()}-${Math.random().toString(36).slice(2, 11)}`;
+}
+
 /** 读取或创建会话 ID，用于服务端 LangGraph thread_id 记忆 */
 function getOrCreateSessionId(): string {
   if (typeof window === 'undefined') {
@@ -36,7 +44,7 @@ function getOrCreateSessionId(): string {
   if (stored && /^[\w-]+$/.test(stored) && stored.length <= 128) {
     return stored;
   }
-  const id = crypto.randomUUID();
+  const id = createSessionId();
   localStorage.setItem(SESSION_STORAGE_KEY, id);
   return id;
 }
@@ -205,7 +213,7 @@ export function useAiChat() {
     } catch {
       /* 清空记忆失败仍重置本地会话，避免阻塞用户 */
     }
-    const newSessionId = crypto.randomUUID();
+    const newSessionId = createSessionId();
     persistSessionId(newSessionId);
     setMessages([]);
   }, []);

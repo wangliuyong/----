@@ -1,10 +1,19 @@
-# NestJS 后端镜像：Prisma + SQLite
-FROM node:20-alpine AS base
+# NestJS 后端镜像：Prisma + SQLite + LanceDB
+# 使用 Debian slim（glibc），Alpine musl 下 LanceDB native 模块易加载失败
+FROM node:20-slim AS base
+# Prisma 需要 libssl；国内构建将 Debian 源切到阿里云，避免 deb.debian.org 极慢
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g; s|security.debian.org|mirrors.aliyun.com|g' \
+      /etc/apt/sources.list.d/debian.sources 2>/dev/null \
+    || sed -i 's|deb.debian.org|mirrors.aliyun.com|g; s|security.debian.org|mirrors.aliyun.com|g' \
+      /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
 
-# 安装依赖
-COPY nest-server/package.json nest-server/pnpm-lock.yaml* ./
+# 安装依赖（含 .npmrc，确保 @lancedb/* native 可被 require）
+COPY nest-server/package.json nest-server/pnpm-lock.yaml* nest-server/.npmrc ./
 RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
 
 # 复制源码与 Prisma 配置
@@ -15,11 +24,21 @@ COPY nest-server/src ./src
 # 生成 Prisma Client 并编译
 RUN pnpm exec prisma generate
 RUN pnpm exec nest build
-# 编译 seed 脚本供生产环境初始化数据
+# 编译 seed 脚本供 remote-deploy 初始化数据
 RUN pnpm exec tsc prisma/seed.ts --outDir dist/prisma --esModuleInterop --skipLibCheck --module commonjs --target ES2021
 
+# 构建阶段验证 LanceDB native 可加载，避免运行时才 502
+RUN node -e "require('@lancedb/lancedb'); console.log('lancedb native ok')"
+
 # 生产运行阶段
-FROM node:20-alpine AS runner
+FROM node:20-slim AS runner
+RUN sed -i 's|deb.debian.org|mirrors.aliyun.com|g; s|security.debian.org|mirrors.aliyun.com|g' \
+      /etc/apt/sources.list.d/debian.sources 2>/dev/null \
+    || sed -i 's|deb.debian.org|mirrors.aliyun.com|g; s|security.debian.org|mirrors.aliyun.com|g' \
+      /etc/apt/sources.list \
+    && apt-get update \
+    && apt-get install -y --no-install-recommends openssl ca-certificates \
+    && rm -rf /var/lib/apt/lists/*
 RUN corepack enable && corepack prepare pnpm@9 --activate
 WORKDIR /app
 
@@ -36,5 +55,5 @@ RUN mkdir -p /app/data
 
 EXPOSE 3001
 
-# 启动前执行数据库迁移，再启动服务
-CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/prisma/seed.js && node dist/src/main.js"]
+# migrate 后启动；seed 由 remote-deploy.sh 单独执行，避免阻塞 API 监听
+CMD ["sh", "-c", "pnpm exec prisma migrate deploy && node dist/src/main.js"]
