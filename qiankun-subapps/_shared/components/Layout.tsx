@@ -30,7 +30,7 @@ export function PageTitle({
   ...props
 }: HTMLAttributes<HTMLHeadingElement>) {
   return (
-    <h1 className={cn('text-3xl font-bold font-serif', className)} {...props}>
+    <h1 className={cn('text-3xl font-bold font-serif app-page-header', className)} {...props}>
       {children}
     </h1>
   );

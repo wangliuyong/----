@@ -10,7 +10,7 @@ export interface BlogArticleListProps {
 /** 博客文章列表 */
 export default function BlogArticleList({ articles }: BlogArticleListProps) {
   return (
-    <ul className="home-post-list app-stagger">
+    <ul className="home-post-list">
       {articles.map((item) => (
         <li className="home-post-item" key={item.id}>
           <Link className="home-post-link" to={blogDetailPath(item.id)}>

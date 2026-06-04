@@ -9,7 +9,7 @@ export default function AboutStrengthsSection({ strengths }: AboutStrengthsSecti
   return (
     <AppSection className="mt-10">
       <SectionTitle>核心优势</SectionTitle>
-      <ul className="space-y-2">
+      <ul className="space-y-2 app-stagger-sm">
         {strengths.map((item) => (
           <li key={item} className="flex gap-2 text-muted text-sm leading-relaxed">
             <AppMark />

@@ -43,6 +43,27 @@
   padding: 8px 0 16px;
   margin-bottom: 12px;
 
+  /* Hero 子元素逐级淡入 */
+  > * {
+    animation: home-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) both;
+  }
+
+  .home-eyebrow {
+    animation-delay: 0.04s;
+  }
+
+  .home-title {
+    animation-delay: 0.1s;
+  }
+
+  .home-lead {
+    animation-delay: 0.18s;
+  }
+
+  .home-actions {
+    animation-delay: 0.26s;
+  }
+
   // &::after {
   //   content: '';
   //   position: absolute;
@@ -208,6 +229,13 @@
 
 .home-post-item {
   position: relative;
+  animation: home-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @for $i from 1 through 10 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.08 + ($i - 1) * 0.05}s;
+    }
+  }
 }
 
 .home-post-link {
@@ -279,6 +307,13 @@
 
 .home-project-item {
   position: relative;
+  animation: home-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @for $i from 1 through 8 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.1 + ($i - 1) * 0.07}s;
+    }
+  }
 }
 
 .home-project-link {
@@ -415,7 +450,10 @@
 @media (prefers-reduced-motion: reduce) {
   .home,
   .home-section,
-  .home-skeleton-line {
+  .home-skeleton-line,
+  .home-hero > *,
+  .home-post-item,
+  .home-project-item {
     animation: none;
   }
 

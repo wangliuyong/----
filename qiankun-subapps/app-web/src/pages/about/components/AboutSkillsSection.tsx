@@ -15,7 +15,7 @@ export default function AboutSkillsSection({ skillGroups }: AboutSkillsSectionPr
   return (
     <AppSection className="mt-10">
       <SectionTitle>技能</SectionTitle>
-      <div className="space-y-6">
+      <div className="space-y-6 app-stagger-sm">
         {skillGroups.map((group) => (
           <div key={group.title}>
             <h3 className="font-semibold">{group.title}</h3>

@@ -30,23 +30,25 @@ export default function ContactPage() {
   return (
     <SubApp>
       <PageTitle className="mb-6">联系我</PageTitle>
-      {intro && <p className="mb-4 text-muted">{intro}</p>}
-      <div className="mb-8 text-muted space-y-1">
-        <p>
-          邮箱：
-          <AppAccentLink href={`mailto:${email}`}>{email}</AppAccentLink>
-        </p>
-        <p>
-          GitHub：
-          <AppAccentLink href={githubUrl} target="_blank" rel="noopener noreferrer">
-            {githubUrl}
-          </AppAccentLink>
-        </p>
-      </div>
+      <AppSection className="mb-8 space-y-4">
+        {intro && <p className="text-muted">{intro}</p>}
+        <div className="text-muted space-y-1 app-stagger-sm">
+          <p>
+            邮箱：
+            <AppAccentLink href={`mailto:${email}`}>{email}</AppAccentLink>
+          </p>
+          <p>
+            GitHub：
+            <AppAccentLink href={githubUrl} target="_blank" rel="noopener noreferrer">
+              {githubUrl}
+            </AppAccentLink>
+          </p>
+        </div>
+      </AppSection>
 
       <AppSection className="mt-8">
         <SectionTitle>留言</SectionTitle>
-        <form onSubmit={handleSubmit} className="max-w-md space-y-4">
+        <form onSubmit={handleSubmit} className="max-w-md space-y-4 app-stagger-sm">
         <AppField label="昵称" required>
           <AppInput
             required

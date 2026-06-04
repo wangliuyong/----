@@ -55,14 +55,56 @@
   }
 }
 
+/* 轻量错峰：区块内短列表、表单项等 */
+.app-stagger-sm > * {
+  animation: app-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  @for $i from 1 through 16 {
+    &:nth-child(#{$i}) {
+      animation-delay: #{0.04 + ($i - 1) * 0.04}s;
+    }
+  }
+}
+
+/* 页面主标题：略快于整页容器 */
+.app-page-header {
+  animation: app-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+/* 筛选栏 / 工具条：标题之后入场 */
+.app-toolbar {
+  animation: app-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) 0.06s both;
+}
+
+/* 博客详情正文：元信息渲染后再淡入 */
+.app-article-body {
+  animation: app-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) 0.12s both;
+}
+
+/* 返回链接：先于正文出现 */
+.app-back-link {
+  animation: app-enter 0.5s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
 @media (prefers-reduced-motion: reduce) {
   .sub-app,
   .app-section,
-  .app-stagger > * {
+  .app-stagger > *,
+  .app-stagger-sm > *,
+  .app-page-header,
+  .app-toolbar,
+  .app-article-body,
+  .app-back-link,
+  .app-error,
+  .app-empty {
     animation: none;
   }
 
   .app-timeline > *:first-child::before {
+    animation: none;
+  }
+
+  .app-timeline > * {
     animation: none;
   }
 
@@ -218,6 +260,16 @@
   border-radius: 9999px;
   color: var(--ed-muted);
   background: var(--ed-accent-soft);
+  transition:
+    transform 0.25s cubic-bezier(0.22, 1, 0.36, 1),
+    border-color 0.25s ease,
+    color 0.25s ease;
+
+  &:hover {
+    transform: translateY(-1px);
+    border-color: var(--ed-accent-border);
+    color: var(--ed-accent);
+  }
 }
 
 .app-mark {
@@ -272,6 +324,17 @@
   /* 首项圆点：呼吸光晕，提示时间线起点 */
   > *:first-child::before {
     animation: app-timeline-dot-breathe 2.6s ease-in-out infinite;
+  }
+
+  /* 时间线条目错峰入场 */
+  > * {
+    animation: app-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+    @for $i from 1 through 8 {
+      &:nth-child(#{$i}) {
+        animation-delay: #{0.1 + ($i - 1) * 0.07}s;
+      }
+    }
   }
 
   /* 竖线：从当前圆点中心画到下一项圆点中心，首项上方不出头 */
@@ -348,6 +411,7 @@
   color: var(--ed-text);
   font-size: 0.92rem;
   line-height: 1.6;
+  animation: app-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .app-empty {
@@ -356,6 +420,7 @@
   font-size: 0.92rem;
   color: var(--ed-faint);
   font-style: italic;
+  animation: app-enter 0.55s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 /* ---------- Markdown 正文 ---------- */

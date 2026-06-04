@@ -17,7 +17,7 @@ export default function AboutEducationSection({
       {certifications.length > 0 && (
         <>
           <h3 className="text-lg font-semibold mt-6 mb-3">认证</h3>
-          <ul className="flex flex-wrap gap-2">
+          <ul className="flex flex-wrap gap-2 app-stagger-sm">
             {certifications.map((cert) => (
               <li key={cert}>
                 <AppTag className="rounded-md">{cert}</AppTag>

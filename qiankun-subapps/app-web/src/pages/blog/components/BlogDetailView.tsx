@@ -16,15 +16,15 @@ export interface BlogDetailViewProps {
 export default function BlogDetailView({ article }: BlogDetailViewProps) {
   return (
     <SubApp className="max-w-3xl">
-      <AppLink href="/blog" variant="back" className="mb-4">
+      <AppLink href="/blog" variant="back" className="mb-4 app-back-link">
         返回列表
       </AppLink>
       <PageTitle className="mb-0">{article.title}</PageTitle>
-      <p className="text-sm text-faint my-2">
+      <p className="text-sm text-faint my-2 app-section">
         {formatDate(article.publishedAt)}
         {article.category ? ` · ${article.category}` : ''}
       </p>
-      <ArticleBody html={renderMarkdownHtml(article.content)} />
+      <ArticleBody className="app-article-body" html={renderMarkdownHtml(article.content)} />
     </SubApp>
   );
 }
