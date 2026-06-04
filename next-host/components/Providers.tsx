@@ -1,8 +1,17 @@
 'use client';
 
+import dynamic from 'next/dynamic';
 import { ThemeProvider } from 'next-themes';
 import type { ReactNode } from 'react';
-import { AiAssistantWidget } from '@/components/ai-assistant/AiAssistantWidget';
+
+/** 仅客户端挂载：避免预渲染阶段访问 window / localStorage */
+const AiAssistantWidget = dynamic(
+  () =>
+    import('@/components/ai-assistant/AiAssistantWidget').then((mod) => ({
+      default: mod.AiAssistantWidget,
+    })),
+  { ssr: false },
+);
 
 export function Providers({ children }: { children: ReactNode }) {
   return (

@@ -19,8 +19,14 @@ function readAnchor(): AiWidgetAnchor {
   return 'bottom';
 }
 
+/** SSR 与首屏渲染时避免直接访问 window */
+function getViewportHeight(): number {
+  if (typeof window === 'undefined') return 800;
+  return window.innerHeight;
+}
+
 /** 根据档位计算 top（px） */
-function anchorToTop(anchor: AiWidgetAnchor, vh = window.innerHeight): number {
+function anchorToTop(anchor: AiWidgetAnchor, vh = getViewportHeight()): number {
   const max = Math.max(EDGE, vh - WIDGET_H - EDGE);
   switch (anchor) {
     case 'top':
@@ -33,7 +39,7 @@ function anchorToTop(anchor: AiWidgetAnchor, vh = window.innerHeight): number {
 }
 
 /** 取最近的吸附档位 */
-function nearestAnchor(top: number, vh = window.innerHeight): AiWidgetAnchor {
+function nearestAnchor(top: number, vh = getViewportHeight()): AiWidgetAnchor {
   const candidates: AiWidgetAnchor[] = ['top', 'center', 'bottom'];
   let best: AiWidgetAnchor = 'bottom';
   let min = Infinity;
@@ -47,7 +53,7 @@ function nearestAnchor(top: number, vh = window.innerHeight): AiWidgetAnchor {
   return best;
 }
 
-function clampTop(top: number, vh = window.innerHeight): number {
+function clampTop(top: number, vh = getViewportHeight()): number {
   return Math.min(Math.max(EDGE, top), Math.max(EDGE, vh - WIDGET_H - EDGE));
 }
 
@@ -162,7 +168,7 @@ export function useAiWidgetDrag(onOpen: () => void): UseAiWidgetDragResult {
   );
 
   return {
-    top: ready ? top : anchorToTop('bottom'),
+    top: ready ? top : anchorToTop('bottom', getViewportHeight()),
     anchor,
     dragging,
     bindMascot: {

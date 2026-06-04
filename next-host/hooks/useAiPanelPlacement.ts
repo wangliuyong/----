@@ -26,6 +26,9 @@ function getHeaderBottom(): number {
  * 在顶栏与底边之间的安全区内竖直居中，并限制 max-height 保证上下都不溢出
  */
 export function resolvePanelLayout(): AiPanelLayout {
+  if (typeof window === 'undefined') {
+    return { centerY: 400, maxHeight: 640 };
+  }
   const vh = window.innerHeight;
   const headerBottom = getHeaderBottom();
   const topSafe = headerBottom + PANEL_GAP;

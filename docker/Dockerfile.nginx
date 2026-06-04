@@ -7,6 +7,9 @@ COPY qiankun-subapps/_shared ./qiankun-subapps/_shared
 COPY qiankun-subapps/app-web ./qiankun-subapps/app-web
 COPY qiankun-subapps/app-admin ./qiankun-subapps/app-admin
 
+# _shared 独立 package.json（含 dayjs 等），需先安装供共享工具模块解析
+RUN cd qiankun-subapps/_shared && pnpm install --frozen-lockfile 2>/dev/null || pnpm install
+
 RUN cd qiankun-subapps/app-web && pnpm install && VITE_BASE=/micro/web/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 RUN cd qiankun-subapps/app-admin && pnpm install && VITE_BASE=/micro/admin/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 
