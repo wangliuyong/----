@@ -9,7 +9,7 @@ export {
   type SiteRouteKey,
 } from './siteRoutes';
 
-/** 是否匹配前台 app-web 激活路径 */
+/** 是否匹配前台站点路径（含 SSR 与 Qiankun 子应用路由） */
 export function isPublicSitePath(pathname: string): boolean {
   if (pathname === '/') return true;
 
@@ -20,6 +20,23 @@ export function isPublicSitePath(pathname: string): boolean {
     }
     return pathname === route.path;
   });
+}
+
+/** 是否由 Next.js 服务端渲染（首页 / 博客） */
+export function isSsrSitePath(pathname: string): boolean {
+  return SITE_ROUTE_CONFIG.some((route) => {
+    if (!route.ssr) return false;
+    if (route.path === '/') return pathname === '/';
+    if (route.matchPrefix) {
+      return pathname === route.path || pathname.startsWith(`${route.path}/`);
+    }
+    return pathname === route.path;
+  });
+}
+
+/** 是否由 Qiankun app-web 渲染（排除 SSR 路由） */
+export function isQiankunSitePath(pathname: string): boolean {
+  return isPublicSitePath(pathname) && !isSsrSitePath(pathname);
 }
 
 /** 顶栏导航高亮 */

@@ -1,8 +1,10 @@
 'use client';
 
 import { useEffect, useState, type ReactNode } from 'react';
+import { usePathname } from 'next/navigation';
 import { useTheme } from 'next-themes';
 import { WebMicroContainer } from '@/components/StableMicroAppContainer';
+import { isQiankunSitePath } from '@/router';
 import { initQiankun, syncQiankunTheme } from '@/utils/qiankun';
 
 interface QiankunProviderProps {
@@ -14,6 +16,8 @@ interface QiankunProviderProps {
  * 加载态与 #micro-container 分离，避免 setReady 触发 re-render 清空子应用 DOM
  */
 export function QiankunProvider({ children }: QiankunProviderProps) {
+  const pathname = usePathname();
+  const isQiankunRoute = isQiankunSitePath(pathname);
   const { theme, resolvedTheme } = useTheme();
   const [ready, setReady] = useState(false);
   const [error, setError] = useState('');
@@ -54,14 +58,20 @@ export function QiankunProvider({ children }: QiankunProviderProps) {
     <>
       {children}
 
-      <div className="relative w-full min-h-[40vh]">
-        {!ready && !error && (
+      {/* SSR 路由（首页/博客）由 Next 直接输出；其余路由挂载 Qiankun 子应用 */}
+      <div
+        className={`relative w-full ${isQiankunRoute ? 'min-h-[40vh]' : 'hidden'}`}
+        aria-hidden={!isQiankunRoute}
+      >
+        {isQiankunRoute && !ready && !error && (
           <div className="absolute inset-0 z-10 flex items-center justify-center site-loading pointer-events-none">
             页面加载中...
           </div>
         )}
-        {error && <div className="site-error">{error}</div>}
-        <WebMicroContainer />
+        {error && isQiankunRoute && <div className="site-error">{error}</div>}
+        <WebMicroContainer
+          className={isQiankunRoute ? 'w-full min-h-[40vh]' : 'hidden'}
+        />
       </div>
     </>
   );

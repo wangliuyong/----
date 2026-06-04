@@ -34,6 +34,8 @@ services:
         PUBLIC_ORIGIN: ${PUBLIC_ORIGIN:-http://localhost}
     environment:
       NODE_ENV: production
+      # Next SSR 内网访问 API（与浏览器 NEXT_PUBLIC_API_BASE 区分）
+      API_BASE_INTERNAL: http://api:3001/api
       # 轻量服务器限制 Node 堆内存，避免 OOM 导致 502
       NODE_OPTIONS: ${NODE_OPTIONS:---max-old-space-size=384}
     healthcheck:

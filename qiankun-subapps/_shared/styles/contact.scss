@@ -1,0 +1,220 @@
+/**
+ * 联系我页 — 不对称双栏（渠道 / 表单）
+ * 仅由 contact 路由模块引入，沿用 Ink & Sand token，不污染其他页面
+ */
+
+.contact {
+  width: 100%;
+  max-width: 960px;
+  --contact-serif: var(--ed-serif);
+  --contact-sans: var(--ed-sans);
+  --contact-text: var(--ed-text);
+  --contact-muted: var(--ed-muted);
+  --contact-faint: var(--ed-faint);
+  --contact-line: var(--ed-line);
+  --contact-accent: var(--ed-accent);
+  --contact-accent-soft: var(--ed-accent-soft);
+  --contact-accent-border: var(--ed-accent-border);
+  --contact-surface: var(--ed-surface);
+  --contact-shadow: var(--ed-shadow);
+
+  font-family: var(--contact-sans);
+  color: var(--contact-text);
+}
+
+/* ---------- 双栏布局：左渠道 / 右表单 ---------- */
+.contact-layout {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 40px;
+  align-items: start;
+
+  @media (min-width: 768px) {
+    grid-template-columns: 2fr 3fr;
+    gap: 56px;
+  }
+}
+
+/* ---------- 左侧：标题与说明 ---------- */
+.contact-hero {
+  animation: app-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+.contact-title {
+  margin: 0;
+  font-family: var(--contact-serif);
+  font-size: clamp(2rem, 4.5vw, 2.75rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
+}
+
+.contact-lead {
+  max-width: 32em;
+  margin: 16px 0 0;
+  font-size: 1.02rem;
+  line-height: 1.75;
+  color: var(--contact-muted);
+}
+
+/* ---------- 联系渠道列表（横排条目，对齐 home-post-link 交互） ---------- */
+.contact-channels {
+  list-style: none;
+  margin: 36px 0 0;
+  padding: 0;
+}
+
+.contact-channel {
+  animation: app-enter 0.6s cubic-bezier(0.22, 1, 0.36, 1) both;
+
+  &:nth-child(1) {
+    animation-delay: 0.08s;
+  }
+
+  &:nth-child(2) {
+    animation-delay: 0.14s;
+  }
+}
+
+.contact-channel-link {
+  display: grid;
+  grid-template-columns: 72px 1fr auto;
+  gap: 12px 16px;
+  align-items: center;
+  padding: 20px 0;
+  color: inherit;
+  text-decoration: none;
+  border-bottom: 1px solid var(--contact-line);
+  transition: background 0.3s ease, padding-left 0.3s ease;
+
+  @media (max-width: 480px) {
+    grid-template-columns: 1fr auto;
+    grid-template-rows: auto auto;
+    gap: 4px 12px;
+
+    .contact-channel-label {
+      grid-column: 1 / -1;
+    }
+  }
+
+  &:hover {
+    padding-left: 6px;
+    // background: var(--contact-accent-soft);
+
+    .contact-channel-value {
+      color: var(--contact-accent);
+    }
+
+    .contact-channel-arrow {
+      transform: translateX(4px);
+      color: var(--contact-accent);
+    }
+  }
+}
+
+.contact-channel-label {
+  font-size: 0.75rem;
+  font-weight: 600;
+  letter-spacing: 0.14em;
+  text-transform: uppercase;
+  color: var(--contact-faint);
+}
+
+.contact-channel-value {
+  min-width: 0;
+  font-size: 0.95rem;
+  font-weight: 500;
+  line-height: 1.4;
+  transition: color 0.25s ease;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.contact-channel-arrow {
+  font-size: 0.92rem;
+  color: var(--contact-faint);
+  transition: transform 0.25s cubic-bezier(0.22, 1, 0.36, 1), color 0.25s ease;
+}
+
+/* ---------- 右侧：表单面板 ---------- */
+.contact-form-panel {
+  padding: 28px 24px;
+  border: 1px solid var(--contact-line);
+  border-radius: 2px;
+  background: var(--contact-surface);
+  backdrop-filter: blur(8px);
+  box-shadow: var(--contact-shadow);
+  animation: app-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.1s both;
+
+  @media (min-width: 768px) {
+    padding: 32px 28px;
+  }
+}
+
+.contact-form-heading {
+  margin: 0 0 6px;
+  font-family: var(--contact-serif);
+  font-size: 1.35rem;
+  font-weight: 600;
+}
+
+.contact-form-desc {
+  margin: 0 0 24px;
+  font-size: 0.88rem;
+  line-height: 1.6;
+  color: var(--contact-muted);
+}
+
+.contact-form-fields {
+  display: flex;
+  flex-direction: column;
+  gap: 18px;
+}
+
+/* 表单反馈条：成功 / 错误 */
+.contact-feedback {
+  margin: 0 0 4px;
+  padding: 12px 16px;
+  font-size: 0.88rem;
+  line-height: 1.55;
+  border-radius: 2px;
+
+  &--error {
+    border-left: 3px solid #dc2626;
+    background: rgba(220, 38, 38, 0.08);
+    color: var(--contact-text);
+  }
+
+  &--success {
+    border-left: 3px solid var(--contact-accent);
+    background: var(--contact-accent-soft);
+    color: var(--contact-text);
+  }
+}
+
+.contact-submit {
+  margin-top: 4px;
+  width: 100%;
+
+  @media (min-width: 480px) {
+    width: auto;
+    min-width: 140px;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .contact-hero,
+  .contact-channel,
+  .contact-form-panel {
+    animation: none;
+  }
+
+  .contact-channel-link:hover {
+    padding-left: 0;
+  }
+
+  .contact-channel-arrow {
+    transform: none !important;
+  }
+}

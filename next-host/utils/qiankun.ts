@@ -1,6 +1,6 @@
 'use client';
 
-import { isAdminPath, isPublicSitePath } from '@/router';
+import { isAdminPath, isQiankunSitePath } from '@/router';
 import { API_BASE } from './api';
 
 /** 前台统一子应用 entry（生产环境通过环境变量覆盖） */
@@ -38,7 +38,7 @@ const microApps = [
     name: 'app-web',
     entry: WEB_ENTRY,
     container: '#micro-container',
-    activeRule: (location: Location) => isPublicSitePath(location.pathname),
+    activeRule: (location: Location) => isQiankunSitePath(location.pathname),
     props: {
       get onMessageSuccess() {
         return window.__HOST_CALLBACKS__?.onMessageSuccess;

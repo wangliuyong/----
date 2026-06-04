@@ -9,6 +9,8 @@ export interface SiteRouteDef {
   label: string;
   /** 是否匹配子路径（如 /blog/:id） */
   matchPrefix?: boolean;
+  /** 由 Next.js 服务端渲染（不走 Qiankun 子应用） */
+  ssr?: boolean;
   /** 基座额外挂载逻辑 */
   hostExtras?: 'contact';
 }
@@ -18,9 +20,9 @@ export interface SiteRouteDef {
  * 驱动：Next catch-all、Qiankun activeRule、默认导航、404 判定
  */
 export const SITE_ROUTE_CONFIG: SiteRouteDef[] = [
-  { key: 'home', path: '/', label: '首页' },
+  { key: 'home', path: '/', label: '首页', ssr: true },
   { key: 'about', path: '/about', label: '关于我' },
-  { key: 'blog', path: '/blog', label: '博客', matchPrefix: true },
+  { key: 'blog', path: '/blog', label: '博客', matchPrefix: true, ssr: true },
   { key: 'projects', path: '/projects', label: '项目' },
   { key: 'contact', path: '/contact', label: '联系我', hostExtras: 'contact' },
   { key: 'links', path: '/links', label: '友链' },
