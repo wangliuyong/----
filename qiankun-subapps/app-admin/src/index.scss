@@ -1,3 +1,5 @@
+@use '../../_shared/styles/index';
+
 html,
 body,
 #root {
@@ -31,6 +33,7 @@ body,
   padding: 24px;
   overflow-x: hidden;
   overflow-y: auto;
+  background: var(--ed-bg, #faf8f5);
 }
 
 /* 侧栏折叠过渡：隐藏溢出、固定 Logo 占位，减少 Menu 闪动 */

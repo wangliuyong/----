@@ -50,12 +50,23 @@ export default function QaSessionDetailModal({
                   borderRadius: 8,
                   background:
                     msg.role === 'user'
-                      ? 'var(--ant-color-primary-bg, #e6f4ff)'
+                      ? 'var(--ant-color-primary-bg, var(--ed-accent-soft))'
                       : 'var(--ant-color-fill-quaternary, #f5f5f5)',
                 }}
               >
                 <div style={{ marginBottom: 6 }}>
-                  <Tag color={msg.role === 'user' ? 'blue' : 'default'}>
+                  <Tag
+                    color={msg.role === 'user' ? undefined : 'default'}
+                    style={
+                      msg.role === 'user'
+                        ? {
+                            color: 'var(--ed-accent)',
+                            background: 'var(--ed-accent-soft)',
+                            borderColor: 'var(--ed-accent-border)',
+                          }
+                        : undefined
+                    }
+                  >
                     {msg.role === 'user' ? '用户' : '助手'}
                   </Tag>
                   <Typography.Text type="secondary" style={{ marginLeft: 8, fontSize: 12 }}>

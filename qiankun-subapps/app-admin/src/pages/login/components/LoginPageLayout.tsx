@@ -1,5 +1,6 @@
 import { Card, Typography } from 'antd';
 import type { ReactNode } from 'react';
+import { inkSandDesignTokens } from '../../../../../_shared/inkSandDesignTokens';
 
 export interface LoginPageLayoutProps {
   children: ReactNode;
@@ -14,7 +15,7 @@ export default function LoginPageLayout({ children }: LoginPageLayoutProps) {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'center',
-        background: 'linear-gradient(135deg, #1677ff 0%, #0958d9 100%)',
+        background: `linear-gradient(135deg, ${inkSandDesignTokens.accent} 0%, ${inkSandDesignTokens.accentHover} 100%)`,
         padding: 24,
       }}
     >

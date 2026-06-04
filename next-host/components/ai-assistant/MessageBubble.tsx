@@ -21,9 +21,9 @@ export function MessageBubble({ message }: MessageBubbleProps) {
   return (
     <article className={`ai-bubble ai-bubble--${message.role}`}>
       <div className="ai-bubble__row">
-        {isUser ? null : <div className="ai-bubble__avatar" aria-hidden>
+        {/* {isUser ? null : <div className="ai-bubble__avatar" aria-hidden>
           <AssistantAvatar size="sm" />
-        </div>}
+        </div>} */}
 
 
         <div className="ai-bubble__content">
