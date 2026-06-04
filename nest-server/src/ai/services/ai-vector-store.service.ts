@@ -55,18 +55,18 @@ const TABLE_NAME = 'knowledge_chunks';
 
 /**
  * LanceDB 向量库封装：增删查与按 source 统计。
- * 向量维度随 Embedding 模型配置动态调整，变更时自动重建表。
+ * 向量维度随 Embedding 模型配置变更时需重建表；进程重启后应复用磁盘已有表，不可误删。
  */
 @Injectable()
 export class AiVectorStoreService {
   private db: Connection | null = null;
   private table: Table | null = null;
-  /** 当前表对应的向量维度 */
+  /** 当前内存中绑定的表向量维度（进程重启后为 0，需从 LanceDB 重新探测） */
   private tableDim = 0;
 
   constructor(private readonly embeddings: AiEmbeddingsService) { }
 
-  /** 配置变更后清除表缓存，下次操作按新维度重建 */
+  /** 配置变更后清除内存缓存，下次操作重新 openTable（不直接删盘） */
   resetTable() {
     this.table = null;
     this.tableDim = 0;
@@ -85,17 +85,42 @@ export class AiVectorStoreService {
     return this.db;
   }
 
+  /** 从已有表抽样读取向量维度；空表时返回 null */
+  private async readTableVectorDim(table: Table): Promise<number | null> {
+    try {
+      const rows = (await table.query().limit(1).toArray()) as VectorChunkRecord[];
+      const vector = rows[0]?.vector;
+      if (Array.isArray(vector) && vector.length > 0) {
+        return vector.length;
+      }
+    } catch {
+      /* 空表或尚未写入数据 */
+    }
+    return null;
+  }
+
   /** 确保表存在且向量维度与当前 Embedding 配置一致 */
   private async ensureTable(dim: number) {
     const db = await this.getConnection();
     const names = await db.tableNames();
 
     if (names.includes(TABLE_NAME)) {
-      if (this.tableDim === dim && this.table) return;
-      /** 维度变更：删除旧表并重建，避免写入失败 */
-      await db.dropTable(TABLE_NAME);
-      this.table = null;
-      this.tableDim = 0;
+      // 内存缓存仍有效
+      if (this.table && this.tableDim === dim) return;
+
+      const opened = await db.openTable(TABLE_NAME);
+      const existingDim = await this.readTableVectorDim(opened);
+
+      // 仅当已入库向量维度与当前模型不一致时才 drop（如更换 embedding 模型）
+      if (existingDim !== null && existingDim !== dim) {
+        await db.dropTable(TABLE_NAME);
+        this.table = null;
+        this.tableDim = 0;
+      } else {
+        this.table = opened;
+        this.tableDim = existingDim ?? dim;
+        return;
+      }
     }
 
     const placeholder: VectorChunkRecord = {

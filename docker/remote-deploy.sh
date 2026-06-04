@@ -13,7 +13,7 @@ rm -rf next-host/app/about next-host/app/blog next-host/app/contact \
        next-host/app/links next-host/app/projects
 rm -f next-host/app/page.tsx
 
-echo "==> [remote] 停止旧容器（保留数据库卷 docker_api-data，不使用 down -v）..."
+echo "==> [remote] 停止旧容器（保留卷 docker_api-data：SQLite + LanceDB 向量库，不使用 down -v）..."
 ${COMPOSE} down 2>/dev/null || true
 
 echo "==> [remote] 构建并启动（可能 15–30 分钟）..."
