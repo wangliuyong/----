@@ -174,3 +174,28 @@ model AiConfig {
   embeddingDimensions  Int?
   updatedAt            DateTime @updatedAt
 }
+
+/** AI 用户问答会话（前台 sessionId 与 LangGraph thread_id 一致） */
+model AiChatSession {
+  id           String          @id
+  messageCount Int             @default(0)
+  createdAt    DateTime        @default(now())
+  updatedAt    DateTime        @updatedAt
+  messages     AiChatMessage[]
+}
+
+/** AI 用户问答消息（user / assistant 一问一答持久化，供管理端审计） */
+model AiChatMessage {
+  id        Int           @id @default(autoincrement())
+  sessionId String
+  session   AiChatSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  /** user | assistant */
+  role      String
+  content   String
+  /** 助手回复失败时的错误信息 */
+  error     String?
+  createdAt DateTime      @default(now())
+
+  @@index([sessionId])
+  @@index([createdAt])
+}

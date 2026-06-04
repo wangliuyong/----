@@ -188,3 +188,80 @@ export function batchDeleteKnowledgeChunks(ids: string[]) {
     body: JSON.stringify({ ids }),
   });
 }
+
+/** 用户问答会话列表项 */
+export interface AiChatSessionItem {
+  id: string;
+  messageCount: number;
+  firstQuestion: string;
+  lastQuestion: string;
+  lastReplyPreview: string;
+  createdAt: string;
+  updatedAt: string;
+}
+
+/** 用户问答消息 */
+export interface AiChatMessageItem {
+  id: number;
+  role: 'user' | 'assistant';
+  content: string;
+  error: string | null;
+  createdAt: string;
+}
+
+/** 用户问答会话详情 */
+export interface AiChatSessionDetail {
+  id: string;
+  messageCount: number;
+  createdAt: string;
+  updatedAt: string;
+  messages: AiChatMessageItem[];
+}
+
+export interface AiChatSessionQuery {
+  page?: number;
+  pageSize?: number;
+  keyword?: string;
+}
+
+export interface PaginatedAiChatSessions {
+  items: AiChatSessionItem[];
+  total: number;
+  page: number;
+  pageSize: number;
+}
+
+/** 用户问答会话分页列表 */
+export function listAiChatSessions(query: AiChatSessionQuery = {}) {
+  const params = new URLSearchParams();
+  if (query.page) params.set('page', String(query.page));
+  if (query.pageSize) params.set('pageSize', String(query.pageSize));
+  if (query.keyword?.trim()) params.set('keyword', query.keyword.trim());
+  const qs = params.toString();
+  return request<PaginatedAiChatSessions>(
+    `/admin/ai/qa/sessions${qs ? `?${qs}` : ''}`,
+  );
+}
+
+/** 用户问答会话详情 */
+export function getAiChatSession(id: string) {
+  return request<AiChatSessionDetail>(
+    `/admin/ai/qa/sessions/${encodeURIComponent(id)}`,
+  );
+}
+
+/** 删除单条用户问答会话 */
+export function deleteAiChatSession(id: string) {
+  return request<{ deleted: number }>(
+    `/admin/ai/qa/sessions/${encodeURIComponent(id)}`,
+    { method: 'DELETE' },
+  );
+}
+
+/** 批量删除用户问答会话 */
+export function batchDeleteAiChatSessions(ids: string[]) {
+  return request<{ deleted: number }>('/admin/ai/qa/sessions/batch-delete', {
+    method: 'POST',
+    body: JSON.stringify({ ids }),
+  });
+}

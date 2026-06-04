@@ -15,10 +15,13 @@ import { RequirePermissions } from '../rbac/decorators/require-permissions.decor
 import { PermissionsGuard } from '../rbac/guards/permissions.guard';
 import { PrismaService } from '../prisma/prisma.service';
 import { DeleteKnowledgeChunksDto } from './dto/delete-knowledge-chunks.dto';
+import { DeleteChatSessionsDto } from './dto/delete-chat-sessions.dto';
+import { ListChatSessionsDto } from './dto/list-chat-sessions.dto';
 import { ListKnowledgeChunksDto } from './dto/list-knowledge-chunks.dto';
 import { UpdateAiConfigDto } from './dto/update-ai-config.dto';
 import { SyncCandidatesQueryDto } from './dto/sync-candidates-query.dto';
 import { SyncDto } from './dto/sync.dto';
+import { AiChatLogService } from './services/ai-chat-log.service';
 import { AiConfigService } from './services/ai-config.service';
 import { AiEmbeddingsService } from './services/ai-embeddings.service';
 import { AiIngestService } from './services/ai-ingest.service';
@@ -36,6 +39,7 @@ export class AdminAiController {
     private readonly prisma: PrismaService,
     private readonly aiConfig: AiConfigService,
     private readonly embeddings: AiEmbeddingsService,
+    private readonly chatLog: AiChatLogService,
   ) {}
 
   /** 读取 AI 配置（API Key 脱敏） */
@@ -156,6 +160,43 @@ export class AdminAiController {
   @RequirePermissions('admin:ai-knowledge:delete')
   async batchDeleteKnowledgeChunks(@Body() dto: DeleteKnowledgeChunksDto) {
     const deleted = await this.vectorStore.deleteByIds(dto.ids);
+    return { deleted };
+  }
+
+  /** 用户问答会话分页列表 */
+  @Get('qa/sessions')
+  @RequirePermissions('admin:ai-qa:view')
+  listChatSessions(@Query() query: ListChatSessionsDto) {
+    return this.chatLog.listSessions({
+      page: query.page,
+      pageSize: query.pageSize,
+      keyword: query.keyword,
+    });
+  }
+
+  /** 用户问答会话详情（完整对话） */
+  @Get('qa/sessions/:id')
+  @RequirePermissions('admin:ai-qa:view')
+  getChatSession(@Param('id') id: string) {
+    return this.chatLog.getSessionDetail(id);
+  }
+
+  /** 删除单条用户问答会话 */
+  @Delete('qa/sessions/:id')
+  @RequirePermissions('admin:ai-qa:delete')
+  async deleteChatSession(@Param('id') id: string) {
+    const deleted = await this.chatLog.deleteSession(id);
+    if (!deleted) {
+      throw new NotFoundException('会话不存在或已删除');
+    }
+    return { deleted: 1 };
+  }
+
+  /** 批量删除用户问答会话 */
+  @Post('qa/sessions/batch-delete')
+  @RequirePermissions('admin:ai-qa:delete')
+  async batchDeleteChatSessions(@Body() dto: DeleteChatSessionsDto) {
+    const deleted = await this.chatLog.deleteSessions(dto.ids);
     return { deleted };
   }
 }

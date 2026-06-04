@@ -229,6 +229,18 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
           { code: 'admin:ai-knowledge:delete', name: '知识库删除', type: 'button', sort: 1 },
         ],
       },
+      {
+        code: 'ai-assistant-qa',
+        name: '用户问答管理',
+        type: 'menu',
+        path: 'ai-assistant/qa',
+        icon: 'CommentOutlined',
+        sort: 3,
+        permissions: [
+          { code: 'admin:ai-qa:view', name: '用户问答查看', type: 'menu', sort: 0 },
+          { code: 'admin:ai-qa:delete', name: '用户问答删除', type: 'button', sort: 1 },
+        ],
+      },
     ],
   },
   {

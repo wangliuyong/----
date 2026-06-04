@@ -6,6 +6,7 @@ import { createAgent, type ReactAgent } from 'langchain';
 import { createGenerateChartTool } from '../tools/generate-chart.tool';
 import { createFormatCodeTool } from '../tools/format-code.tool';
 import { createSearchKnowledgeTool } from '../tools/search-knowledge.tool';
+import { AiChatLogService } from './ai-chat-log.service';
 import { AiChatMemoryService } from './ai-chat-memory.service';
 import { AiConfigService } from './ai-config.service';
 import { AiVectorStoreService } from './ai-vector-store.service';
@@ -45,6 +46,7 @@ export class AiChatService {
     private readonly vectorStore: AiVectorStoreService,
     private readonly aiConfig: AiConfigService,
     private readonly chatMemory: AiChatMemoryService,
+    private readonly chatLog: AiChatLogService,
   ) {}
 
   /** 规范化会话 ID，无效时生成新 UUID */
@@ -67,13 +69,20 @@ export class AiChatService {
     sessionId?: string,
   ): AsyncGenerator<AiChatEvent> {
     const threadId = this.resolveSessionId(sessionId);
+    let assistantContent = '';
+    let streamError: string | null = null;
 
     try {
       yield { type: 'session', sessionId: threadId };
 
+      // 落库用户提问（与 LangGraph 记忆并行，供管理端审计）
+      await this.chatLog.recordUserMessage(threadId, userMessage);
+
       const agent = await this.getOrCreateAgent();
       if (!agent) {
-        yield { type: 'error', message: 'AI 服务未配置，请在管理后台设置 OPENAI_API_KEY' };
+        streamError = 'AI 服务未配置，请在管理后台设置 OPENAI_API_KEY';
+        yield { type: 'error', message: streamError };
+        await this.chatLog.recordAssistantMessage(threadId, '', streamError);
         return;
       }
 
@@ -85,13 +94,21 @@ export class AiChatService {
       for await (const chunk of stream) {
         const events = this.parseStreamChunk(chunk);
         for (const event of events) {
+          if (event.type === 'token') {
+            assistantContent += event.content;
+          }
+          if (event.type === 'error') {
+            streamError = event.message;
+          }
           yield event;
         }
       }
 
       yield { type: 'done' };
+      await this.chatLog.recordAssistantMessage(threadId, assistantContent, streamError);
     } catch (e) {
       const message = e instanceof Error ? e.message : String(e);
+      await this.chatLog.recordAssistantMessage(threadId, assistantContent, message);
       yield { type: 'error', message };
     }
   }
