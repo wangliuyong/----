@@ -2,7 +2,7 @@
  * 子应用交互样式 — 对齐 app-home（home-link / 卡片悬停 / 表单焦点等）
  * 各页布局不变，仅统一主体色与交互反馈
  */
-@import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap');
+// @import url('https://fonts.googleapis.com/css2?family=IBM+Plex+Sans:wght@400;500;600&family=Noto+Serif+SC:wght@400;600;700&display=swap');
 
 .sub-app {
   font-family: var(--ed-sans);
@@ -59,6 +59,10 @@
   .sub-app,
   .app-section,
   .app-stagger > * {
+    animation: none;
+  }
+
+  .app-timeline > *:first-child::before {
     animation: none;
   }
 
@@ -239,25 +243,59 @@
   }
 }
 
-/* ---------- 时间线 ---------- */
+/* ---------- 时间线（圆点 ::before，竖线 ::after 从首点中心起、项间衔接） ---------- */
 .app-timeline {
-  border-left: 1px solid var(--ed-line);
+  /* 与 Tailwind space-y-8 一致，用于项间竖线延伸长度 */
+  --timeline-gap: 2rem;
+  position: relative;
 
   > * {
     position: relative;
     padding-left: 1.5rem;
   }
 
+  /* 圆点：对齐首行 period 文本 */
   > *::before {
     content: '';
     position: absolute;
     left: -5px;
     top: 0.45em;
+    z-index: 1;
     width: 9px;
     height: 9px;
     border-radius: 50%;
     background: var(--ed-accent);
     box-shadow: 0 0 0 4px var(--ed-accent-soft);
+    transform-origin: center;
+  }
+
+  /* 首项圆点：呼吸光晕，提示时间线起点 */
+  > *:first-child::before {
+    animation: app-timeline-dot-breathe 2.6s ease-in-out infinite;
+  }
+
+  /* 竖线：从当前圆点中心画到下一项圆点中心，首项上方不出头 */
+  > *:not(:last-child)::after {
+    content: '';
+    position: absolute;
+    left: -0.5px;
+    top: calc(0.45em + 4.5px);
+    bottom: calc(-1 * var(--timeline-gap) - 0.45em - 4.5px);
+    width: 1px;
+    background: var(--ed-line);
+  }
+}
+
+@keyframes app-timeline-dot-breathe {
+  0%,
+  100% {
+    transform: scale(1);
+    box-shadow: 0 0 0 4px var(--ed-accent-soft);
+  }
+
+  50% {
+    transform: scale(1.12);
+    box-shadow: 0 0 0 9px color-mix(in srgb, var(--ed-accent-soft) 35%, transparent);
   }
 }
 

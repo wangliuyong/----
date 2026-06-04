@@ -16,7 +16,8 @@ export default function AboutExperienceSection({ experiences }: AboutExperienceS
   return (
     <AppSection className="mt-10">
       <SectionTitle>工作履历</SectionTitle>
-      <div className="app-timeline pl-6 space-y-8">
+      {/* 勿加 pl-*：竖线在容器左缘，圆点按子项 left 对齐，额外 padding 会导致线点错位 */}
+      <div className="app-timeline space-y-8">
         {experiences.map((item) => (
           <div key={`${item.company}-${item.period}`}>
             <p className="text-sm text-faint">{item.period}</p>
