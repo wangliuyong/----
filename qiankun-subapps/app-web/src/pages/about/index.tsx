@@ -1,106 +1,32 @@
-import {
-  AppLinkRow,
-  AppMark,
-  AppSection,
-  AppTag,
-  PageTitle,
-  SectionTitle,
-  SubApp,
-} from '../../../../_shared/components';
+import { SubApp } from '../../../../_shared/components';
 import { useAbout } from './useAbout';
+import AboutEducationSection from './components/AboutEducationSection';
+import AboutExperienceSection from './components/AboutExperienceSection';
+import AboutIntroSection from './components/AboutIntroSection';
+import AboutSkillsSection from './components/AboutSkillsSection';
+import AboutStrengthsSection from './components/AboutStrengthsSection';
 
-/** 关于我 — 展示 Profile（原 app-about） */
+/** 路由 about — 关于我 */
 export default function AboutPage() {
   const { profile } = useAbout();
-  const {
-    name,
-    title,
-    location,
-    email,
-    github,
-    intro,
-    education,
-    certifications,
-    strengths,
-    experiences,
-    skillGroups,
-  } = profile;
 
   return (
     <SubApp className="max-w-3xl">
-      <AppSection>
-        <PageTitle>{name}</PageTitle>
-        <p className="mt-2 text-lg text-accent font-medium">{title}</p>
-        <p className="mt-1 text-sm text-faint">{location}</p>
-        <p className="mt-6 text-muted leading-relaxed">{intro}</p>
-        <AppLinkRow className="mt-4 text-sm">
-          <a href={`mailto:${email}`}>{email}</a>
-          <a href={github} target="_blank" rel="noopener noreferrer">
-            GitHub
-          </a>
-        </AppLinkRow>
-      </AppSection>
-
-      <AppSection className="mt-10">
-        <SectionTitle>核心优势</SectionTitle>
-        <ul className="space-y-2">
-          {strengths.map((item) => (
-            <li key={item} className="flex gap-2 text-muted text-sm leading-relaxed">
-              <AppMark />
-              <span>{item}</span>
-            </li>
-          ))}
-        </ul>
-      </AppSection>
-
-      <AppSection className="mt-10">
-        <SectionTitle>技能</SectionTitle>
-        <div className="space-y-6">
-          {skillGroups.map((group) => (
-            <div key={group.title}>
-              <h3 className="font-semibold">{group.title}</h3>
-              <p className="text-sm text-faint mt-0.5">{group.description}</p>
-              <div className="flex flex-wrap gap-2 mt-3">
-                {group.items.map((skill) => (
-                  <AppTag key={skill}>{skill}</AppTag>
-                ))}
-              </div>
-            </div>
-          ))}
-        </div>
-      </AppSection>
-
-      <AppSection className="mt-10">
-        <SectionTitle>工作履历</SectionTitle>
-        <div className="app-timeline pl-6 space-y-8">
-          {experiences.map((item) => (
-            <div key={`${item.company}-${item.period}`}>
-              <p className="text-sm text-faint">{item.period}</p>
-              <h3 className="font-semibold mt-1">
-                {item.role} · {item.company}
-              </h3>
-              <p className="mt-2 text-muted text-sm leading-relaxed">{item.summary}</p>
-            </div>
-          ))}
-        </div>
-      </AppSection>
-
-      <AppSection className="mt-10 pb-4">
-        <SectionTitle>教育背景</SectionTitle>
-        <p className="text-muted">{education}</p>
-        {certifications.length > 0 && (
-          <>
-            <h3 className="text-lg font-semibold mt-6 mb-3">认证</h3>
-            <ul className="flex flex-wrap gap-2">
-              {certifications.map((cert) => (
-                <li key={cert}>
-                  <AppTag className="rounded-md">{cert}</AppTag>
-                </li>
-              ))}
-            </ul>
-          </>
-        )}
-      </AppSection>
+      <AboutIntroSection
+        name={profile.name}
+        title={profile.title}
+        location={profile.location}
+        intro={profile.intro}
+        email={profile.email}
+        github={profile.github}
+      />
+      <AboutStrengthsSection strengths={profile.strengths} />
+      <AboutSkillsSection skillGroups={profile.skillGroups} />
+      <AboutExperienceSection experiences={profile.experiences} />
+      <AboutEducationSection
+        education={profile.education}
+        certifications={profile.certifications}
+      />
     </SubApp>
   );
 }

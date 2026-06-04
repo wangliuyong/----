@@ -1,18 +1,11 @@
-import { Form, Input, InputNumber } from 'antd';
-import type { ColumnsType } from 'antd/es/table';
 import { createLink, deleteLink, updateLink } from '../../api/links.api';
 import AdminCrudPage from '../../components/AdminCrudPage';
 import type { LinkItem } from '../../types';
+import LinkFormFields from './components/LinkFormFields';
+import { LINK_COLUMNS } from './components/linkColumns';
 import { useLinks } from './useLinks';
 
-const columns: ColumnsType<LinkItem> = [
-  { title: '名称', dataIndex: 'name', width: 140 },
-  { title: '链接', dataIndex: 'url', ellipsis: true },
-  { title: '描述', dataIndex: 'description', ellipsis: true },
-  { title: '排序', dataIndex: 'sort', width: 80 },
-];
-
-/** 路由 /links — 友链 CRUD（与 nest-server /admin/links 对齐） */
+/** 路由 links — 友链 CRUD */
 export default function LinksPage() {
   const { links, loading, reload } = useLinks();
 
@@ -25,32 +18,14 @@ export default function LinksPage() {
       createPermission="admin:links:create"
       updatePermission="admin:links:update"
       deletePermission="admin:links:delete"
-      columns={columns}
+      columns={LINK_COLUMNS}
       deleteConfirmTitle="确定删除该友链？"
       modalTitles={{ create: '新建友链', edit: '编辑友链' }}
       onCreate={(values) => createLink(values)}
       onUpdate={(id, values) => updateLink(id, values)}
       onDelete={(id) => deleteLink(id)}
       onReload={reload}
-      renderForm={() => (
-        <>
-          <Form.Item name="name" label="名称" rules={[{ required: true, message: '请输入名称' }]}>
-            <Input />
-          </Form.Item>
-          <Form.Item name="url" label="链接" rules={[{ required: true, message: '请输入 URL' }]}>
-            <Input placeholder="https://..." />
-          </Form.Item>
-          <Form.Item name="description" label="描述">
-            <Input />
-          </Form.Item>
-          <Form.Item name="avatar" label="头像 URL">
-            <Input placeholder="https://..." />
-          </Form.Item>
-          <Form.Item name="sort" label="排序（越小越靠前）" initialValue={0}>
-            <InputNumber min={0} style={{ width: '100%' }} />
-          </Form.Item>
-        </>
-      )}
+      renderForm={() => <LinkFormFields />}
     />
   );
 }
