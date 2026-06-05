@@ -8,6 +8,7 @@ import AdminLayout from './layouts/AdminLayout';
 import { flattenLeafMenus } from './menuUtils';
 import { getPageByPath } from './pageRegistry';
 import { getRouterBasename } from './routes';
+import { buildHiddenAdminRoutes } from './hiddenRoutes';
 
 const keepLoaderData: NonNullable<RouteObject['shouldRevalidate']> = () => false;
 
@@ -36,6 +37,7 @@ export function createAdminRouter(menus: AdminMenuNode[]) {
                 children: [
                   { index: true, element: <Navigate to={`/${defaultPath}`} replace /> },
                   ...adminTabRoutes,
+                  ...buildHiddenAdminRoutes(),
                   { path: '403', Component: ForbiddenPage },
                 ],
               },

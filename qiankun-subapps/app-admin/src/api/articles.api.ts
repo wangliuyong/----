@@ -5,6 +5,10 @@ export function listArticles() {
   return request<Article[]>('/admin/articles');
 }
 
+export function getArticle(id: number) {
+  return request<Article>(`/admin/articles/${id}`);
+}
+
 export function createArticle(data: Partial<Article>) {
   return request<Article>('/admin/articles', {
     method: 'POST',

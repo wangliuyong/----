@@ -19,6 +19,12 @@ export function resolvePageTitle(pathname: string, menus: AdminMenuNode[]): stri
   if (normalized === '403' || normalized.endsWith('/403')) {
     return '无权限访问';
   }
+  if (normalized === 'articles/create' || normalized.endsWith('/articles/create')) {
+    return '新建文章';
+  }
+  if (/articles\/edit\/\d+$/.test(normalized)) {
+    return '编辑文章';
+  }
   const menuPath = resolveMenuPath(pathname, menus);
   return getMenuTitleByPath(menuPath, menus);
 }

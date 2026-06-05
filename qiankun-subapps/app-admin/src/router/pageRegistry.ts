@@ -3,6 +3,9 @@ import type { ComponentType } from 'react';
 /** 不参与动态路由的 pages 子目录 */
 const EXCLUDED_PAGE_DIRS = new Set(['login', 'forbidden']);
 
+/** 子页面：有独立路由但不作为菜单可选 path（如 articles/create） */
+const HIDDEN_MENU_PATHS = new Set(['articles/create', 'articles/edit']);
+
 type PageModule = { default: ComponentType };
 
 /**
@@ -40,9 +43,11 @@ export function getPageByPath(path: string | null | undefined): ComponentType | 
   return PAGE_BY_PATH[path] ?? null;
 }
 
-/** 已注册的 path 列表（模块管理页校验用） */
+/** 已注册的 path 列表（模块管理页校验用，排除隐藏子页面） */
 export function listRegisteredPaths(): string[] {
-  return Object.keys(PAGE_BY_PATH).sort();
+  return Object.keys(PAGE_BY_PATH)
+    .filter((path) => !HIDDEN_MENU_PATHS.has(path))
+    .sort();
 }
 
 /** path 是否已在 pages 目录中找到对应页面 */

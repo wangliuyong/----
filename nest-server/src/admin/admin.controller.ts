@@ -52,6 +52,12 @@ export class AdminController {
     return this.articleService.findAll({});
   }
 
+  @Get('articles/:id')
+  @RequirePermissions('admin:articles:view')
+  getArticle(@Param('id', ParseIntPipe) id: number) {
+    return this.articleService.findOne(id);
+  }
+
   @Post('articles')
   @RequirePermissions('admin:articles:create')
   createArticle(@Body() dto: CreateArticleDto) {

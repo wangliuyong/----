@@ -1,0 +1,282 @@
+.article-editor-page {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+  max-width: 1280px;
+}
+
+/* 顶栏：与 dashboard-hero 同系 */
+.article-editor-hero {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 16px;
+  padding: 20px 24px;
+  border-radius: 2px;
+  background:
+    linear-gradient(135deg, rgba(154, 52, 18, 0.08) 0%, rgba(250, 248, 245, 0.95) 52%, #fff 100%);
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  box-shadow: 0 24px 48px -36px rgba(20, 20, 20, 0.2);
+}
+
+.article-editor-hero__main {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 8px;
+  min-width: 0;
+}
+
+.article-editor-hero__back {
+  padding-inline: 0;
+  color: #78716c;
+}
+
+.article-editor-hero__back:hover {
+  color: #9a3412 !important;
+  background: transparent !important;
+}
+
+.article-editor-hero__title {
+  margin: 0;
+  font-size: 22px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  color: #141414;
+  line-height: 1.3;
+}
+
+.article-editor-hero__subtitle {
+  margin: 0;
+  font-size: 14px;
+  color: #78716c;
+  line-height: 1.6;
+}
+
+.article-editor-hero__actions {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+/* 主布局：侧栏 + 编辑区 */
+.article-editor-layout {
+  display: grid;
+  grid-template-columns: 280px minmax(0, 1fr);
+  gap: 20px;
+  align-items: start;
+}
+
+.article-editor-panel {
+  background: #fff;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 2px;
+  box-shadow: 0 16px 32px -28px rgba(20, 20, 20, 0.18);
+}
+
+.article-editor-panel--sidebar {
+  padding: 18px 20px;
+  position: sticky;
+  top: 16px;
+}
+
+.article-editor-panel__title {
+  margin: 0 0 16px;
+  padding-bottom: 12px;
+  font-size: 15px;
+  font-weight: 600;
+  color: #141414;
+  border-bottom: 1px solid rgba(20, 20, 20, 0.06);
+}
+
+.article-editor-panel--compose {
+  padding: 24px 28px 28px;
+  min-height: 640px;
+}
+
+/* 侧栏字段分组 */
+.article-meta-sidebar {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.article-meta-sidebar__block {
+  display: flex;
+  flex-direction: column;
+  gap: 0;
+}
+
+.article-meta-sidebar__heading {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin: 0 0 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #57534e;
+}
+
+.article-meta-sidebar__heading .anticon {
+  color: #9a3412;
+  font-size: 14px;
+}
+
+.article-meta-sidebar__full {
+  width: 100%;
+}
+
+.article-meta-sidebar__summary {
+  margin-bottom: 0;
+}
+
+.article-meta-sidebar .ant-form-item {
+  margin-bottom: 14px;
+}
+
+.article-meta-sidebar .ant-form-item:last-child {
+  margin-bottom: 0;
+}
+
+.article-meta-sidebar .ant-form-item-label > label {
+  font-size: 12px;
+  color: #78716c;
+}
+
+/* 大标题输入 */
+.article-editor-title {
+  margin-bottom: 20px;
+}
+
+.article-editor-title .ant-input {
+  padding: 4px 0 12px;
+  font-size: 28px;
+  font-weight: 600;
+  letter-spacing: -0.02em;
+  line-height: 1.35;
+  color: #141414;
+  background: transparent;
+  border: none;
+  border-bottom: 1px solid rgba(20, 20, 20, 0.08);
+  border-radius: 0;
+  box-shadow: none;
+  transition: border-color 0.2s ease;
+}
+
+.article-editor-title .ant-input:hover,
+.article-editor-title .ant-input:focus {
+  border-bottom-color: rgba(154, 52, 18, 0.35);
+  box-shadow: none;
+}
+
+.article-editor-title .ant-input-show-count-suffix {
+  font-size: 12px;
+  color: #a8a29e;
+}
+
+/* 正文编辑区 */
+.article-editor-body__label {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-bottom: 12px;
+  font-size: 13px;
+  font-weight: 600;
+  color: #57534e;
+}
+
+.article-editor-body__label .anticon {
+  color: #9a3412;
+}
+
+.article-editor-body__field {
+  margin-bottom: 0;
+}
+
+.article-editor-body__field .ant-form-item-control-input {
+  min-height: auto;
+}
+
+/* Markdown 编辑器皮肤 */
+.article-md-editor {
+  border: 1px solid rgba(20, 20, 20, 0.08);
+  border-radius: 2px;
+  overflow: hidden;
+  background: #fff;
+}
+
+.article-md-editor .w-md-editor {
+  box-shadow: none;
+  background: #fff;
+}
+
+.article-md-editor .w-md-editor-toolbar {
+  padding: 6px 8px;
+  background: linear-gradient(180deg, #faf8f5 0%, #fff 100%);
+  border-bottom: 1px solid rgba(20, 20, 20, 0.06);
+}
+
+.article-md-editor .w-md-editor-toolbar li > button {
+  color: #57534e;
+  border-radius: 2px;
+}
+
+.article-md-editor .w-md-editor-toolbar li > button:hover,
+.article-md-editor .w-md-editor-toolbar li.active > button {
+  color: #9a3412;
+  background: rgba(154, 52, 18, 0.08);
+}
+
+.article-md-editor .w-md-editor-content {
+  background: #fff;
+}
+
+.article-md-editor .w-md-editor-text-pre,
+.article-md-editor .w-md-editor-text-input {
+  font-size: 15px !important;
+  line-height: 1.75 !important;
+}
+
+.article-md-editor .wmde-markdown {
+  font-size: 15px;
+  line-height: 1.75;
+  color: #141414;
+}
+
+.article-md-editor--loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 560px;
+  background: #faf8f5;
+}
+
+@media (max-width: 1024px) {
+  .article-editor-layout {
+    grid-template-columns: 1fr;
+  }
+
+  .article-editor-panel--sidebar {
+    position: static;
+  }
+}
+
+@media (max-width: 768px) {
+  .article-editor-hero {
+    padding: 16px;
+  }
+
+  .article-editor-panel--compose {
+    padding: 18px 16px 20px;
+  }
+
+  .article-editor-title .ant-input {
+    font-size: 22px;
+  }
+
+  .article-editor-hero__actions {
+    width: 100%;
+    justify-content: flex-end;
+  }
+}
