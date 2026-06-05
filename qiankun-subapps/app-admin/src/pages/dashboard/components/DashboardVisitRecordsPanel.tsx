@@ -77,7 +77,7 @@ export default function DashboardVisitRecordsPanel({ records }: DashboardVisitRe
       title={
         <span>
           <GlobalOutlined aria-hidden style={{ marginRight: 8, color: '#9a3412' }} />
-          app-web 访问记录
+          访问记录
         </span>
       }
       bordered={false}
