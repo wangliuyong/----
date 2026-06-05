@@ -37,7 +37,7 @@ export default function ArticleMetaSidebar() {
             label="URL Slug"
             tooltip="留空将根据标题自动生成"
           >
-            <Input placeholder="my-first-post" />
+            <Input placeholder="seo使用" />
           </Form.Item>
           <Form.Item name="publishedAt" label="发布时间">
             <DatePicker

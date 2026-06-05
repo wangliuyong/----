@@ -1,6 +1,6 @@
 import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Spin, Typography, message } from 'antd';
-import { Suspense, lazy, useEffect, useState } from 'react';
+import { Button, Form, Input, Typography, message } from 'antd';
+import { useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
@@ -12,9 +12,8 @@ import {
   articlePublishedAtToDayjs,
   dayjsToPublishedAt,
 } from './ArticleMetaFields';
+import ArticleMarkdownEditor from './ArticleMarkdownEditor';
 import '../styles/articleEditor.scss';
-
-const ArticleMarkdownEditor = lazy(() => import('./ArticleMarkdownEditor'));
 
 interface ArticleEditorPageProps {
   mode: 'create' | 'edit';
@@ -160,15 +159,7 @@ export default function ArticleEditorPage({ mode, articleId }: ArticleEditorPage
                   rules={[{ required: true, message: '请输入正文' }]}
                   className="article-editor-body__field"
                 >
-                  <Suspense
-                    fallback={
-                      <div className="article-md-editor article-md-editor--loading">
-                        <Spin tip="编辑器加载中…" />
-                      </div>
-                    }
-                  >
-                    <ArticleMarkdownEditor />
-                  </Suspense>
+                  <ArticleMarkdownEditor />
                 </Form.Item>
               </div>
             </div>
