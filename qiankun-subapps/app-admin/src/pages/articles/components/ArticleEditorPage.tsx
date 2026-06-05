@@ -1,5 +1,5 @@
-import { ArrowLeftOutlined, FileMarkdownOutlined, SaveOutlined } from '@ant-design/icons';
-import { Button, Form, Input, Spin, message } from 'antd';
+import { ArrowLeftOutlined, SaveOutlined } from '@ant-design/icons';
+import { Button, Form, Input, Spin, Typography, message } from 'antd';
 import { Suspense, lazy, useEffect, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
 import PageLoading from '../../../components/_common/PageLoading';
@@ -21,7 +21,7 @@ interface ArticleEditorPageProps {
   articleId?: number;
 }
 
-/** 博客新建/编辑页：顶栏 + 侧栏发布设置 + 主编辑区 */
+/** 博客新建/编辑页：吸顶工具栏 + 主编辑区 + 右侧发布设置 */
 export default function ArticleEditorPage({ mode, articleId }: ArticleEditorPageProps) {
   const navigate = useNavigate();
   const [form] = Form.useForm<ArticleFormValues>();
@@ -30,9 +30,6 @@ export default function ArticleEditorPage({ mode, articleId }: ArticleEditorPage
 
   const isCreate = mode === 'create';
   const pageTitle = isCreate ? '新建文章' : '编辑文章';
-  const pageHint = isCreate
-    ? '撰写 Markdown 正文，保存后发布到站点博客'
-    : '修改内容后保存，前台将展示最新版本';
   const savePermission = isCreate
     ? ARTICLE_PERMISSIONS.create
     : ARTICLE_PERMISSIONS.update;
@@ -104,22 +101,27 @@ export default function ArticleEditorPage({ mode, articleId }: ArticleEditorPage
 
   return (
     <div className="article-editor-page">
-      <header className="article-editor-hero">
-        <div className="article-editor-hero__main">
+      {/* 吸顶工具栏 */}
+      <header className="article-editor-toolbar">
+        <div className="article-editor-toolbar__start">
           <Button
             type="text"
-            className="article-editor-hero__back"
+            className="article-editor-toolbar__back"
             icon={<ArrowLeftOutlined />}
             onClick={() => navigate(ARTICLE_ROUTES.list)}
           >
             返回列表
           </Button>
-          <div className="article-editor-hero__copy">
-            <h1 className="article-editor-hero__title">{pageTitle}</h1>
-            <p className="article-editor-hero__subtitle">{pageHint}</p>
+          <div className="article-editor-toolbar__heading">
+            <h1 className="article-editor-toolbar__title">{pageTitle}</h1>
+            {isCreate && (
+              <Typography.Text type="secondary" className="article-editor-toolbar__status">
+                未保存
+              </Typography.Text>
+            )}
           </div>
         </div>
-        <div className="article-editor-hero__actions">
+        <div className="article-editor-toolbar__actions">
           <Button onClick={() => navigate(ARTICLE_ROUTES.list)}>取消</Button>
           <PermissionGuard code={savePermission}>
             <Button
@@ -128,7 +130,7 @@ export default function ArticleEditorPage({ mode, articleId }: ArticleEditorPage
               loading={saving}
               onClick={() => void handleSubmit()}
             >
-              保存文章
+              保存
             </Button>
           </PermissionGuard>
         </div>
@@ -136,33 +138,23 @@ export default function ArticleEditorPage({ mode, articleId }: ArticleEditorPage
 
       <Form form={form} layout="vertical" className="article-editor-form">
         <div className="article-editor-layout">
-          <aside className="article-editor-sidebar">
-            <div className="article-editor-panel article-editor-panel--sidebar">
-              <h3 className="article-editor-panel__title">发布设置</h3>
-              <ArticleMetaSidebar />
-            </div>
-          </aside>
-
+          {/* 主编辑区 */}
           <main className="article-editor-main">
-            <div className="article-editor-panel article-editor-panel--compose">
+            <div className="article-editor-compose">
               <Form.Item
                 name="title"
                 rules={[{ required: true, message: '请输入标题' }]}
                 className="article-editor-title"
               >
                 <Input
-                  bordered={false}
-                  placeholder="输入文章标题…"
+                  variant="borderless"
+                  placeholder="文章标题"
                   maxLength={200}
                   showCount
                 />
               </Form.Item>
 
               <div className="article-editor-body">
-                <div className="article-editor-body__label">
-                  <FileMarkdownOutlined aria-hidden />
-                  正文 Markdown
-                </div>
                 <Form.Item
                   name="content"
                   rules={[{ required: true, message: '请输入正文' }]}
@@ -175,12 +167,20 @@ export default function ArticleEditorPage({ mode, articleId }: ArticleEditorPage
                       </div>
                     }
                   >
-                    <ArticleMarkdownEditor height={560} />
+                    <ArticleMarkdownEditor />
                   </Suspense>
                 </Form.Item>
               </div>
             </div>
           </main>
+
+          {/* 右侧发布设置 */}
+          <aside className="article-editor-sidebar">
+            <div className="article-editor-panel">
+              <h2 className="article-editor-panel__title">发布设置</h2>
+              <ArticleMetaSidebar />
+            </div>
+          </aside>
         </div>
       </Form>
     </div>

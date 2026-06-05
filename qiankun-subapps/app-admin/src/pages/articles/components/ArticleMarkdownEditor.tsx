@@ -5,23 +5,21 @@ import { useMemo } from 'react';
 interface ArticleMarkdownEditorProps {
   value?: string;
   onChange?: (value: string) => void;
-  /** 编辑区高度（px） */
-  height?: number;
 }
 
 /**
  * Markdown 富文本编辑器（基于 @uiw/react-md-editor）。
  * 支持工具栏、实时预览，与 Ant Design Form 受控模式兼容。
+ * 高度随视口自适应，保证编辑区有足够可视空间。
  */
 export default function ArticleMarkdownEditor({
   value,
   onChange,
-  height = 480,
 }: ArticleMarkdownEditorProps) {
   /** 避免每次 render 创建新对象导致编辑器失焦 */
   const textareaProps = useMemo(
     () => ({
-      placeholder: '支持 Markdown 语法，可使用工具栏插入标题、列表、链接等',
+      placeholder: '在此撰写正文，支持 Markdown 语法…',
     }),
     [],
   );
@@ -31,7 +29,7 @@ export default function ArticleMarkdownEditor({
       <MDEditor
         value={value ?? ''}
         onChange={(next) => onChange?.(next ?? '')}
-        height={height}
+        height="100%"
         preview="live"
         visibleDragbar={false}
         textareaProps={textareaProps}

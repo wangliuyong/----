@@ -1,52 +1,86 @@
-import { CalendarOutlined, FolderOutlined, LinkOutlined } from '@ant-design/icons';
-import { DatePicker, Form, Input } from 'antd';
+import { CalendarOutlined } from '@ant-design/icons';
+import { Collapse, DatePicker, Form, Input, type CollapseProps } from 'antd';
 
 /** 侧栏发布设置：分类、标签、Slug、时间、摘要 */
 export default function ArticleMetaSidebar() {
+  /** 默认全部展开，减少点击成本 */
+  const collapseItems: CollapseProps['items'] = [
+    {
+      key: 'taxonomy',
+      label: '分类与标签',
+      children: (
+        <>
+          <Form.Item
+            name="category"
+            label="分类"
+            tooltip="用于博客列表筛选，如前端、随笔"
+          >
+            <Input placeholder="如：前端、随笔" />
+          </Form.Item>
+          <Form.Item
+            name="tags"
+            label="标签"
+            tooltip="多个标签用英文逗号分隔"
+          >
+            <Input placeholder="React, TypeScript" />
+          </Form.Item>
+        </>
+      ),
+    },
+    {
+      key: 'publish',
+      label: '链接与时间',
+      children: (
+        <>
+          <Form.Item
+            name="slug"
+            label="URL Slug"
+            tooltip="留空将根据标题自动生成"
+          >
+            <Input placeholder="my-first-post" />
+          </Form.Item>
+          <Form.Item name="publishedAt" label="发布时间">
+            <DatePicker
+              showTime
+              className="article-meta-sidebar__full"
+              format="YYYY-MM-DD HH:mm"
+              suffixIcon={<CalendarOutlined />}
+              placeholder="选择发布时间"
+            />
+          </Form.Item>
+        </>
+      ),
+    },
+    {
+      key: 'summary',
+      label: '摘要',
+      children: (
+        <>
+          <p className="article-meta-sidebar__hint">
+            用于列表展示与搜索引擎摘要，建议 80-160 字
+          </p>
+          <Form.Item name="summary" label={null} className="article-meta-sidebar__summary">
+            <Input.TextArea
+              placeholder="简要概括文章要点"
+              rows={4}
+              maxLength={500}
+              showCount
+            />
+          </Form.Item>
+        </>
+      ),
+    },
+  ];
+
   return (
     <div className="article-meta-sidebar">
-      <section className="article-meta-sidebar__block">
-        <h4 className="article-meta-sidebar__heading">
-          <FolderOutlined aria-hidden />
-          分类与标签
-        </h4>
-        <Form.Item name="category" label="分类">
-          <Input placeholder="如：前端、随笔" />
-        </Form.Item>
-        <Form.Item name="tags" label="标签">
-          <Input placeholder="逗号分隔多个标签" />
-        </Form.Item>
-      </section>
-
-      <section className="article-meta-sidebar__block">
-        <h4 className="article-meta-sidebar__heading">
-          <LinkOutlined aria-hidden />
-          链接与时间
-        </h4>
-        <Form.Item name="slug" label="URL Slug">
-          <Input placeholder="留空则自动生成" />
-        </Form.Item>
-        <Form.Item name="publishedAt" label="发布时间">
-          <DatePicker
-            showTime
-            className="article-meta-sidebar__full"
-            format="YYYY-MM-DD HH:mm"
-            suffixIcon={<CalendarOutlined />}
-          />
-        </Form.Item>
-      </section>
-
-      <section className="article-meta-sidebar__block">
-        <h4 className="article-meta-sidebar__heading">摘要</h4>
-        <Form.Item name="summary" label={null} className="article-meta-sidebar__summary">
-          <Input.TextArea
-            placeholder="用于列表展示与 SEO，可选"
-            rows={4}
-            maxLength={500}
-            showCount
-          />
-        </Form.Item>
-      </section>
+      <Collapse
+        bordered={false}
+        defaultActiveKey={['taxonomy', 'publish', 'summary']}
+        expandIconPosition="end"
+        className="article-meta-sidebar__collapse"
+        items={collapseItems}
+      />
     </div>
   );
 }
