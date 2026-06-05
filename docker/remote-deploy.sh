@@ -12,6 +12,8 @@ echo "==> [remote] 清理旧路由..."
 rm -rf next-host/app/about next-host/app/blog next-host/app/contact \
        next-host/app/links next-host/app/projects
 rm -f next-host/app/page.tsx
+# SSR 改造后路由结构调整，需删除服务器上 tar 不会覆盖的旧 catch-all 目录
+rm -rf 'next-host/app/admin/[[...slug]]' 'next-host/app/(site)/[[...slug]]'
 
 echo "==> [remote] 停止旧容器（保留卷 docker_api-data：SQLite + LanceDB 向量库，不使用 down -v）..."
 ${COMPOSE} down 2>/dev/null || true

@@ -18,6 +18,8 @@ RUN pnpm install --frozen-lockfile 2>/dev/null || pnpm install
 
 # globals.scss / tailwind.config 引用 ../qiankun-subapps/_shared
 COPY qiankun-subapps/_shared ../qiankun-subapps/_shared
+# _shared 独立 package.json（dayjs 等），Docker 内须单独安装否则 webpack 无法解析
+RUN cd ../qiankun-subapps/_shared && pnpm install --frozen-lockfile 2>/dev/null || pnpm install
 COPY next-host/ ./
 
 RUN pnpm run build
