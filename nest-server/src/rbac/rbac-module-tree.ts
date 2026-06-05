@@ -56,6 +56,15 @@ export function viewOnlyPermissions(prefix: string, label: string): RbacPermissi
 
 export const RBAC_MODULE_TREE: RbacModuleDef[] = [
   {
+    code: 'dashboard',
+    name: '首页',
+    type: 'menu',
+    path: 'dashboard',
+    icon: 'HomeOutlined',
+    sort: 0,
+    permissions: viewOnlyPermissions('admin:dashboard', '首页'),
+  },
+  {
     code: 'content',
     name: '内容管理',
     type: 'menu',

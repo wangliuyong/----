@@ -7,7 +7,7 @@ import { getDefaultMenuPath } from '../../router/menuUtils';
 export default function ForbiddenPage() {
   const navigate = useNavigate();
   const { profile } = useAuth();
-  const home = profile ? `/${getDefaultMenuPath(profile.menus)}` : '/system/site-config';
+  const home = profile ? `/${getDefaultMenuPath(profile.menus)}` : '/dashboard';
 
   return (
     <Result

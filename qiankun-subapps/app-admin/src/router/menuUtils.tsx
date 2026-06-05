@@ -21,7 +21,7 @@ export function flattenLeafMenus(nodes: AdminMenuNode[]): AdminMenuNode[] {
 /** 默认首页：第一个可访问叶子菜单 path */
 export function getDefaultMenuPath(menus: AdminMenuNode[]): string {
   const leaf = flattenLeafMenus(menus)[0];
-  return leaf?.path ?? 'system/site-config';
+  return leaf?.path ?? 'dashboard';
 }
 
 /** 去掉 basename 前缀，得到菜单 path 片段 */
