@@ -1,6 +1,9 @@
 import type { PrismaClient } from '@prisma/client';
 import { RBAC_MODULE_TREE, type RbacModuleDef } from './rbac-module-tree';
 
+/** 已合并或废弃的菜单 code，同步时标记为禁用 */
+const DEPRECATED_MODULE_CODES = ['site-config', 'site', 'nav', 'about', 'contact'];
+
 /** 递归 upsert 模块与权限点 */
 async function seedModuleTree(
   prisma: PrismaClient,
@@ -114,6 +117,12 @@ export async function ensureAdminSuperRole(prisma: PrismaClient, adminUserId: nu
  */
 export async function syncRbacModules(prisma: PrismaClient) {
   await seedModuleTree(prisma, RBAC_MODULE_TREE);
+
+  // 下线已合并的旧菜单（站点配置四页合一后）
+  await prisma.adminModule.updateMany({
+    where: { code: { in: DEPRECATED_MODULE_CODES } },
+    data: { status: 0 },
+  });
 
   const superRole = await prisma.adminRole.findUnique({ where: { code: 'super_admin' } });
   if (!superRole) return;

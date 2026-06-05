@@ -1,35 +1,30 @@
-import { Button, Card, Input, Typography, message } from 'antd';
+import { Button, Input, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { updateAbout } from '../../api/site.api';
-import PageLoading from '../../components/_common/PageLoading';
-import { useSite } from '../site/useSite';
+import { updateAbout } from '../../../../api/site.api';
+import type { SiteConfig } from '../../../../types';
 
 const { TextArea } = Input;
 
+export interface SiteAboutSettingsSectionProps {
+  site: SiteConfig;
+  setSite: (site: SiteConfig) => void;
+}
+
 /**
- * 路由 /about — 关于页 Profile
- * 暂用 JSON 编辑：Profile 含嵌套数组，结构化表单改动面大，后续可拆为分块表单
+ * 站点配置 Tab：关于页 Profile
+ * 暂用 JSON 编辑，结构与前台 about 页一致
  */
-export default function AboutPage() {
-  const { site, setSite, loading, reload } = useSite();
+export default function SiteAboutSettingsSection({
+  site,
+  setSite,
+}: SiteAboutSettingsSectionProps) {
   const [json, setJson] = useState('');
   const [parseError, setParseError] = useState('');
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (site) setJson(JSON.stringify(site.about, null, 2));
+    setJson(JSON.stringify(site.about, null, 2));
   }, [site]);
-
-  if (loading) return <PageLoading />;
-  if (!site) {
-    return (
-      <Card title="关于我">
-        <Button type="primary" onClick={() => void reload()}>
-          重新加载
-        </Button>
-      </Card>
-    );
-  }
 
   const handleSave = async () => {
     try {
@@ -46,16 +41,9 @@ export default function AboutPage() {
   };
 
   return (
-    <Card
-      title="关于我"
-      extra={
-        <Button type="primary" loading={saving} onClick={handleSave}>
-          保存
-        </Button>
-      }
-    >
+    <div>
       <Typography.Paragraph type="secondary">
-        编辑 Profile JSON（与前台关于页结构一致，保存后即时生效）
+        编辑 Profile JSON，保存后前台关于页即时生效。
       </Typography.Paragraph>
       <TextArea
         value={json}
@@ -68,6 +56,9 @@ export default function AboutPage() {
           {parseError}
         </Typography.Text>
       )}
-    </Card>
+      <Button type="primary" loading={saving} onClick={handleSave} style={{ marginTop: 16 }}>
+        保存关于我
+      </Button>
+    </div>
   );
 }

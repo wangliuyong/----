@@ -1,17 +1,23 @@
 import { Form, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { updateSite } from '../../../api/site.api';
-import type { SiteConfig } from '../../../types';
-import { useSite } from '../useSite';
+import { updateSite } from '../../../../api/site.api';
+import type { SiteConfig } from '../../../../types';
+import SiteSettingsForm from './SiteSettingsForm';
 
-/** 站点设置页：表单同步与保存 */
-export function useSiteSettingsPage() {
-  const { site, setSite, loading, reload } = useSite();
+export interface SiteBasicSettingsSectionProps {
+  site: SiteConfig;
+  setSite: (site: SiteConfig) => void;
+}
+
+/** 站点配置 Tab：站点名称、GitHub、邮箱 */
+export default function SiteBasicSettingsSection({
+  site,
+  setSite,
+}: SiteBasicSettingsSectionProps) {
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (!site) return;
     form.setFieldsValue({
       siteName: site.siteName,
       githubUrl: site.githubUrl,
@@ -29,5 +35,7 @@ export function useSiteSettingsPage() {
     }
   };
 
-  return { site, loading, reload, form, saving, handleSubmit };
+  return (
+    <SiteSettingsForm form={form} saving={saving} onSubmit={handleSubmit} />
+  );
 }

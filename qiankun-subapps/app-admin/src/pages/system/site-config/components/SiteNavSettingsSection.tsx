@@ -1,30 +1,25 @@
 import { DeleteOutlined, PlusOutlined } from '@ant-design/icons';
-import { Button, Card, Input, Space, Typography, message } from 'antd';
+import { Button, Input, Space, Typography, message } from 'antd';
 import { useEffect, useState } from 'react';
-import { updateNav } from '../../api/site.api';
-import PageLoading from '../../components/_common/PageLoading';
-import { useSite } from '../site/useSite';
+import { updateNav } from '../../../../api/site.api';
+import type { NavItem, SiteConfig } from '../../../../types';
 
-/** 路由 /nav — 顶栏导航项 */
-export default function NavPage() {
-  const { site, setSite, loading, reload } = useSite();
-  const [items, setItems] = useState(site?.nav ?? []);
+export interface SiteNavSettingsSectionProps {
+  site: SiteConfig;
+  setSite: (site: SiteConfig) => void;
+}
+
+/** 站点配置 Tab：顶栏导航项 */
+export default function SiteNavSettingsSection({
+  site,
+  setSite,
+}: SiteNavSettingsSectionProps) {
+  const [items, setItems] = useState<NavItem[]>(site.nav);
   const [saving, setSaving] = useState(false);
 
   useEffect(() => {
-    if (site) setItems(site.nav);
+    setItems(site.nav);
   }, [site]);
-
-  if (loading) return <PageLoading />;
-  if (!site) {
-    return (
-      <Card title="导航管理">
-        <Button type="primary" onClick={() => void reload()}>
-          重新加载
-        </Button>
-      </Card>
-    );
-  }
 
   const updateItem = (index: number, key: 'href' | 'label', value: string) => {
     const next = [...items];
@@ -43,22 +38,19 @@ export default function NavPage() {
   };
 
   return (
-    <Card
-      title="导航管理"
-      extra={
-        <Space>
-          <Button
-            icon={<PlusOutlined />}
-            onClick={() => setItems([...items, { href: '/', label: '新导航' }])}
-          >
-            添加
-          </Button>
-          <Button type="primary" loading={saving} onClick={handleSave}>
-            保存导航
-          </Button>
-        </Space>
-      }
-    >
+    <div>
+      <Space style={{ marginBottom: 16 }}>
+        <Button
+          icon={<PlusOutlined />}
+          onClick={() => setItems([...items, { href: '/', label: '新导航' }])}
+        >
+          添加
+        </Button>
+        <Button type="primary" loading={saving} onClick={handleSave}>
+          保存导航
+        </Button>
+      </Space>
+
       <Space orientation="vertical" style={{ width: '100%' }} size="middle">
         {items.map((item, index) => (
           <Space key={index} align="start" style={{ width: '100%' }}>
@@ -86,6 +78,6 @@ export default function NavPage() {
           <Typography.Text type="secondary">暂无导航项，点击「添加」创建</Typography.Text>
         )}
       </Space>
-    </Card>
+    </div>
   );
 }

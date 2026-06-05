@@ -1,6 +1,6 @@
 import { Button, Form, Input } from 'antd';
 import type { FormInstance } from 'antd/es/form';
-import type { SiteConfig } from '../../../types';
+import type { SiteConfig } from '../../../../types';
 
 export interface SiteSettingsFormProps {
   form: FormInstance;
@@ -27,7 +27,7 @@ export default function SiteSettingsForm({ form, saving, onSubmit }: SiteSetting
       </Form.Item>
       <Form.Item>
         <Button type="primary" htmlType="submit" loading={saving}>
-          保存
+          保存站点设置
         </Button>
       </Form.Item>
     </Form>

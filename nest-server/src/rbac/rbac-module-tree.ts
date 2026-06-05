@@ -56,56 +56,11 @@ export function viewOnlyPermissions(prefix: string, label: string): RbacPermissi
 
 export const RBAC_MODULE_TREE: RbacModuleDef[] = [
   {
-    code: 'site-config',
-    name: '站点配置',
-    type: 'menu',
-    icon: 'SettingOutlined',
-    sort: 1,
-    children: [
-      {
-        code: 'site',
-        name: '站点设置',
-        type: 'menu',
-        path: 'site',
-        icon: 'SettingOutlined',
-        sort: 1,
-        permissions: viewUpdatePermissions('admin:site', '站点设置'),
-      },
-      {
-        code: 'nav',
-        name: '导航管理',
-        type: 'menu',
-        path: 'nav',
-        icon: 'MenuOutlined',
-        sort: 2,
-        permissions: viewUpdatePermissions('admin:nav', '导航管理'),
-      },
-      {
-        code: 'about',
-        name: '关于我',
-        type: 'menu',
-        path: 'about',
-        icon: 'InfoCircleOutlined',
-        sort: 3,
-        permissions: viewUpdatePermissions('admin:about', '关于我'),
-      },
-      {
-        code: 'contact',
-        name: '联系我',
-        type: 'menu',
-        path: 'contact',
-        icon: 'MailOutlined',
-        sort: 4,
-        permissions: viewUpdatePermissions('admin:contact', '联系我'),
-      },
-    ],
-  },
-  {
     code: 'content',
     name: '内容管理',
     type: 'menu',
     icon: 'AppstoreOutlined',
-    sort: 2,
+    sort: 1,
     children: [
       {
         code: 'articles',
@@ -141,7 +96,7 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
     name: '互动管理',
     type: 'menu',
     icon: 'CommentOutlined',
-    sort: 3,
+    sort: 2,
     children: [
       {
         code: 'messages',
@@ -159,8 +114,26 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
     name: '系统管理',
     type: 'menu',
     icon: 'SafetyOutlined',
-    sort: 4,
+    sort: 3,
     children: [
+      {
+        code: 'system-site-config',
+        name: '站点配置',
+        type: 'menu',
+        path: 'system/site-config',
+        icon: 'SettingOutlined',
+        sort: 0,
+        permissions: [
+          { code: 'admin:site:view', name: '站点配置查看', type: 'menu', sort: 0 },
+          { code: 'admin:site:update', name: '站点设置编辑', type: 'button', sort: 1 },
+          { code: 'admin:nav:view', name: '导航管理查看', type: 'menu', sort: 2 },
+          { code: 'admin:nav:update', name: '导航管理编辑', type: 'button', sort: 3 },
+          { code: 'admin:about:view', name: '关于我查看', type: 'menu', sort: 4 },
+          { code: 'admin:about:update', name: '关于我编辑', type: 'button', sort: 5 },
+          { code: 'admin:contact:view', name: '联系我查看', type: 'menu', sort: 6 },
+          { code: 'admin:contact:update', name: '联系我编辑', type: 'button', sort: 7 },
+        ],
+      },
       {
         code: 'system-modules',
         name: '模块管理',
@@ -202,7 +175,7 @@ export const RBAC_MODULE_TREE: RbacModuleDef[] = [
     name: 'AI小助手管理',
     type: 'menu',
     icon: 'RobotOutlined',
-    sort: 5,
+    sort: 4,
     children: [
       {
         code: 'system-ai-assistant',

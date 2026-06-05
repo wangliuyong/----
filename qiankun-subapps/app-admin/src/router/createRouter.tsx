@@ -14,7 +14,7 @@ const keepLoaderData: NonNullable<RouteObject['shouldRevalidate']> = () => false
 /** 根据用户可访问菜单动态生成路由（组件由 path 自动匹配 pages 目录） */
 export function createAdminRouter(menus: AdminMenuNode[]) {
   const leafMenus = flattenLeafMenus(menus).filter((m) => m.path && getPageByPath(m.path));
-  const defaultPath = leafMenus[0]?.path ?? 'site';
+  const defaultPath = leafMenus[0]?.path ?? 'system/site-config';
 
   const adminTabRoutes: RouteObject[] = leafMenus.map((m) => ({
     path: m.path!,

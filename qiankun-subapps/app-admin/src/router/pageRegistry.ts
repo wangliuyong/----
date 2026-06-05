@@ -7,7 +7,7 @@ type PageModule = { default: ComponentType };
 
 /**
  * 自动扫描 pages/**\/index.tsx，按目录路径建立 path → 组件映射
- * 例：pages/site/index.tsx → path: site；pages/system/modules/index.tsx → system/modules
+ * 例：pages/system/site-config/index.tsx → system/site-config；pages/system/modules/index.tsx → system/modules
  */
 const pageModules = import.meta.glob('../pages/**/index.tsx', {
   eager: true,
