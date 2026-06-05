@@ -19,7 +19,8 @@
     "dev:admin:standalone": "concurrently -k -n api,admin -c blue,bgBlue \"pnpm run dev:api\" \"pnpm --dir qiankun-subapps/app-admin run dev:standalone\"",
     "dev:web:standalone": "concurrently -k -n api,subweb -c blue,cyan \"pnpm run dev:api\" \"pnpm --dir qiankun-subapps/app-web run dev:standalone\"",
     "build:api": "pnpm --dir nest-server run build",
-    "build:web": "pnpm run build:subapps && pnpm --dir next-host run build"
+    "build:web": "pnpm run build:subapps && pnpm --dir next-host run build",
+    "sync:db": "bash docker/sync-db-to-server.sh"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

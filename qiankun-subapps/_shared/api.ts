@@ -7,9 +7,9 @@ export function apiUrl(base: string, path: string): string {
   return `${normalized}${path.startsWith('/') ? path : `/${path}`}`;
 }
 
-/** 通用 GET 请求 */
+/** 通用 GET 请求（SSR 禁用 Next.js Data Cache，避免 API 恢复后仍展示旧空数据） */
 export async function fetchJson<T>(url: string): Promise<T> {
-  const res = await fetch(url);
+  const res = await fetch(url, { cache: 'no-store' });
   if (!res.ok) {
     throw new Error(`请求失败: ${res.status}`);
   }

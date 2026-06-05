@@ -12,17 +12,21 @@ export async function getSiteConfig(): Promise<SiteConfig | null> {
   }
 }
 
-/** 服务端拉取文章列表（支持分类 / 标签筛选） */
+/** 服务端拉取文章列表（支持分类 / 标签筛选；失败时返回空列表） */
 export async function getArticles(filters?: {
   category?: string;
   tag?: string;
 }): Promise<Article[]> {
-  const base = getServerApiBase();
-  const params = new URLSearchParams();
-  if (filters?.category) params.set('category', filters.category);
-  if (filters?.tag) params.set('tag', filters.tag);
-  const qs = params.toString() ? `?${params}` : '';
-  return fetchJson<Article[]>(apiUrl(base, `/article/list${qs}`));
+  try {
+    const base = getServerApiBase();
+    const params = new URLSearchParams();
+    if (filters?.category) params.set('category', filters.category);
+    if (filters?.tag) params.set('tag', filters.tag);
+    const qs = params.toString() ? `?${params}` : '';
+    return await fetchJson<Article[]>(apiUrl(base, `/article/list${qs}`));
+  } catch {
+    return [];
+  }
 }
 
 /** 服务端拉取单篇文章详情 */
@@ -36,7 +40,13 @@ export async function getArticle(id: string): Promise<Article | null> {
   }
 }
 
-/** 服务端拉取项目列表 */
+/** 服务端拉取项目列表（失败时返回空列表） */
 export async function getProjects(): Promise<Project[]> {
-  return fetchJson<Project[]>(apiUrl(getServerApiBase(), '/project/list'));
+  try {
+    return await fetchJson<Project[]>(
+      apiUrl(getServerApiBase(), '/project/list'),
+    );
+  } catch {
+    return [];
+  }
 }
