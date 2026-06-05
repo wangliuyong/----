@@ -2,7 +2,7 @@ import type { AdminMenuNode } from '../types/rbac';
 import { getMenuTitleByPath, resolveMenuPath } from './menuUtils';
 
 /** 浏览器 Tab 与顶栏共用的产品名 */
-export const APP_BRAND = 'CMS 后台';
+export const APP_BRAND = '网站后台管理';
 
 /** 无法匹配菜单时的默认页面标题 */
 export const DEFAULT_PAGE_TITLE = '内容管理系统';

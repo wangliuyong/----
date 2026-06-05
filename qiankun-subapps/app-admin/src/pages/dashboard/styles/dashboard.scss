@@ -4,6 +4,76 @@
   gap: 20px;
 }
 
+/* 可排序卡片区块 */
+.dashboard-sections {
+  display: flex;
+  flex-direction: column;
+  gap: 20px;
+}
+
+.dashboard-sections--editing {
+  padding: 12px;
+  border: 1px dashed rgba(154, 52, 18, 0.28);
+  border-radius: 2px;
+  background: rgba(250, 248, 245, 0.45);
+}
+
+.dashboard-sections__hint {
+  margin: 0;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #78716c;
+  background: #fff;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 2px;
+}
+
+.dashboard-section {
+  position: relative;
+}
+
+.dashboard-section--editing {
+  padding: 8px;
+  background: #fff;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 2px;
+}
+
+.dashboard-section--dragging {
+  z-index: 2;
+  box-shadow: 0 16px 40px -24px rgba(20, 20, 20, 0.35);
+}
+
+.dashboard-section__toolbar {
+  margin-bottom: 10px;
+}
+
+.dashboard-section__handle {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  padding: 6px 12px;
+  font-size: 13px;
+  color: #57534e;
+  background: rgba(154, 52, 18, 0.06);
+  border: 1px solid rgba(154, 52, 18, 0.14);
+  border-radius: 2px;
+  cursor: grab;
+  touch-action: none;
+}
+
+.dashboard-section__handle:active {
+  cursor: grabbing;
+}
+
+.dashboard-section__handle .anticon {
+  color: #9a3412;
+}
+
+.dashboard-section__body {
+  min-width: 0;
+}
+
 /* 顶部欢迎区：Ink & Sand 暖色渐变条 */
 .dashboard-hero {
   display: flex;

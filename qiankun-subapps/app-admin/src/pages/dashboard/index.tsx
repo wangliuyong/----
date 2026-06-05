@@ -1,21 +1,17 @@
 import { ReloadOutlined } from '@ant-design/icons';
-import { Button, Col, Row, Typography } from 'antd';
+import { Button, Popconfirm, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import PageLoading from '../../components/_common/PageLoading';
-import DashboardChartsSection from './components/DashboardChartsSection';
-import DashboardContentStats from './components/DashboardContentStats';
-import DashboardInteractionPanel from './components/DashboardInteractionPanel';
-import DashboardQuickLinks from './components/DashboardQuickLinks';
-import DashboardRecentPanel from './components/DashboardRecentPanel';
-import DashboardServerPanel from './components/DashboardServerPanel';
-import DashboardVisitRecordsPanel from './components/DashboardVisitRecordsPanel';
+import DashboardSortableLayout from './components/DashboardSortableLayout';
 import { useDashboardOverview } from './hooks/useDashboardOverview';
+import { useDashboardSectionOrder } from './hooks/useDashboardSectionOrder';
 import './styles/dashboard.scss';
 
-/** 路由 dashboard — 管理后台首页概览 */
+/** 路由 dashboard — 管理后台首页概览（支持卡片拖拽排序） */
 export default function DashboardPage() {
   const navigate = useNavigate();
   const { overview, loading, reload } = useDashboardOverview();
+  const { order, isEditing, setIsEditing, reorder, resetOrder } = useDashboardSectionOrder();
 
   if (loading || !overview) {
     return <PageLoading />;
@@ -29,36 +25,40 @@ export default function DashboardPage() {
             {overview.site.siteName}
           </Typography.Title>
           <p className="dashboard-hero__subtitle">
-            app-web 访问、内容概况与服务器状态一屏掌握
+            访问、内容概况与服务器状态一屏掌握
           </p>
         </div>
-        <Button icon={<ReloadOutlined />} onClick={() => void reload()}>
-          刷新数据
-        </Button>
+        <Space wrap>
+          {isEditing ? (
+            <>
+              <Popconfirm
+                title="恢复默认顺序？"
+                onConfirm={resetOrder}
+                okText="恢复"
+                cancelText="取消"
+              >
+                <Button>恢复默认</Button>
+              </Popconfirm>
+              <Button type="primary" ghost onClick={() => setIsEditing(false)}>
+                完成编辑
+              </Button>
+            </>
+          ) : (
+            <Button onClick={() => setIsEditing(true)}>自定义布局</Button>
+          )}
+          <Button icon={<ReloadOutlined />} onClick={() => void reload()}>
+            刷新数据
+          </Button>
+        </Space>
       </header>
 
-      <DashboardContentStats content={overview.content} visit={overview.visit} />
-
-      <DashboardChartsSection charts={overview.charts} />
-
-      <DashboardVisitRecordsPanel records={overview.recentPageViews} />
-
-      <Row gutter={[16, 16]}>
-        <Col xs={24} lg={14}>
-          <DashboardInteractionPanel
-            interaction={overview.interaction}
-            logs={overview.logs}
-            messagesTotal={overview.content.messages}
-          />
-        </Col>
-        <Col xs={24} lg={10}>
-          <DashboardServerPanel server={overview.server} ai={overview.ai} />
-        </Col>
-      </Row>
-
-      <DashboardQuickLinks onNavigate={(path) => navigate(`/${path}`)} />
-
-      <DashboardRecentPanel recent={overview.recent} />
+      <DashboardSortableLayout
+        order={order}
+        isEditing={isEditing}
+        overview={overview}
+        onNavigate={(path) => navigate(`/${path}`)}
+        onReorder={reorder}
+      />
     </div>
   );
 }
