@@ -3,6 +3,7 @@ import { AiModule } from './ai/ai.module';
 import { ArticleModule } from './article/article.module';
 import { AuthModule } from './auth/auth.module';
 import { AdminModule } from './admin/admin.module';
+import { AnalyticsModule } from './analytics/analytics.module';
 import { DashboardModule } from './dashboard/dashboard.module';
 import { LinkModule } from './link/link.module';
 import { LoggingModule } from './logging/logging.module';
@@ -20,6 +21,7 @@ import { SiteModule } from './site/site.module';
     RbacModule,
     SiteModule,
     AdminModule,
+    AnalyticsModule,
     DashboardModule,
     ArticleModule,
     ProjectModule,

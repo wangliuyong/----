@@ -2,6 +2,7 @@ import { ReloadOutlined } from '@ant-design/icons';
 import { Button, Col, Row, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import PageLoading from '../../components/_common/PageLoading';
+import DashboardChartsSection from './components/DashboardChartsSection';
 import DashboardContentStats from './components/DashboardContentStats';
 import DashboardInteractionPanel from './components/DashboardInteractionPanel';
 import DashboardQuickLinks from './components/DashboardQuickLinks';
@@ -21,19 +22,23 @@ export default function DashboardPage() {
 
   return (
     <div className="dashboard-page">
-      <div className="dashboard-page__header">
-        <div>
-          <Typography.Title level={3} className="dashboard-page__title">
+      <header className="dashboard-hero">
+        <div className="dashboard-hero__copy">
+          <Typography.Title level={3} className="dashboard-hero__title">
             {overview.site.siteName}
           </Typography.Title>
-          <p className="dashboard-page__subtitle">站点运行概览与常用管理入口</p>
+          <p className="dashboard-hero__subtitle">
+            访问趋势、内容概况与服务器状态一屏掌握
+          </p>
         </div>
         <Button icon={<ReloadOutlined />} onClick={() => void reload()}>
-          刷新
+          刷新数据
         </Button>
-      </div>
+      </header>
 
-      <DashboardContentStats content={overview.content} />
+      <DashboardContentStats content={overview.content} visit={overview.visit} />
+
+      <DashboardChartsSection charts={overview.charts} />
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>

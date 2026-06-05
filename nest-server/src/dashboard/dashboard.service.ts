@@ -53,6 +53,55 @@ function readDatabaseSizeBytes(): number | null {
   }
 }
 
+/** 昨天 00:00:00 */
+function startOfYesterday(date = new Date()): Date {
+  const d = startOfDay(date);
+  d.setDate(d.getDate() - 1);
+  return d;
+}
+
+/** 格式化为 YYYY-MM-DD，用于按日聚合 */
+function formatDateKey(date: Date): string {
+  const y = date.getFullYear();
+  const m = String(date.getMonth() + 1).padStart(2, '0');
+  const d = String(date.getDate()).padStart(2, '0');
+  return `${y}-${m}-${d}`;
+}
+
+/** 图表横轴短标签 MM-DD */
+function formatChartLabel(dateKey: string): string {
+  return dateKey.slice(5);
+}
+
+/** 生成连续 N 天的日期键（含今天） */
+function buildDayKeys(days: number): string[] {
+  const keys: string[] = [];
+  const anchor = startOfDay(new Date());
+  anchor.setDate(anchor.getDate() - (days - 1));
+
+  for (let i = 0; i < days; i++) {
+    const d = new Date(anchor);
+    d.setDate(anchor.getDate() + i);
+    keys.push(formatDateKey(d));
+  }
+  return keys;
+}
+
+/** 将 createdAt 列表按日计数写入 buckets */
+function countByDayKeys(
+  keys: string[],
+  rows: Array<{ createdAt: Date }>,
+): Map<string, number> {
+  const map = new Map<string, number>(keys.map((k) => [k, 0]));
+  for (const row of rows) {
+    const key = formatDateKey(row.createdAt);
+    if (map.has(key)) {
+      map.set(key, (map.get(key) ?? 0) + 1);
+    }
+  }
+  return map;
+}
+
 /** 首页概览 DTO（与前端 types 对齐） */
 export interface DashboardOverviewDto {
   site: {
@@ -65,14 +114,37 @@ export interface DashboardOverviewDto {
     messages: number;
     articlesThisMonth: number;
   };
-  /** 互动数据：留言与 AI 问答（暂无独立 PV/UV 埋点，以真实互动量代替） */
+  /** 页面访问 PV 统计 */
+  visit: {
+    today: number;
+    week: number;
+    total: number;
+  };
+  /** 互动数据：留言、AI 问答与访问摘要 */
   interaction: {
     messagesToday: number;
+    messagesYesterday: number;
     messagesThisWeek: number;
     aiSessions: number;
     aiSessionsToday: number;
     aiSessionsThisWeek: number;
     aiMessages: number;
+    /** 每会话平均消息数，无会话时为 null */
+    aiAvgMessagesPerSession: number | null;
+    pageViewsToday: number;
+    pageViewsYesterday: number;
+    pageViewsThisWeek: number;
+    /** 最新一条留言摘要 */
+    latestMessage: {
+      nickname: string;
+      content: string;
+      createdAt: string;
+    } | null;
+    /** 本周访问最多的页面 */
+    topPageThisWeek: {
+      path: string;
+      views: number;
+    } | null;
   };
   logs: {
     auditToday: number;
@@ -99,6 +171,22 @@ export interface DashboardOverviewDto {
     lastSyncStatus: string | null;
     lastSyncAt: string | null;
     vectorChunkCount: number;
+  };
+  /** ECharts 图表数据 */
+  charts: {
+    dailyTrend: Array<{
+      date: string;
+      label: string;
+      pageViews: number;
+      messages: number;
+      aiSessions: number;
+    }>;
+    topPages: Array<{ path: string; views: number }>;
+    contentMix: {
+      articles: number;
+      projects: number;
+      links: number;
+    };
   };
   recent: {
     messages: Array<{
@@ -128,13 +216,19 @@ export interface DashboardOverviewDto {
  */
 @Injectable()
 export class DashboardService {
+  /** 趋势图默认展示天数 */
+  private readonly trendDays = 14;
+
   constructor(private readonly prisma: PrismaService) {}
 
   async getOverview(): Promise<DashboardOverviewDto> {
     const now = new Date();
     const dayStart = startOfDay(now);
+    const yesterdayStart = startOfYesterday(now);
     const weekStart = startOfWeek(now);
     const monthStart = startOfMonth(now);
+    const trendStart = startOfDay(now);
+    trendStart.setDate(trendStart.getDate() - (this.trendDays - 1));
 
     const [
       siteConfig,
@@ -144,11 +238,20 @@ export class DashboardService {
       messages,
       articlesThisMonth,
       messagesToday,
+      messagesYesterday,
       messagesThisWeek,
       aiSessions,
       aiSessionsToday,
       aiSessionsThisWeek,
       aiMessages,
+      pageViewsToday,
+      pageViewsYesterday,
+      pageViewsWeek,
+      pageViewsTotal,
+      trendPageViews,
+      trendMessages,
+      trendAiSessions,
+      trendTopPageRows,
       auditToday,
       appErrorsToday,
       appErrorsThisWeek,
@@ -166,11 +269,36 @@ export class DashboardService {
       this.prisma.message.count(),
       this.prisma.article.count({ where: { publishedAt: { gte: monthStart } } }),
       this.prisma.message.count({ where: { createdAt: { gte: dayStart } } }),
+      this.prisma.message.count({
+        where: { createdAt: { gte: yesterdayStart, lt: dayStart } },
+      }),
       this.prisma.message.count({ where: { createdAt: { gte: weekStart } } }),
       this.prisma.aiChatSession.count(),
       this.prisma.aiChatSession.count({ where: { createdAt: { gte: dayStart } } }),
       this.prisma.aiChatSession.count({ where: { createdAt: { gte: weekStart } } }),
       this.prisma.aiChatMessage.count(),
+      this.prisma.sitePageView.count({ where: { createdAt: { gte: dayStart } } }),
+      this.prisma.sitePageView.count({
+        where: { createdAt: { gte: yesterdayStart, lt: dayStart } },
+      }),
+      this.prisma.sitePageView.count({ where: { createdAt: { gte: weekStart } } }),
+      this.prisma.sitePageView.count(),
+      this.prisma.sitePageView.findMany({
+        where: { createdAt: { gte: trendStart } },
+        select: { createdAt: true, path: true },
+      }),
+      this.prisma.message.findMany({
+        where: { createdAt: { gte: trendStart } },
+        select: { createdAt: true },
+      }),
+      this.prisma.aiChatSession.findMany({
+        where: { createdAt: { gte: trendStart } },
+        select: { createdAt: true },
+      }),
+      this.prisma.sitePageView.findMany({
+        where: { createdAt: { gte: weekStart } },
+        select: { path: true },
+      }),
       this.prisma.adminAuditLog.count({ where: { createdAt: { gte: dayStart } } }),
       this.prisma.appLog.count({
         where: { level: 'error', createdAt: { gte: dayStart } },
@@ -213,6 +341,32 @@ export class DashboardService {
     const totalMem = os.totalmem();
     const freeMem = os.freemem();
 
+    const dayKeys = buildDayKeys(this.trendDays);
+    const pageViewByDay = countByDayKeys(dayKeys, trendPageViews);
+    const messageByDay = countByDayKeys(dayKeys, trendMessages);
+    const aiSessionByDay = countByDayKeys(dayKeys, trendAiSessions);
+
+    const dailyTrend = dayKeys.map((date) => ({
+      date,
+      label: formatChartLabel(date),
+      pageViews: pageViewByDay.get(date) ?? 0,
+      messages: messageByDay.get(date) ?? 0,
+      aiSessions: aiSessionByDay.get(date) ?? 0,
+    }));
+
+    const pathCountMap = new Map<string, number>();
+    for (const row of trendTopPageRows) {
+      pathCountMap.set(row.path, (pathCountMap.get(row.path) ?? 0) + 1);
+    }
+    const topPages = [...pathCountMap.entries()]
+      .sort((a, b) => b[1] - a[1])
+      .slice(0, 6)
+      .map(([path, views]) => ({ path, views }));
+
+    const latestMessageRow = recentMessages[0];
+    const aiAvgMessagesPerSession =
+      aiSessions > 0 ? Math.round((aiMessages / aiSessions) * 10) / 10 : null;
+
     return {
       site: {
         siteName: siteConfig?.siteName ?? '个人网站',
@@ -224,13 +378,31 @@ export class DashboardService {
         messages,
         articlesThisMonth,
       },
+      visit: {
+        today: pageViewsToday,
+        week: pageViewsWeek,
+        total: pageViewsTotal,
+      },
       interaction: {
         messagesToday,
+        messagesYesterday,
         messagesThisWeek,
         aiSessions,
         aiSessionsToday,
         aiSessionsThisWeek,
         aiMessages,
+        aiAvgMessagesPerSession,
+        pageViewsToday,
+        pageViewsYesterday,
+        pageViewsThisWeek: pageViewsWeek,
+        latestMessage: latestMessageRow
+          ? {
+              nickname: latestMessageRow.nickname,
+              content: latestMessageRow.content,
+              createdAt: latestMessageRow.createdAt.toISOString(),
+            }
+          : null,
+        topPageThisWeek: topPages[0] ?? null,
       },
       logs: {
         auditToday,
@@ -257,6 +429,11 @@ export class DashboardService {
         lastSyncStatus: lastSync?.status ?? null,
         lastSyncAt: lastSync?.startedAt.toISOString() ?? null,
         vectorChunkCount: syncChunkSum._sum.chunkCount ?? 0,
+      },
+      charts: {
+        dailyTrend,
+        topPages,
+        contentMix: { articles, projects, links },
       },
       recent: {
         messages: recentMessages.map((item) => ({

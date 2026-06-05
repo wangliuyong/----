@@ -1,24 +1,39 @@
 import {
   BookOutlined,
   CommentOutlined,
+  EyeOutlined,
   LinkOutlined,
   ProjectOutlined,
 } from '@ant-design/icons';
-import { Card, Col, Row, Statistic } from 'antd';
+import { Statistic } from 'antd';
 import type { DashboardOverview } from '../types';
 
 interface DashboardContentStatsProps {
   content: DashboardOverview['content'];
+  visit: DashboardOverview['visit'];
 }
 
-/** 站点内容数量概览 */
-export default function DashboardContentStats({ content }: DashboardContentStatsProps) {
+/** 站点核心指标卡片 */
+export default function DashboardContentStats({ content, visit }: DashboardContentStatsProps) {
   const items = [
+    {
+      key: 'pv-today',
+      title: '今日访问 (PV)',
+      value: visit.today,
+      icon: <EyeOutlined />,
+      accent: true,
+    },
+    {
+      key: 'pv-week',
+      title: '本周访问',
+      value: visit.week,
+      icon: <EyeOutlined />,
+    },
     {
       key: 'articles',
       title: '博客文章',
       value: content.articles,
-      suffix: `本月 +${content.articlesThisMonth}`,
+      suffix: content.articlesThisMonth > 0 ? `本月 +${content.articlesThisMonth}` : undefined,
       icon: <BookOutlined />,
     },
     {
@@ -42,20 +57,21 @@ export default function DashboardContentStats({ content }: DashboardContentStats
   ];
 
   return (
-    <Row gutter={[16, 16]}>
+    <div className="dashboard-stats-grid">
       {items.map((item) => (
-        <Col key={item.key} xs={24} sm={12} lg={6}>
-          <Card className="dashboard-stat-card" bordered={false}>
-            <div className="dashboard-stat-card__icon">{item.icon}</div>
-            <Statistic
-              title={item.title}
-              value={item.value}
-              suffix={item.suffix}
-              valueStyle={{ fontWeight: 600 }}
-            />
-          </Card>
-        </Col>
+        <div
+          key={item.key}
+          className={`dashboard-stat-card${item.accent ? ' dashboard-stat-card--accent' : ''}`}
+        >
+          <div className="dashboard-stat-card__icon">{item.icon}</div>
+          <Statistic
+            title={item.title}
+            value={item.value}
+            suffix={item.suffix}
+            valueStyle={{ fontWeight: 600, fontSize: 28 }}
+          />
+        </div>
       ))}
-    </Row>
+    </div>
   );
 }

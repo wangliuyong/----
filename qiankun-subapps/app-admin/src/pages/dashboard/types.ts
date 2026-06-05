@@ -11,13 +11,32 @@ export interface DashboardOverview {
     messages: number;
     articlesThisMonth: number;
   };
+  visit: {
+    today: number;
+    week: number;
+    total: number;
+  };
   interaction: {
     messagesToday: number;
+    messagesYesterday: number;
     messagesThisWeek: number;
     aiSessions: number;
     aiSessionsToday: number;
     aiSessionsThisWeek: number;
     aiMessages: number;
+    aiAvgMessagesPerSession: number | null;
+    pageViewsToday: number;
+    pageViewsYesterday: number;
+    pageViewsThisWeek: number;
+    latestMessage: {
+      nickname: string;
+      content: string;
+      createdAt: string;
+    } | null;
+    topPageThisWeek: {
+      path: string;
+      views: number;
+    } | null;
   };
   logs: {
     auditToday: number;
@@ -44,6 +63,21 @@ export interface DashboardOverview {
     lastSyncStatus: string | null;
     lastSyncAt: string | null;
     vectorChunkCount: number;
+  };
+  charts: {
+    dailyTrend: Array<{
+      date: string;
+      label: string;
+      pageViews: number;
+      messages: number;
+      aiSessions: number;
+    }>;
+    topPages: Array<{ path: string; views: number }>;
+    contentMix: {
+      articles: number;
+      projects: number;
+      links: number;
+    };
   };
   recent: {
     messages: Array<{

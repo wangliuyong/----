@@ -199,3 +199,14 @@ model AiChatMessage {
   @@index([sessionId])
   @@index([createdAt])
 }
+
+/** 前台页面访问记录（供管理端首页图表统计） */
+model SitePageView {
+  id        Int      @id @default(autoincrement())
+  path      String
+  referrer  String?
+  createdAt DateTime @default(now())
+
+  @@index([createdAt])
+  @@index([path])
+}

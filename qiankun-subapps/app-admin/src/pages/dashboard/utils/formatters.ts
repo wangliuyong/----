@@ -19,6 +19,14 @@ export function formatBytes(bytes: number | null): string {
   return `${(bytes / 1024 / 1024).toFixed(2)} MB`;
 }
 
+/** 计算较昨日变化文案 */
+export function formatDayDelta(today: number, yesterday: number): string {
+  const diff = today - yesterday;
+  if (diff > 0) return `较昨日 +${diff}`;
+  if (diff < 0) return `较昨日 ${diff}`;
+  return '较昨日 持平';
+}
+
 /** 截断长文本，用于列表预览 */
 export function truncateText(text: string, max = 48): string {
   const trimmed = text.trim();
