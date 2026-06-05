@@ -450,3 +450,16 @@
     padding: 16px;
   }
 }
+
+/* app-web 访问记录表格 */
+.dashboard-visit-records .ant-table {
+  font-size: 13px;
+}
+
+.dashboard-visit-path {
+  font-size: 12px;
+  color: #9a3412;
+  background: rgba(154, 52, 18, 0.06);
+  padding: 2px 6px;
+  border-radius: 2px;
+}

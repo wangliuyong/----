@@ -2,6 +2,7 @@ import { Injectable } from '@nestjs/common';
 import * as fs from 'fs';
 import * as os from 'os';
 import * as path from 'path';
+import { APP_WEB_PAGE_VIEW_WHERE } from '../analytics/client-info.util';
 import { PrismaService } from '../prisma/prisma.service';
 
 /** 当天 00:00:00（服务端本地时区） */
@@ -208,6 +209,19 @@ export interface DashboardOverviewDto {
       createdAt: string;
     }>;
   };
+  /** 最近 app-web 页面访问（含 IP、浏览器、地区） */
+  recentPageViews: Array<{
+    id: number;
+    path: string;
+    ip: string | null;
+    browser: string | null;
+    os: string | null;
+    device: string | null;
+    locale: string | null;
+    timezone: string | null;
+    region: string | null;
+    createdAt: string;
+  }>;
 }
 
 /**
@@ -258,6 +272,7 @@ export class DashboardService {
       recentMessages,
       recentArticles,
       recentAuditLogs,
+      recentPageViews,
       aiConfig,
       lastSync,
       syncChunkSum,
@@ -277,14 +292,21 @@ export class DashboardService {
       this.prisma.aiChatSession.count({ where: { createdAt: { gte: dayStart } } }),
       this.prisma.aiChatSession.count({ where: { createdAt: { gte: weekStart } } }),
       this.prisma.aiChatMessage.count(),
-      this.prisma.sitePageView.count({ where: { createdAt: { gte: dayStart } } }),
       this.prisma.sitePageView.count({
-        where: { createdAt: { gte: yesterdayStart, lt: dayStart } },
+        where: { ...APP_WEB_PAGE_VIEW_WHERE, createdAt: { gte: dayStart } },
       }),
-      this.prisma.sitePageView.count({ where: { createdAt: { gte: weekStart } } }),
-      this.prisma.sitePageView.count(),
+      this.prisma.sitePageView.count({
+        where: {
+          ...APP_WEB_PAGE_VIEW_WHERE,
+          createdAt: { gte: yesterdayStart, lt: dayStart },
+        },
+      }),
+      this.prisma.sitePageView.count({
+        where: { ...APP_WEB_PAGE_VIEW_WHERE, createdAt: { gte: weekStart } },
+      }),
+      this.prisma.sitePageView.count({ where: APP_WEB_PAGE_VIEW_WHERE }),
       this.prisma.sitePageView.findMany({
-        where: { createdAt: { gte: trendStart } },
+        where: { ...APP_WEB_PAGE_VIEW_WHERE, createdAt: { gte: trendStart } },
         select: { createdAt: true, path: true },
       }),
       this.prisma.message.findMany({
@@ -296,7 +318,7 @@ export class DashboardService {
         select: { createdAt: true },
       }),
       this.prisma.sitePageView.findMany({
-        where: { createdAt: { gte: weekStart } },
+        where: { ...APP_WEB_PAGE_VIEW_WHERE, createdAt: { gte: weekStart } },
         select: { path: true },
       }),
       this.prisma.adminAuditLog.count({ where: { createdAt: { gte: dayStart } } }),
@@ -324,6 +346,23 @@ export class DashboardService {
           username: true,
           action: true,
           module: true,
+          createdAt: true,
+        },
+      }),
+      this.prisma.sitePageView.findMany({
+        where: APP_WEB_PAGE_VIEW_WHERE,
+        orderBy: { createdAt: 'desc' },
+        take: 10,
+        select: {
+          id: true,
+          path: true,
+          ip: true,
+          browser: true,
+          os: true,
+          device: true,
+          locale: true,
+          timezone: true,
+          region: true,
           createdAt: true,
         },
       }),
@@ -449,6 +488,10 @@ export class DashboardService {
           createdAt: item.createdAt.toISOString(),
         })),
       },
+      recentPageViews: recentPageViews.map((item) => ({
+        ...item,
+        createdAt: item.createdAt.toISOString(),
+      })),
     };
   }
 }

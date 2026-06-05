@@ -1,5 +1,4 @@
 import { MainNav } from '@/components/MainNav';
-import { PageViewTracker } from '@/components/analytics/PageViewTracker';
 import { QiankunProvider } from '@/components/QiankunProvider';
 
 /** 前台站点布局：顶栏 + 微前端容器 + 页脚 */
@@ -10,7 +9,6 @@ export default function SiteLayout({
 }) {
   return (
     <div className="site-shell">
-      <PageViewTracker />
       <MainNav />
       <main className="site-main">
         <QiankunProvider>{children}</QiankunProvider>

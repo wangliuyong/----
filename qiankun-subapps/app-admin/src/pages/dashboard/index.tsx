@@ -8,6 +8,7 @@ import DashboardInteractionPanel from './components/DashboardInteractionPanel';
 import DashboardQuickLinks from './components/DashboardQuickLinks';
 import DashboardRecentPanel from './components/DashboardRecentPanel';
 import DashboardServerPanel from './components/DashboardServerPanel';
+import DashboardVisitRecordsPanel from './components/DashboardVisitRecordsPanel';
 import { useDashboardOverview } from './hooks/useDashboardOverview';
 import './styles/dashboard.scss';
 
@@ -28,7 +29,7 @@ export default function DashboardPage() {
             {overview.site.siteName}
           </Typography.Title>
           <p className="dashboard-hero__subtitle">
-            访问趋势、内容概况与服务器状态一屏掌握
+            app-web 访问、内容概况与服务器状态一屏掌握
           </p>
         </div>
         <Button icon={<ReloadOutlined />} onClick={() => void reload()}>
@@ -39,6 +40,8 @@ export default function DashboardPage() {
       <DashboardContentStats content={overview.content} visit={overview.visit} />
 
       <DashboardChartsSection charts={overview.charts} />
+
+      <DashboardVisitRecordsPanel records={overview.recentPageViews} />
 
       <Row gutter={[16, 16]}>
         <Col xs={24} lg={14}>

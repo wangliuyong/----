@@ -18,7 +18,7 @@ export default function DashboardContentStats({ content, visit }: DashboardConte
   const items = [
     {
       key: 'pv-today',
-      title: '今日访问 (PV)',
+      title: '今日 app-web 访问',
       value: visit.today,
       icon: <EyeOutlined />,
       accent: true,

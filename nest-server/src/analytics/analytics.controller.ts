@@ -1,4 +1,5 @@
-import { Body, Controller, Post } from '@nestjs/common';
+import { Body, Controller, Post, Req } from '@nestjs/common';
+import type { Request } from 'express';
 import { AnalyticsService } from './analytics.service';
 import { RecordPageViewDto } from './dto/record-page-view.dto';
 
@@ -7,9 +8,9 @@ import { RecordPageViewDto } from './dto/record-page-view.dto';
 export class AnalyticsController {
   constructor(private readonly analyticsService: AnalyticsService) {}
 
-  /** 页面浏览上报（由 next-host 路由切换时调用） */
+  /** 页面浏览上报（由 app-web 路由切换时调用） */
   @Post('pageview')
-  recordPageView(@Body() dto: RecordPageViewDto) {
-    return this.analyticsService.recordPageView(dto);
+  recordPageView(@Body() dto: RecordPageViewDto, @Req() req: Request) {
+    return this.analyticsService.recordPageView(dto, req);
   }
 }

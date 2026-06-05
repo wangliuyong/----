@@ -200,11 +200,20 @@ model AiChatMessage {
   @@index([createdAt])
 }
 
-/** 前台页面访问记录（供管理端首页图表统计） */
+/** 前台页面访问记录（仅 app-web 子应用路径，供管理端统计） */
 model SitePageView {
   id        Int      @id @default(autoincrement())
   path      String
   referrer  String?
+  ip        String?
+  userAgent String?
+  browser   String?
+  os        String?
+  device    String?
+  locale    String?
+  timezone  String?
+  /** 根据 IP 离线解析的地区（国家/省/市） */
+  region    String?
   createdAt DateTime @default(now())
 
   @@index([createdAt])

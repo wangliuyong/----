@@ -99,4 +99,17 @@ export interface DashboardOverview {
       createdAt: string;
     }>;
   };
+  /** 最近 app-web 页面访问（含 IP、浏览器、地区） */
+  recentPageViews: Array<{
+    id: number;
+    path: string;
+    ip: string | null;
+    browser: string | null;
+    os: string | null;
+    device: string | null;
+    locale: string | null;
+    timezone: string | null;
+    region: string | null;
+    createdAt: string;
+  }>;
 }
