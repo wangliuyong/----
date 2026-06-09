@@ -16,7 +16,6 @@ const isStandaloneDev = process.env.VITE_STANDALONE === '1';
 /** 前台统一子应用：首页 / 关于 / 博客 / 项目 / 联系 / 友链，按基座 pathname 切换页面 */
 export default defineConfig(({ mode }) => ({
   plugins: [
-    // 独立模式默认启用 React Refresh；Qiankun 模式由 stripReactRefreshForQiankun 移除 preamble
     react(),
     qiankun('app-web', { useDevMode: mode === 'development' }),
     ...(isStandaloneDev
@@ -24,7 +23,7 @@ export default defineConfig(({ mode }) => ({
       : [stripReactRefreshForQiankun(), qiankunFullReload()]),
   ],
   define: qiankunDevDefine(PORT, mode),
-  server: createQiankunDevServer(PORT),
+  server: createQiankunDevServer(PORT, isStandaloneDev),
   base: process.env.VITE_BASE || '/',
   build: {
     outDir: 'dist',

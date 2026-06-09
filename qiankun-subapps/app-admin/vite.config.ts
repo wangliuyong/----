@@ -15,7 +15,6 @@ const isStandaloneDev = process.env.VITE_STANDALONE === '1';
 
 export default defineConfig(({ mode }) => ({
   plugins: [
-    // 独立模式默认启用 React Refresh；Qiankun 模式由 stripReactRefreshForQiankun 移除 preamble
     react(),
     qiankun('app-admin', { useDevMode: mode === 'development' }),
     ...(isStandaloneDev
@@ -23,7 +22,7 @@ export default defineConfig(({ mode }) => ({
       : [stripReactRefreshForQiankun(), qiankunFullReload()]),
   ],
   define: qiankunDevDefine(PORT, mode),
-  server: createQiankunDevServer(PORT),
+  server: createQiankunDevServer(PORT, isStandaloneDev),
   base: process.env.VITE_BASE || '/',
   build: { outDir: 'dist', assetsDir: 'static' },
 }));
