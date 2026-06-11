@@ -1,0 +1,55 @@
+/**
+ * 同城便民设计令牌 v4
+ * 风格：墨蓝编辑感 + 钴蓝主色 + 琥珀价格强调
+ * 基调：冷灰银底、发丝边框、大圆角、英雄区深色径向光晕
+ */
+$cv-primary: #1d4ed8;
+$cv-primary-dark: #1e3a8a;
+$cv-primary-mid: #2563eb;
+$cv-primary-light: #dbeafe;
+$cv-primary-soft: rgba(29, 78, 216, 0.08);
+
+$cv-accent: #b45309;
+$cv-accent-soft: #fffbeb;
+
+$cv-bg: #e8ecf3;
+$cv-bg-elevated: #f3f6fa;
+$cv-surface: #ffffff;
+$cv-surface-muted: #f0f3f8;
+
+$cv-text: #0b1220;
+$cv-text-secondary: #3d4f6f;
+$cv-text-muted: #8b9bb8;
+$cv-border: rgba(11, 18, 32, 0.06);
+$cv-border-strong: rgba(11, 18, 32, 0.1);
+
+$cv-radius-sheet: 44rpx;
+$cv-radius-card: 28rpx;
+$cv-radius-sm: 18rpx;
+$cv-radius-pill: 999rpx;
+
+$cv-shadow-card: 0 1rpx 0 rgba(255, 255, 255, 0.95) inset, 0 20rpx 56rpx rgba(11, 18, 32, 0.07);
+$cv-shadow-soft: 0 10rpx 36rpx rgba(11, 18, 32, 0.06);
+$cv-shadow-float: 0 28rpx 64rpx rgba(29, 78, 216, 0.12), 0 4rpx 16rpx rgba(11, 18, 32, 0.05);
+$cv-shadow-inset: inset 0 1rpx 0 rgba(255, 255, 255, 0.94);
+
+$cv-space-page: 32rpx;
+$cv-space-section: 48rpx;
+
+$cv-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
+
+/** 分类 Bento 艺术渐变 */
+$cv-cat-1: linear-gradient(152deg, #0b1220 0%, #1e3a8a 38%, #1d4ed8 100%);
+$cv-cat-2: linear-gradient(152deg, #1e293b 0%, #334155 45%, #475569 100%);
+$cv-cat-3: linear-gradient(152deg, #134e4a 0%, #0f766e 50%, #14b8a6 100%);
+
+/** 英雄区 / AI 头部深色基底 */
+$cv-hero-ink: #0b1220;
+$cv-hero-mid: #1e3a8a;
+
+/** TabBar 高度（与 u-tabbar placeholder 对齐） */
+$cv-tabbar-height: 100rpx;
+
+/** AI 聊天专用 */
+$cv-ai-header-h: 168rpx;
+$cv-ai-composer-h: 120rpx;

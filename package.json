@@ -5,8 +5,9 @@
   "scripts": {
     "dev": "pnpm run dev:all",
     "dev:all": "concurrently -k -n api,web,subweb,admin -c blue,green,cyan,bgBlue \"pnpm run dev:api\" \"pnpm run dev:web\" \"pnpm run dev:sub:web\" \"pnpm run dev:sub:admin\"",
-    "install:all": "pnpm install --dir nest-server && pnpm install --dir next-host && pnpm run install:subapps",
+    "install:all": "pnpm install --dir nest-server && pnpm install --dir next-host && pnpm run install:subapps && pnpm run install:convenience",
     "install:subapps": "pnpm install --dir qiankun-subapps/_shared && pnpm install --dir qiankun-subapps/app-web && pnpm install --dir qiankun-subapps/app-admin",
+    "install:convenience": "pnpm install --dir convenience-client",
     "db:migrate": "pnpm --dir nest-server exec prisma migrate dev --name init",
     "db:seed": "pnpm --dir nest-server exec ts-node prisma/seed.ts",
     "build:subapps": "pnpm run build:sub:web && pnpm run build:sub:admin",
@@ -18,6 +19,11 @@
     "dev:sub:admin": "pnpm --dir qiankun-subapps/app-admin run dev",
     "dev:admin:standalone": "concurrently -k -n api,admin -c blue,bgBlue \"pnpm run dev:api\" \"pnpm --dir qiankun-subapps/app-admin run dev:standalone\"",
     "dev:web:standalone": "concurrently -k -n api,subweb -c blue,cyan \"pnpm run dev:api\" \"pnpm --dir qiankun-subapps/app-web run dev:standalone\"",
+    "dev:convenience": "pnpm --dir convenience-client run dev:mp-weixin",
+    "dev:convenience:h5": "pnpm --dir convenience-client run dev:h5",
+    "dev:convenience:app": "pnpm --dir convenience-client run dev:app",
+    "build:convenience:h5": "pnpm --dir convenience-client run build:h5",
+    "build:convenience:mp": "pnpm --dir convenience-client run build:mp-weixin",
     "build:api": "pnpm --dir nest-server run build",
     "build:web": "pnpm run build:subapps && pnpm --dir next-host run build",
     "sync:db": "bash docker/sync-db-to-server.sh"

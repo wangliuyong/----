@@ -10,6 +10,7 @@ Next.js 主基座 + Qiankun 微前端子应用 + NestJS 后端。
 ├── qiankun-subapps/     # Vite + React 子应用
 │   ├── app-web/         # 前台统一子应用（首页 / 关于 / 博客 / 项目 / 联系 / 友链，端口 4001）
 │   └── app-admin/       # 管理后台（端口 4007）
+├── convenience-client/  # 同城便民 uni-app（微信小程序 / H5 / APP，端口 5175）
 └── doc/                 # PRD 与技术方案
 ```
 
@@ -69,6 +70,26 @@ pnpm run build:web
 ```
 
 子应用静态资源部署后，在 `next-host/.env.local` 中配置 `NEXT_PUBLIC_MICRO_WEB`、`NEXT_PUBLIC_MICRO_ADMIN` 为线上 entry 地址。
+
+## 同城便民 uni-app（convenience-client）
+
+C 端小程序 / H5 / APP，技术栈：**uni-app Vue3 + uview-plus + Pinia**，默认 **Mock 数据**（`VITE_USE_MOCK=true`）。
+
+```bash
+# 安装依赖（或在根目录 pnpm run install:convenience）
+cd convenience-client && pnpm install
+
+# H5 开发（浏览器 http://localhost:5175）
+pnpm run dev:convenience:h5
+
+# 微信小程序（需微信开发者工具导入 dist/dev/mp-weixin）
+pnpm run dev:convenience
+
+# APP
+pnpm run dev:convenience:app
+```
+
+Mock 登录（H5/APP）：手机号 `13800138000`，密码 `123456`。对接真实后端时将 `convenience-client/.env.production` 中 `VITE_USE_MOCK=false` 并配置 `VITE_API_BASE_URL`。
 
 ## 文档
 

@@ -1,0 +1,188 @@
+@import './tokens.scss';
+
+/** 浮层卡片：发丝边框 + 内高光 */
+@mixin cv-card {
+  background: $cv-surface;
+  border-radius: $cv-radius-card;
+  border: 1rpx solid $cv-border;
+  box-shadow: $cv-shadow-card;
+}
+
+/** 悬浮统计/重要卡片 */
+@mixin cv-card-elevated {
+  background: $cv-surface;
+  border-radius: $cv-radius-card;
+  border: 1rpx solid rgba(255, 255, 255, 0.65);
+  box-shadow: $cv-shadow-float, $cv-shadow-inset;
+}
+
+/** 区块标题：编辑感字重与字距 */
+@mixin cv-section-title {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: $cv-text;
+  letter-spacing: -0.04em;
+  line-height: 1.2;
+}
+
+/** 页面级大标题 */
+@mixin cv-display-title {
+  font-size: 48rpx;
+  font-weight: 700;
+  color: $cv-text;
+  letter-spacing: -0.05em;
+  line-height: 1.15;
+}
+
+/** 主按钮/卡片按压反馈 */
+@mixin cv-pressable {
+  transition: transform 0.22s $cv-ease-out, opacity 0.22s $cv-ease-out;
+
+  &:active {
+    transform: scale(0.982);
+    opacity: 0.92;
+  }
+}
+
+/** 顶部英雄区：深色径向光晕 + 钴蓝渐变 */
+@mixin cv-hero-bg {
+  background:
+    radial-gradient(ellipse 130% 90% at 100% -8%, rgba(96, 165, 250, 0.32) 0%, transparent 58%),
+    radial-gradient(ellipse 55% 45% at -8% 105%, rgba(37, 99, 235, 0.22) 0%, transparent 52%),
+    linear-gradient(168deg, $cv-hero-ink 0%, $cv-hero-mid 50%, $cv-primary-mid 100%);
+}
+
+/** 英雄区装饰光球 */
+@mixin cv-hero-orb($size, $top, $right) {
+  position: absolute;
+  width: $size;
+  height: $size;
+  top: $top;
+  right: $right;
+  border-radius: 50%;
+  background: rgba(255, 255, 255, 0.05);
+  border: 1rpx solid rgba(255, 255, 255, 0.12);
+  pointer-events: none;
+}
+
+/** 页面内容区：圆角 sheet 叠在 hero 上 */
+@mixin cv-body-sheet {
+  position: relative;
+  z-index: 1;
+  margin-top: -40rpx;
+  padding: 16rpx $cv-space-page calc(56rpx + #{$cv-tabbar-height} + env(safe-area-inset-bottom));
+  background: $cv-bg;
+  border-radius: $cv-radius-sheet $cv-radius-sheet 0 0;
+}
+
+/** 毛玻璃面板（搜索栏、底栏） */
+@mixin cv-glass {
+  background: rgba(255, 255, 255, 0.9);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border: 1rpx solid rgba(255, 255, 255, 0.75);
+  box-shadow: 0 10rpx 44rpx rgba(11, 18, 32, 0.08), $cv-shadow-inset;
+}
+
+/** 底部固定操作栏 */
+@mixin cv-bottom-bar {
+  position: fixed;
+  left: 0;
+  right: 0;
+  bottom: 0;
+  padding: 20rpx $cv-space-page calc(20rpx + env(safe-area-inset-bottom));
+  @include cv-glass;
+  border-top: 1rpx solid $cv-border;
+  z-index: 10;
+}
+
+/** Tab 页内次级底栏：位于自定义 TabBar 之上 */
+@mixin cv-bottom-bar-above-tab {
+  bottom: calc(#{$cv-tabbar-height} + env(safe-area-inset-bottom));
+  z-index: 999;
+}
+
+/** 分组菜单容器 */
+@mixin cv-menu-group {
+  @include cv-card;
+  overflow: hidden;
+}
+
+/** Tab 页顶部介绍区 */
+@mixin cv-page-intro {
+  padding: 24rpx $cv-space-page 16rpx;
+  padding-top: calc(24rpx + env(safe-area-inset-top));
+}
+
+/** 次级页面内容区 */
+@mixin cv-subpage-body {
+  padding: $cv-space-page;
+  padding-bottom: calc(#{$cv-space-page} + env(safe-area-inset-bottom));
+  min-height: 100vh;
+  background: $cv-bg;
+  box-sizing: border-box;
+}
+
+/** 表单面板 */
+@mixin cv-form-panel {
+  @include cv-card;
+  padding: 20rpx 28rpx 32rpx;
+  margin: 24rpx $cv-space-page 0;
+}
+
+/** 左侧钴蓝强调线（区块标题装饰） */
+@mixin cv-accent-rule {
+  &::before {
+    content: '';
+    display: block;
+    width: 40rpx;
+    height: 4rpx;
+    margin-bottom: 12rpx;
+    border-radius: 2rpx;
+    background: linear-gradient(90deg, $cv-primary 0%, rgba(29, 78, 216, 0.18) 100%);
+  }
+}
+
+/** Tab 页底部留白（自定义 TabBar） */
+@mixin cv-tab-page-bottom {
+  padding-bottom: calc(#{$cv-tabbar-height} + env(safe-area-inset-bottom));
+}
+
+/** AI 聊天页：flex 子项可滚动区域 */
+@mixin cv-chat-scroll {
+  flex: 1;
+  height: 0;
+  min-height: 0;
+  box-sizing: border-box;
+}
+
+/** AI 输入区：非 fixed，避免与 TabBar 层叠错乱 */
+@mixin cv-chat-composer {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 16rpx;
+  padding: 16rpx $cv-space-page 20rpx;
+  background: rgba(255, 255, 255, 0.94);
+  backdrop-filter: blur(28px);
+  -webkit-backdrop-filter: blur(28px);
+  border-top: 1rpx solid $cv-border;
+  box-shadow: 0 -8rpx 32rpx rgba(11, 18, 32, 0.04);
+}
+
+/** AI 用户气泡 */
+@mixin cv-ai-bubble-user {
+  background: linear-gradient(155deg, $cv-hero-ink 0%, $cv-primary-dark 42%, $cv-primary 100%);
+  color: #fff;
+  border-bottom-right-radius: 8rpx;
+  box-shadow: 0 14rpx 36rpx rgba(29, 78, 216, 0.24);
+}
+
+/** AI 助手气泡 */
+@mixin cv-ai-bubble-assistant {
+  background: $cv-surface;
+  color: $cv-text;
+  border: 1rpx solid $cv-border;
+  border-bottom-left-radius: 8rpx;
+  box-shadow: $cv-shadow-soft;
+}

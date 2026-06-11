@@ -1,0 +1,685 @@
+import type {
+  AiMessageItem,
+  AiSessionItem,
+  BannerItem,
+  CategoryItem,
+  CityInfoItem,
+  CollectItem,
+  NoticeItem,
+} from '@/types/city-info';
+import type { UserProfile } from '@/types/user';
+
+/**
+ * Mock 图片统一走本地 static，避免外网 CDN 失效或小程序域名限制
+ * 资源目录：src/static/mock/{1-10}.jpg
+ */
+export function mockImg(index: number): string {
+  const n = ((index - 1) % 10) + 1;
+  return `/static/mock/${n}.jpg`;
+}
+
+/**
+ * Mock 延迟，模拟网络请求
+ * - 在 .env 设置 VITE_MOCK_DELAY=0 可全局关闭延迟（开发环境推荐）
+ * - 未设置时沿用各 API 传入的独立延迟值
+ */
+export function mockDelay(ms = 300): Promise<void> {
+  const envDelay = import.meta.env.VITE_MOCK_DELAY;
+  const delay =
+    envDelay !== undefined && envDelay !== ''
+      ? Number(envDelay)
+      : ms;
+  if (!delay || delay <= 0) return Promise.resolve();
+  return new Promise((resolve) => setTimeout(resolve, delay));
+}
+
+/** Mock 用户 */
+export const mockUser: UserProfile = {
+  id: 1,
+  openId: 'mock_openid_001',
+  phone: '13800138000',
+  nickname: '同城用户',
+  avatar: mockImg(1),
+  userType: 'USER',
+  status: 'ACTIVE',
+  createdAt: '2026-01-01T08:00:00.000Z',
+};
+
+/** Mock 分类树 */
+export const mockCategories: CategoryItem[] = [
+  {
+    id: 1,
+    parentId: null,
+    name: '二手交易',
+    sort: 1,
+    enabled: true,
+    children: [
+      { id: 11, parentId: 1, name: '数码家电', sort: 1, enabled: true },
+      { id: 12, parentId: 1, name: '家具家居', sort: 2, enabled: true },
+      { id: 13, parentId: 1, name: '母婴用品', sort: 3, enabled: true },
+      { id: 14, parentId: 1, name: '服饰鞋包', sort: 4, enabled: true },
+    ],
+  },
+  {
+    id: 2,
+    parentId: null,
+    name: '求职招聘',
+    sort: 2,
+    enabled: true,
+    children: [
+      { id: 21, parentId: 2, name: '全职', sort: 1, enabled: true },
+      { id: 22, parentId: 2, name: '兼职', sort: 2, enabled: true },
+      { id: 23, parentId: 2, name: '实习', sort: 3, enabled: true },
+    ],
+  },
+  {
+    id: 3,
+    parentId: null,
+    name: '上门服务',
+    sort: 3,
+    enabled: true,
+    children: [
+      { id: 31, parentId: 3, name: '家政保洁', sort: 1, enabled: true },
+      { id: 32, parentId: 3, name: '维修安装', sort: 2, enabled: true },
+      { id: 33, parentId: 3, name: '搬家货运', sort: 3, enabled: true },
+      { id: 34, parentId: 3, name: '开锁换锁', sort: 4, enabled: true },
+    ],
+  },
+];
+
+/** Mock 轮播图 */
+export const mockBanners: BannerItem[] = [
+  {
+    id: 1,
+    imageUrl: mockImg(1),
+    linkUrl: '',
+    sort: 1,
+    online: true,
+  },
+  {
+    id: 2,
+    imageUrl: mockImg(2),
+    linkUrl: '',
+    sort: 2,
+    online: true,
+  },
+  {
+    id: 3,
+    imageUrl: mockImg(3),
+    linkUrl: '',
+    sort: 3,
+    online: true,
+  },
+];
+
+/** Mock 公告 */
+export const mockNotices: NoticeItem[] = [
+  {
+    id: 1,
+    title: '同城便民平台上线公告',
+    content:
+      '欢迎使用同城便民小程序，发布信息请遵守社区规范，违规内容将被下架处理。平台支持二手交易、求职招聘、上门服务三大板块。',
+    published: true,
+    createdAt: '2026-06-01T10:00:00.000Z',
+  },
+  {
+    id: 2,
+    title: '端午节服务安排',
+    content: '节日期间部分上门服务商家营业时间调整，请提前预约。客服热线 400-800-1234 照常接听。',
+    published: true,
+    createdAt: '2026-06-08T09:00:00.000Z',
+  },
+  {
+    id: 3,
+    title: '暑期兼职信息审核提速',
+    content: '6 月至 8 月兼职类信息实行优先审核，一般 4 小时内完成，欢迎学生群体发布暑期岗位。',
+    published: true,
+    createdAt: '2026-06-05T14:30:00.000Z',
+  },
+  {
+    id: 4,
+    title: '同城面交安全提示',
+    content: '建议选择人流量较大的公共场所面交，勿向陌生人提前转账。如遇诈骗请及时举报。',
+    published: true,
+    createdAt: '2026-05-28T11:00:00.000Z',
+  },
+];
+
+/** 初始便民信息列表（已通过审核） */
+const initialCityInfoList: CityInfoItem[] = [
+  // 数码家电
+  {
+    id: 101,
+    userId: 1,
+    categoryId: 11,
+    categoryName: '数码家电',
+    title: '九成新 iPhone 14 128G',
+    content: '自用机，无拆修，电池健康 91%，配件齐全含原盒，浦东新区陆家嘴附近面交。',
+    price: 3999,
+    address: '浦东新区世纪大道',
+    latitude: 31.235,
+    longitude: 121.48,
+    images: [mockImg(2)],
+    auditStatus: 'APPROVED',
+    viewCount: 328,
+    collectCount: 24,
+    createdAt: '2026-06-10T08:30:00.000Z',
+  },
+  {
+    id: 102,
+    userId: 4,
+    categoryId: 11,
+    categoryName: '数码家电',
+    title: 'MacBook Air M2 16G+512G',
+    content: '2024 年购入，轻度办公使用，无磕碰，送电脑包，可小刀。',
+    price: 7200,
+    address: '徐汇区衡山路',
+    latitude: 31.198,
+    longitude: 121.442,
+    images: [mockImg(4)],
+    auditStatus: 'APPROVED',
+    viewCount: 186,
+    collectCount: 15,
+    createdAt: '2026-06-09T16:20:00.000Z',
+  },
+  {
+    id: 103,
+    userId: 5,
+    categoryId: 11,
+    categoryName: '数码家电',
+    title: '索尼 WH-1000XM5 降噪耳机',
+    content: '使用半年，箱说全，黑色，音质完好，因升级出。',
+    price: 1680,
+    address: '静安区静安寺',
+    latitude: 31.224,
+    longitude: 121.445,
+    images: [mockImg(5)],
+    auditStatus: 'APPROVED',
+    viewCount: 94,
+    collectCount: 7,
+    createdAt: '2026-06-08T11:00:00.000Z',
+  },
+  {
+    id: 104,
+    userId: 6,
+    categoryId: 11,
+    categoryName: '数码家电',
+    title: '小米空气净化器 4 Pro',
+    content: '滤芯剩余约 60%，搬家急出，自提。',
+    price: 580,
+    address: '杨浦区五角场',
+    latitude: 31.305,
+    longitude: 121.515,
+    images: [mockImg(6)],
+    auditStatus: 'APPROVED',
+    viewCount: 67,
+    collectCount: 3,
+    createdAt: '2026-06-07T09:45:00.000Z',
+  },
+  // 家具家居
+  {
+    id: 105,
+    userId: 7,
+    categoryId: 12,
+    categoryName: '家具家居',
+    title: '北欧风实木餐桌 1.4m',
+    content: '橡木材质，使用一年，无明显划痕，需自提或自理搬运。',
+    price: 1200,
+    address: '闵行区七宝',
+    latitude: 31.158,
+    longitude: 121.352,
+    images: [mockImg(7)],
+    auditStatus: 'APPROVED',
+    viewCount: 112,
+    collectCount: 9,
+    createdAt: '2026-06-09T10:15:00.000Z',
+  },
+  {
+    id: 106,
+    userId: 8,
+    categoryId: 12,
+    categoryName: '家具家居',
+    title: '宜家马尔姆双人床架',
+    content: '白色，含床板，已拆卸，适合租房过渡，需货车自提。',
+    price: 450,
+    address: '宝山区大华',
+    latitude: 31.272,
+    longitude: 121.412,
+    images: [mockImg(8)],
+    auditStatus: 'APPROVED',
+    viewCount: 78,
+    collectCount: 4,
+    createdAt: '2026-06-06T14:00:00.000Z',
+  },
+  {
+    id: 107,
+    userId: 9,
+    categoryId: 13,
+    categoryName: '母婴用品',
+    title: '婴儿推车 Bugaboo Bee6',
+    content: '9 成新，送雨罩和蚊帐，宝宝大了用不上，诚心出。',
+    price: 2800,
+    address: '浦东新区花木',
+    latitude: 31.21,
+    longitude: 121.55,
+    images: [mockImg(3)],
+    auditStatus: 'APPROVED',
+    viewCount: 145,
+    collectCount: 11,
+    createdAt: '2026-06-08T08:00:00.000Z',
+  },
+  {
+    id: 108,
+    userId: 10,
+    categoryId: 14,
+    categoryName: '服饰鞋包',
+    title: 'Coach 托特包 正品',
+    content: '专柜购入，有购买凭证，使用次数少，米色。',
+    price: 980,
+    address: '黄浦区新天地',
+    latitude: 31.218,
+    longitude: 121.475,
+    images: [mockImg(9)],
+    auditStatus: 'APPROVED',
+    viewCount: 203,
+    collectCount: 18,
+    createdAt: '2026-06-07T17:30:00.000Z',
+  },
+  // 全职
+  {
+    id: 109,
+    userId: 2,
+    categoryId: 21,
+    categoryName: '全职',
+    title: '招聘前端开发工程师',
+    content: '负责小程序/H5 开发，熟悉 uni-app、Vue3 优先，五险一金，双休，团队氛围好。',
+    price: 15000,
+    address: '徐汇区漕河泾',
+    latitude: 31.17,
+    longitude: 121.42,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 456,
+    collectCount: 32,
+    createdAt: '2026-06-08T14:00:00.000Z',
+  },
+  {
+    id: 110,
+    userId: 11,
+    categoryId: 21,
+    categoryName: '全职',
+    title: '连锁餐饮店长',
+    content: '有餐饮管理经验，负责门店日常运营，月薪 8K-12K+提成，包餐。',
+    price: 10000,
+    address: '长宁区中山公园',
+    latitude: 31.221,
+    longitude: 121.418,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 189,
+    collectCount: 6,
+    createdAt: '2026-06-07T09:00:00.000Z',
+  },
+  {
+    id: 111,
+    userId: 12,
+    categoryId: 21,
+    categoryName: '全职',
+    title: '电商运营专员',
+    content: '负责淘宝/拼多多店铺运营，有 1 年以上经验，熟悉数据分析。',
+    price: 9000,
+    address: '普陀区真如',
+    latitude: 31.255,
+    longitude: 121.398,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 134,
+    collectCount: 8,
+    createdAt: '2026-06-06T11:30:00.000Z',
+  },
+  // 兼职
+  {
+    id: 112,
+    userId: 13,
+    categoryId: 22,
+    categoryName: '兼职',
+    title: '周末展会促销员',
+    content: '6 月每个周末，日薪 200 元，负责产品介绍，形象气质佳。',
+    price: 200,
+    address: '浦东新区世博馆',
+    latitude: 31.185,
+    longitude: 121.49,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 267,
+    collectCount: 14,
+    createdAt: '2026-06-09T07:00:00.000Z',
+  },
+  {
+    id: 113,
+    userId: 14,
+    categoryId: 22,
+    categoryName: '兼职',
+    title: '家教 初中数学',
+    content: '每周六下午 2 小时，985 本科在读，有家教经验，时薪 150 元。',
+    price: 150,
+    address: '虹口区鲁迅公园',
+    latitude: 31.272,
+    longitude: 121.482,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 98,
+    collectCount: 5,
+    createdAt: '2026-06-05T15:00:00.000Z',
+  },
+  {
+    id: 114,
+    userId: 15,
+    categoryId: 23,
+    categoryName: '实习',
+    title: '新媒体运营实习生',
+    content: '大三及以上，协助公众号/小红书内容运营，可转正，实习补贴 150/天。',
+    price: 4500,
+    address: '静安区江宁路',
+    latitude: 31.238,
+    longitude: 121.44,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 312,
+    collectCount: 21,
+    createdAt: '2026-06-08T10:00:00.000Z',
+  },
+  // 上门服务
+  {
+    id: 115,
+    userId: 3,
+    categoryId: 31,
+    categoryName: '家政保洁',
+    title: '专业家庭深度保洁',
+    content: '自带工具，支持预约上门，新用户首单 8 折，3 小时起约，覆盖全市。',
+    price: 199,
+    address: '静安区南京西路',
+    latitude: 31.23,
+    longitude: 121.45,
+    images: [mockImg(3)],
+    auditStatus: 'APPROVED',
+    viewCount: 189,
+    collectCount: 15,
+    createdAt: '2026-06-07T11:20:00.000Z',
+  },
+  {
+    id: 116,
+    userId: 16,
+    categoryId: 31,
+    categoryName: '家政保洁',
+    title: '开荒保洁 新房入住',
+    content: '专业团队，按面积报价，含玻璃、厨房油污清理，质保 7 天。',
+    price: 8,
+    address: '松江区九亭',
+    latitude: 31.138,
+    longitude: 121.318,
+    images: [mockImg(10)],
+    auditStatus: 'APPROVED',
+    viewCount: 76,
+    collectCount: 4,
+    createdAt: '2026-06-06T08:30:00.000Z',
+  },
+  {
+    id: 117,
+    userId: 17,
+    categoryId: 32,
+    categoryName: '维修安装',
+    title: '空调清洗加氟',
+    content: '挂机/柜机均可，上门检测，明码标价，老用户享 9 折。',
+    price: 128,
+    address: '嘉定区安亭',
+    latitude: 31.298,
+    longitude: 121.162,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 143,
+    collectCount: 7,
+    createdAt: '2026-06-09T13:00:00.000Z',
+  },
+  {
+    id: 118,
+    userId: 18,
+    categoryId: 32,
+    categoryName: '维修安装',
+    title: '水管漏水紧急维修',
+    content: '24 小时接单，持证上岗，先报价后施工，质保 3 个月。',
+    price: 80,
+    address: '青浦区徐泾',
+    latitude: 31.178,
+    longitude: 121.262,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 221,
+    collectCount: 12,
+    createdAt: '2026-06-08T18:00:00.000Z',
+  },
+  {
+    id: 119,
+    userId: 19,
+    categoryId: 33,
+    categoryName: '搬家货运',
+    title: '同城小件搬家',
+    content: '面包车搬家，含 1 人搬运，超出按件加价，提前 1 天预约。',
+    price: 260,
+    address: '浦东新区张江',
+    latitude: 31.202,
+    longitude: 121.585,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 167,
+    collectCount: 9,
+    createdAt: '2026-06-07T07:30:00.000Z',
+  },
+  {
+    id: 120,
+    userId: 20,
+    categoryId: 34,
+    categoryName: '开锁换锁',
+    title: '公安备案开锁服务',
+    content: '全市 30 分钟到达，开锁 80 元起，换锁芯另计，夜间不加价。',
+    price: 80,
+    address: '黄浦区人民广场',
+    latitude: 31.231,
+    longitude: 121.475,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 298,
+    collectCount: 16,
+    createdAt: '2026-06-06T20:00:00.000Z',
+  },
+  {
+    id: 121,
+    userId: 21,
+    categoryId: 11,
+    categoryName: '数码家电',
+    title: 'Switch OLED 日版',
+    content: '含 3 张卡带（塞尔达、马里奥、健身环），成色新，可试机。',
+    price: 2100,
+    address: '浦东新区金桥',
+    latitude: 31.262,
+    longitude: 121.588,
+    images: [mockImg(1)],
+    auditStatus: 'APPROVED',
+    viewCount: 156,
+    collectCount: 10,
+    createdAt: '2026-06-05T12:00:00.000Z',
+  },
+  {
+    id: 122,
+    userId: 22,
+    categoryId: 22,
+    categoryName: '兼职',
+    title: '摄影助理 活动跟拍',
+    content: '有单反基础，周末活动跟拍，日结 300 元，管午餐。',
+    price: 300,
+    address: '徐汇区滨江',
+    latitude: 31.188,
+    longitude: 121.462,
+    images: [],
+    auditStatus: 'APPROVED',
+    viewCount: 88,
+    collectCount: 6,
+    createdAt: '2026-06-04T16:00:00.000Z',
+  },
+  {
+    id: 123,
+    userId: 23,
+    categoryId: 12,
+    categoryName: '家具家居',
+    title: '人体工学椅 赫曼米勒',
+    content: '公司搬迁处理，网布款，腰托可调，仅限自提。',
+    price: 3500,
+    address: '静安区大宁',
+    latitude: 31.275,
+    longitude: 121.448,
+    images: [mockImg(2)],
+    auditStatus: 'APPROVED',
+    viewCount: 234,
+    collectCount: 19,
+    createdAt: '2026-06-03T10:00:00.000Z',
+  },
+];
+
+/** 预置收藏（登录用户 id=1 的初始收藏） */
+const initialCollectList: CollectItem[] = [
+  { id: 1, userId: 1, infoId: 101, createdAt: '2026-06-09T12:00:00.000Z' },
+  { id: 2, userId: 1, infoId: 109, createdAt: '2026-06-08T18:00:00.000Z' },
+  { id: 3, userId: 1, infoId: 115, createdAt: '2026-06-07T20:00:00.000Z' },
+  { id: 4, userId: 1, infoId: 108, createdAt: '2026-06-06T09:30:00.000Z' },
+];
+
+/** 预置 AI 会话 */
+const initialAiSessions: AiSessionItem[] = [
+  {
+    id: 1,
+    userId: 1,
+    title: '如何发布二手信息？',
+    createdAt: '2026-06-10T09:00:00.000Z',
+  },
+  {
+    id: 2,
+    userId: 1,
+    title: '审核一般要多久？',
+    createdAt: '2026-06-09T14:20:00.000Z',
+  },
+  {
+    id: 3,
+    userId: 1,
+    title: '怎么举报违规信息？',
+    createdAt: '2026-06-08T11:05:00.000Z',
+  },
+  {
+    id: 4,
+    userId: 1,
+    title: '家政保洁怎么预约？',
+    createdAt: '2026-06-07T16:40:00.000Z',
+  },
+];
+
+/** 预置 AI 消息（按 sessionId 分组） */
+const initialAiMessages: AiMessageItem[] = [
+  {
+    id: 1,
+    sessionId: 1,
+    role: 'user',
+    content: '如何发布二手信息？',
+    createdAt: '2026-06-10T09:00:00.000Z',
+  },
+  {
+    id: 2,
+    sessionId: 1,
+    role: 'assistant',
+    content:
+      '您可以在底部 Tab 点击「发布」，选择「二手交易」分类，填写标题、描述、价格并上传图片后提交。审核通过后即可在首页和分类页展示。',
+    createdAt: '2026-06-10T09:00:05.000Z',
+  },
+  {
+    id: 3,
+    sessionId: 2,
+    role: 'user',
+    content: '审核一般要多久？',
+    createdAt: '2026-06-09T14:20:00.000Z',
+  },
+  {
+    id: 4,
+    sessionId: 2,
+    role: 'assistant',
+    content:
+      '一般 1-2 个工作日内完成审核。兼职、活动类信息在暑期会优先处理，通常 4 小时内。您可在「我的」查看发布状态。',
+    createdAt: '2026-06-09T14:20:06.000Z',
+  },
+  {
+    id: 5,
+    sessionId: 3,
+    role: 'user',
+    content: '怎么举报违规信息？',
+    createdAt: '2026-06-08T11:05:00.000Z',
+  },
+  {
+    id: 6,
+    sessionId: 3,
+    role: 'assistant',
+    content:
+      '在信息详情页点击「举报」，选择类型（垃圾广告、欺诈、违法等）并填写说明。平台会在 24 小时内处理，严重违规将立即下架。',
+    createdAt: '2026-06-08T11:05:04.000Z',
+  },
+  {
+    id: 7,
+    sessionId: 4,
+    role: 'user',
+    content: '家政保洁怎么预约？',
+    createdAt: '2026-06-07T16:40:00.000Z',
+  },
+  {
+    id: 8,
+    sessionId: 4,
+    role: 'assistant',
+    content:
+      '在「分类」或首页找到家政保洁类信息，进入详情页查看服务说明与联系方式。建议通过平台私信或电话联系商家，确认时间、面积和报价后再下单。',
+    createdAt: '2026-06-07T16:40:05.000Z',
+  },
+];
+
+/** Mock 可变状态（集中管理，避免 import 重新赋值） */
+export const mockState = {
+  cityInfoList: [...initialCityInfoList],
+  collectList: [...initialCollectList],
+  aiSessions: [...initialAiSessions],
+  aiMessages: [...initialAiMessages],
+  reportId: 1,
+  /** 新发布信息的自增 ID 起点 */
+  cityInfoId: 200,
+  aiSessionId: 4,
+  aiMessageId: 8,
+};
+
+/** 兼容旧导出名称 */
+export const mockCityInfoList = mockState.cityInfoList;
+export const mockCollectList = mockState.collectList;
+export const mockAiSessions = mockState.aiSessions;
+export const mockAiMessages = mockState.aiMessages;
+
+/** RAG 知识库片段（模拟 LanceDB 检索结果） */
+export const mockKnowledgeSnippets: Record<string, string> = {
+  发布:
+    '发布流程：底部 Tab「发布」→ 选择分类 → 填写标题与内容 → 上传图片（最多 6 张）→ 提交审核。审核通过后展示在首页和列表。',
+  审核:
+    '一般 1-2 个工作日完成审核。暑期兼职类优先，约 4 小时。可在「我的」查看状态：待审核、已通过、已驳回。',
+  举报:
+    '详情页点击「举报」，选择类型并填写说明。平台 24 小时内处理，严重违规立即下架。',
+  收藏:
+    '登录后可在详情页点击「收藏」，在「我的 - 我的收藏」中查看。取消收藏同样在该页面操作。',
+  分类:
+    '平台分三大板块：二手交易、求职招聘、上门服务。每类下有细分子分类，可在「分类」Tab 浏览。',
+  价格:
+    '二手类建议填写心理价位；招聘类可填月薪或日薪；服务类可填起步价或单价，方便用户筛选。',
+  定位:
+    '发布时填写地址有助于同城展示和距离排序。列表页支持按距离、价格、最新排序。',
+  默认:
+    '我是同城便民 AI 助手，可解答发布流程、审核规则、举报与分类等问题。请直接描述您的需求。',
+};

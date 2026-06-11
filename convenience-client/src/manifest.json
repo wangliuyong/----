@@ -1,0 +1,72 @@
+{
+  "name": "同城便民",
+  "appid": "__UNI__CONVENIENCE__",
+  "description": "同城便民 C 端：微信小程序 / H5 / APP",
+  "versionName": "1.0.0",
+  "versionCode": "100",
+  "transformPx": false,
+  "app-plus": {
+    "usingComponents": true,
+    "nvueStyleCompiler": "uni-app",
+    "compilerVersion": 3,
+    "splashscreen": {
+      "alwaysShowBeforeRender": true,
+      "waiting": true,
+      "autoclose": true,
+      "delay": 0
+    },
+    "modules": {
+      "OAuth": {},
+      "Geolocation": {}
+    },
+    "distribute": {
+      "android": {
+        "permissions": [
+          "<uses-permission android:name=\"android.permission.CHANGE_NETWORK_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_NETWORK_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_WIFI_STATE\"/>",
+          "<uses-permission android:name=\"android.permission.CAMERA\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_FINE_LOCATION\"/>",
+          "<uses-permission android:name=\"android.permission.ACCESS_COARSE_LOCATION\"/>"
+        ]
+      },
+      "ios": {
+        "privacyDescription": {
+          "NSLocationWhenInUseUsageDescription": "用于展示同城信息距离",
+          "NSCameraUsageDescription": "用于发布信息时上传图片",
+          "NSPhotoLibraryUsageDescription": "用于选择相册图片"
+        }
+      },
+      "sdkConfigs": {}
+    }
+  },
+  "quickapp": {},
+  "mp-weixin": {
+    "appid": "",
+    "setting": {
+      "urlCheck": false,
+      "minified": true
+    },
+    "usingComponents": true,
+    "requiredPrivateInfos": ["getLocation", "chooseLocation"],
+    "permission": {
+      "scope.userLocation": {
+        "desc": "用于展示同城信息距离"
+      }
+    }
+  },
+  "h5": {
+    "title": "同城便民",
+    "router": {
+      "mode": "hash",
+      "base": "./"
+    },
+    "devServer": {
+      "port": 5175
+    }
+  },
+  "uniStatistics": {
+    "enable": false
+  },
+  "vueVersion": "3"
+}
