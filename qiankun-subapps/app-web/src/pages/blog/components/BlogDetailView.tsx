@@ -1,12 +1,11 @@
 import {
   AppLink,
-  ArticleBody,
   PageTitle,
   SubApp,
 } from '../../../../../_shared/components';
 import { formatDate } from '../../../../../_shared/utils';
 import type { Article } from '../../../../../_shared/contentTypes';
-import { renderMarkdownHtml } from '../../../utils/markdown';
+import ArticleMarkdown from './ArticleMarkdown';
 
 export interface BlogDetailViewProps {
   article: Article;
@@ -24,7 +23,7 @@ export default function BlogDetailView({ article }: BlogDetailViewProps) {
         {formatDate(article.publishedAt)}
         {article.category ? ` · ${article.category}` : ''}
       </p>
-      <ArticleBody className="app-article-body" html={renderMarkdownHtml(article.content)} />
+      <ArticleMarkdown className="app-article-body" content={article.content} />
     </SubApp>
   );
 }

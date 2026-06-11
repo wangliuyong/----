@@ -1,0 +1,300 @@
+/**
+ * 博客正文 Markdown 排版（article-prose）
+ * 面向长文阅读：衬线标题 + 舒适行高 + 代码/表格/引用精细化样式
+ */
+.article-prose {
+  font-size: 1.0625rem;
+  line-height: 1.82;
+  color: var(--ed-muted);
+  letter-spacing: 0.012em;
+
+  /* 首末元素去多余间距 */
+  > :first-child {
+    margin-top: 0 !important;
+  }
+
+  > :last-child {
+    margin-bottom: 0 !important;
+  }
+
+  /* —— 标题层级 —— */
+  &__h1,
+  &__h2,
+  &__h3,
+  &__h4 {
+    font-family: var(--ed-serif);
+    font-weight: 700;
+    line-height: 1.38;
+    letter-spacing: -0.022em;
+    color: var(--ed-text);
+    scroll-margin-top: 5rem;
+  }
+
+  &__h1 {
+    margin: 2.5rem 0 0.85rem;
+    font-size: 1.75rem;
+  }
+
+  &__h2 {
+    margin: 2.25rem 0 0.75rem;
+    padding-bottom: 0.45rem;
+    font-size: 1.375rem;
+    border-bottom: 1px solid var(--ed-line);
+  }
+
+  &__h3 {
+    margin: 1.75rem 0 0.55rem;
+    font-size: 1.125rem;
+  }
+
+  &__h4 {
+    margin: 1.35rem 0 0.45rem;
+    font-size: 1rem;
+    font-weight: 600;
+    font-family: var(--ed-sans);
+    color: color-mix(in srgb, var(--ed-text) 92%, var(--ed-muted));
+  }
+
+  /* —— 段落 —— */
+  &__p {
+    margin: 0 0 1.05em;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+  }
+
+  /* 首段略大，提升阅读入口感 */
+  & > .article-prose__p:first-of-type {
+    font-size: 1.075em;
+    line-height: 1.78;
+    color: color-mix(in srgb, var(--ed-text) 78%, var(--ed-muted));
+  }
+
+  /* —— 强调 —— */
+  &__strong {
+    font-weight: 600;
+    color: var(--ed-text);
+    letter-spacing: 0.01em;
+  }
+
+  &__em {
+    font-style: italic;
+    color: color-mix(in srgb, var(--ed-text) 82%, var(--ed-muted));
+  }
+
+  /* —— 链接 —— */
+  &__link {
+    color: var(--ed-accent);
+    font-weight: 500;
+    text-decoration: none;
+    background-image: linear-gradient(
+      to right,
+      color-mix(in srgb, var(--ed-accent) 50%, transparent),
+      color-mix(in srgb, var(--ed-accent) 50%, transparent)
+    );
+    background-size: 100% 1px;
+    background-repeat: no-repeat;
+    background-position: 0 100%;
+    transition:
+      color 0.2s ease,
+      background-size 0.22s ease;
+
+    &:hover {
+      color: var(--ed-accent-hover);
+      background-size: 100% 2px;
+    }
+  }
+
+  /* —— 列表 —— */
+  &__ul,
+  &__ol {
+    margin: 0.65em 0 1.15em;
+    padding: 0;
+  }
+
+  &__ol {
+    padding-left: 1.5em;
+  }
+
+  &__li {
+    position: relative;
+    margin-bottom: 0.45em;
+    line-height: 1.72;
+
+    &:last-child {
+      margin-bottom: 0;
+    }
+
+    .article-prose__ul,
+    .article-prose__ol {
+      margin-top: 0.4em;
+      margin-bottom: 0.2em;
+    }
+
+    /* GFM 任务列表 */
+    input[type='checkbox'] {
+      margin-right: 0.45em;
+      accent-color: var(--ed-accent);
+      vertical-align: middle;
+      transform: translateY(-1px);
+    }
+  }
+
+  &__ul > &__li {
+    list-style: none;
+    padding-left: 1.25em;
+
+    &::before {
+      content: '';
+      position: absolute;
+      left: 0.2em;
+      top: 0.68em;
+      width: 5px;
+      height: 5px;
+      border-radius: 50%;
+      background: color-mix(in srgb, var(--ed-accent) 70%, transparent);
+      box-shadow: 0 0 0 1px color-mix(in srgb, var(--ed-accent) 16%, transparent);
+    }
+  }
+
+  &__ol > &__li {
+    padding-left: 0.25em;
+
+    &::marker {
+      font-family: var(--ed-sans);
+      font-weight: 600;
+      font-size: 0.9em;
+      color: color-mix(in srgb, var(--ed-accent) 75%, var(--ed-text));
+    }
+  }
+
+  /* —— 引用 —— */
+  &__quote {
+    margin: 1.35em 0;
+    padding: 0.85em 1.1em;
+    border-left: 3px solid color-mix(in srgb, var(--ed-accent) 55%, transparent);
+    border-radius: 0 10px 10px 0;
+    background: color-mix(in srgb, var(--ed-accent-soft) 70%, transparent);
+    color: color-mix(in srgb, var(--ed-text) 85%, var(--ed-muted));
+    font-size: 0.97em;
+    line-height: 1.72;
+
+    .article-prose__p {
+      margin-bottom: 0.5em;
+
+      &:last-child {
+        margin-bottom: 0;
+      }
+    }
+  }
+
+  /* —— 行内代码 —— */
+  &__code {
+    font-family: 'IBM Plex Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 0.86em;
+    font-weight: 450;
+    padding: 0.14em 0.45em;
+    border-radius: 6px;
+    letter-spacing: -0.01em;
+    color: color-mix(in srgb, var(--ed-accent) 88%, var(--ed-text));
+    background: color-mix(in srgb, var(--ed-accent-soft) 90%, transparent);
+    border: 1px solid color-mix(in srgb, var(--ed-accent-border) 35%, transparent);
+    box-decoration-break: clone;
+    -webkit-box-decoration-break: clone;
+  }
+
+  /* —— 代码块 —— */
+  &__pre {
+    margin: 1.35em 0;
+    padding: 1.05em 1.15em;
+    border-radius: 10px;
+    overflow-x: auto;
+    font-family: 'IBM Plex Mono', 'SF Mono', 'Menlo', monospace;
+    font-size: 0.84em;
+    line-height: 1.65;
+    tab-size: 2;
+    background: var(--ed-code-bg);
+    color: var(--ed-code-fg);
+    border: 1px solid color-mix(in srgb, var(--ed-line) 80%, transparent);
+    box-shadow:
+      0 1px 2px color-mix(in srgb, var(--ed-text) 4%, transparent),
+      inset 0 1px 0 color-mix(in srgb, #fff 4%, transparent);
+
+    code {
+      padding: 0;
+      border: none;
+      background: transparent;
+      color: inherit;
+      font-size: inherit;
+      border-radius: 0;
+    }
+  }
+
+  /* —— 分隔线 —— */
+  &__hr {
+    margin: 2.25em 0;
+    border: none;
+    height: 1px;
+    background: linear-gradient(
+      to right,
+      transparent,
+      var(--ed-line) 20%,
+      var(--ed-line) 80%,
+      transparent
+    );
+  }
+
+  /* —— 图片 —— */
+  &__img {
+    display: block;
+    max-width: 100%;
+    height: auto;
+    margin: 1.5em auto;
+    border-radius: 10px;
+    border: 1px solid var(--ed-line);
+    box-shadow: var(--ed-shadow);
+  }
+
+  /* —— 表格 —— */
+  &__table-wrap {
+    margin: 1.35em 0;
+    overflow-x: auto;
+    border-radius: 10px;
+    border: 1px solid var(--ed-line);
+    background: color-mix(in srgb, var(--ed-surface-elevated) 85%, transparent);
+  }
+
+  &__table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: 0.92em;
+    line-height: 1.55;
+  }
+
+  &__th,
+  &__td {
+    padding: 0.65em 0.85em;
+    text-align: left;
+    border-bottom: 1px solid var(--ed-line);
+    vertical-align: top;
+  }
+
+  &__th {
+    font-family: var(--ed-sans);
+    font-weight: 600;
+    font-size: 0.88em;
+    letter-spacing: 0.04em;
+    text-transform: uppercase;
+    color: var(--ed-text);
+    background: color-mix(in srgb, var(--ed-accent-soft) 55%, transparent);
+  }
+
+  &__tr:last-child &__td {
+    border-bottom: none;
+  }
+
+  &__tbody &__tr:hover &__td {
+    background: color-mix(in srgb, var(--ed-accent-soft) 35%, transparent);
+  }
+}
