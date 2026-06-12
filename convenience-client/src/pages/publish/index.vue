@@ -43,13 +43,13 @@
             :key="root.id"
             class="page-publish__root"
             :class="[
-              `page-publish__root--${index % 3}`,
+              `page-publish__root--${index % 5}`,
               { 'page-publish__root--active': activeRootId === root.id },
             ]"
             @click="onSelectRoot(root.id)"
           >
             <view class="page-publish__root-icon">
-              <u-icon :name="rootIconMap[root.id] || 'grid'" color="#fff" size="18" />
+              <u-icon :name="rootIconMap(root.id)" color="#fff" size="18" />
             </view>
             <text class="page-publish__root-name">{{ root.name }}</text>
           </view>
@@ -235,6 +235,7 @@ import { queryCategoryTree } from '@/api/category.api';
 import { useLocationStore } from '@/stores/location';
 import { useTabBarStore } from '@/stores/tabbar';
 import { useUserStore } from '@/stores/user';
+import { getCategoryRootIcon } from '@/constants/category';
 import type { CategoryItem } from '@/types/city-info';
 
 const tabBarStore = useTabBarStore();
@@ -259,12 +260,8 @@ const form = ref({
   address: '',
 });
 
-/** 一级分类图标，与首页 CategoryGrid 保持一致 */
-const rootIconMap: Record<number, string> = {
-  1: 'bag',
-  2: 'account',
-  3: 'home',
-};
+/** 一级分类图标，与首页 CategoryGrid 共用 constants/category */
+const rootIconMap = getCategoryRootIcon;
 
 /** u-input / u-textarea 内嵌样式：统一灰底圆角 */
 const inputStyle = {
@@ -688,6 +685,14 @@ onMounted(async () => {
 
   &--2 {
     background: $cv-cat-3;
+  }
+
+  &--3 {
+    background: $cv-cat-4;
+  }
+
+  &--4 {
+    background: $cv-cat-5;
   }
 
   &--active {

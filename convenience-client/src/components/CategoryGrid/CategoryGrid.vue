@@ -5,18 +5,18 @@
       :key="item.id"
       class="category-grid__item"
       :class="[
-        `category-grid__item--${index % 3}`,
+        `category-grid__item--${index % 5}`,
         index === 0 ? 'category-grid__item--featured' : '',
       ]"
       @click="onSelect(item)"
     >
       <view class="category-grid__deco" />
       <view class="category-grid__icon-wrap">
-        <u-icon :name="iconMap[item.id] || 'grid'" color="#fff" size="22" />
+        <u-icon :name="getCategoryRootIcon(item.id)" color="#fff" size="22" />
       </view>
       <view class="category-grid__text">
         <text class="category-grid__name">{{ item.name }}</text>
-        <text class="category-grid__hint">{{ hintMap[item.id] || '去看看' }}</text>
+        <text class="category-grid__hint">{{ getCategoryRootHint(item.id) }}</text>
       </view>
     </view>
   </view>
@@ -24,6 +24,7 @@
 
 <script setup lang="ts">
 import type { CategoryItem } from '@/types/city-info';
+import { getCategoryRootHint, getCategoryRootIcon } from '@/constants/category';
 
 defineProps<{
   list: CategoryItem[];
@@ -32,20 +33,6 @@ defineProps<{
 const emit = defineEmits<{
   select: [item: CategoryItem];
 }>();
-
-/** 一级分类图标映射 */
-const iconMap: Record<number, string> = {
-  1: 'bag',
-  2: 'account',
-  3: 'home',
-};
-
-/** 分类副文案 */
-const hintMap: Record<number, string> = {
-  1: '闲置好物',
-  2: '靠谱岗位',
-  3: '上门省心',
-};
 
 function onSelect(item: CategoryItem) {
   emit('select', item);
@@ -107,6 +94,14 @@ function onSelect(item: CategoryItem) {
 
 .category-grid__item--2 {
   background: $cv-cat-3;
+}
+
+.category-grid__item--3 {
+  background: $cv-cat-4;
+}
+
+.category-grid__item--4 {
+  background: $cv-cat-5;
 }
 
 .category-grid__icon-wrap {

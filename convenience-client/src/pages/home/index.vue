@@ -42,7 +42,7 @@
 
       <view class="cv-section">
         <SectionHead title="热门分类" action-text="全部分类" @action="goCategoryTab" />
-        <CategoryGrid :list="categories" @select="onCategorySelect" />
+        <CategoryGrid :list="homeCategories" @select="onCategorySelect" />
       </view>
 
       <view class="cv-section">
@@ -88,6 +88,9 @@ const loadStatus = ref<'loadmore' | 'loading' | 'nomore'>('loadmore');
 const swiperList = computed(() =>
   banners.value.map((b) => ({ image: b.imageUrl, title: '' })),
 );
+
+/** 首页仅展示前 8 个一级分类，完整列表见「分类」Tab */
+const homeCategories = computed(() => categories.value.slice(0, 8));
 
 /** 加载首页数据 */
 async function loadData() {
