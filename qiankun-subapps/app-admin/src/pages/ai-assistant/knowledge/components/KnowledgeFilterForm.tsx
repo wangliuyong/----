@@ -21,7 +21,7 @@ export default function KnowledgeFilterForm({
     <Form
       form={form}
       layout="inline"
-      style={{ marginBottom: 16 }}
+      className="admin-filter-bar"
       onFinish={onSearch}
     >
       <Form.Item name="source" label="数据源">

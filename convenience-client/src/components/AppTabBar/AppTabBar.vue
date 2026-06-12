@@ -85,7 +85,7 @@ function onTabChange(name: string | number) {
 :deep(.u-tabbar__content) {
   backdrop-filter: blur(24px);
   -webkit-backdrop-filter: blur(24px);
-  box-shadow: 0 -8rpx 40rpx rgba(11, 18, 32, 0.06);
+  box-shadow: 0 -8rpx 40rpx rgba(29, 78, 216, 0.1);
   border-top: 1rpx solid $cv-border !important;
 }
 

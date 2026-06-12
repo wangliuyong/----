@@ -1,5 +1,5 @@
 import { DeleteOutlined } from '@ant-design/icons';
-import { Button, Popconfirm, Space } from 'antd';
+import { Button, Popconfirm } from 'antd';
 import PermissionGuard from '../../../../components/PermissionGuard';
 
 export interface QaBatchDeleteBarProps {
@@ -15,20 +15,20 @@ export default function QaBatchDeleteBar({
   if (selectedCount <= 0) return null;
 
   return (
-    <div style={{ marginBottom: 12 }}>
-      <Space>
-        <span>已选 {selectedCount} 条会话</span>
-        <PermissionGuard code="admin:ai-qa:delete">
-          <Popconfirm
-            title={`确定删除选中的 ${selectedCount} 条会话？`}
-            onConfirm={onConfirm}
-          >
-            <Button danger icon={<DeleteOutlined />}>
-              批量删除
-            </Button>
-          </Popconfirm>
-        </PermissionGuard>
-      </Space>
-    </div>
+    <PermissionGuard code="admin:ai-qa:delete">
+      <div className="admin-batch-bar">
+        <span className="admin-batch-bar__count">
+          已选 <strong>{selectedCount}</strong> 条会话
+        </span>
+        <Popconfirm
+          title={`确定删除选中的 ${selectedCount} 条会话？`}
+          onConfirm={onConfirm}
+        >
+          <Button danger icon={<DeleteOutlined />}>
+            批量删除
+          </Button>
+        </Popconfirm>
+      </div>
+    </PermissionGuard>
   );
 }

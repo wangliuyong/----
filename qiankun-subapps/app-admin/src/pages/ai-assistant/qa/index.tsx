@@ -45,7 +45,7 @@ export default function AiQaPage() {
 
   return (
     <>
-      <QaPageCard>
+      <QaPageCard total={data?.total}>
         <QaFilterForm
           form={form}
           onSearch={handleSearch}

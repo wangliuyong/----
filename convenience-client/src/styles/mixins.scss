@@ -1,6 +1,6 @@
 @import './tokens.scss';
 
-/** 浮层卡片：发丝边框 + 内高光 */
+/** 浮层卡片：发丝钴蓝边框 + 内高光 */
 @mixin cv-card {
   background: $cv-surface;
   border-radius: $cv-radius-card;
@@ -12,7 +12,7 @@
 @mixin cv-card-elevated {
   background: $cv-surface;
   border-radius: $cv-radius-card;
-  border: 1rpx solid rgba(255, 255, 255, 0.65);
+  border: 1rpx solid rgba(255, 255, 255, 0.8);
   box-shadow: $cv-shadow-float, $cv-shadow-inset;
 }
 
@@ -44,12 +44,65 @@
   }
 }
 
-/** 顶部英雄区：深色径向光晕 + 钴蓝渐变 */
+/** 顶部英雄区：深色径向光晕 + 钴蓝渐变 + 轻颗粒质感 */
 @mixin cv-hero-bg {
+  position: relative;
+  overflow: hidden;
   background:
     radial-gradient(ellipse 130% 90% at 100% -8%, rgba(96, 165, 250, 0.32) 0%, transparent 58%),
     radial-gradient(ellipse 55% 45% at -8% 105%, rgba(37, 99, 235, 0.22) 0%, transparent 52%),
-    linear-gradient(168deg, $cv-hero-ink 0%, $cv-hero-mid 50%, $cv-primary-mid 100%);
+    linear-gradient(168deg, $cv-hero-ink 0%, $cv-hero-mid 48%, $cv-primary-mid 100%);
+
+  /** 编辑感颗粒层（仅 hero 顶部，pointer-events-none） */
+  &::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    pointer-events: none;
+    opacity: 0.28;
+    background-image: repeating-conic-gradient(
+      rgba(255, 255, 255, 0.04) 0% 25%,
+      transparent 0% 50%
+    );
+    background-size: 6rpx 6rpx;
+    mix-blend-mode: overlay;
+  }
+}
+
+/** Hero 底部向 sheet 过渡的柔光遮罩 */
+@mixin cv-hero-fade-bottom($color: rgba(168, 196, 234, 0.45)) {
+  &::before {
+    content: '';
+    position: absolute;
+    left: 0;
+    right: 0;
+    bottom: 0;
+    height: 96rpx;
+    background: linear-gradient(180deg, transparent 0%, $color 100%);
+    pointer-events: none;
+    z-index: 0;
+  }
+}
+
+/** Hero 区白色大标题（编辑字距） */
+@mixin cv-hero-title {
+  font-weight: 700;
+  color: #fff;
+  letter-spacing: -0.045em;
+  line-height: 1.15;
+}
+
+/** Hero 标题前钴蓝强调线 */
+@mixin cv-hero-title-rule {
+  &::before {
+    content: '';
+    display: block;
+    width: 48rpx;
+    height: 4rpx;
+    margin-bottom: 14rpx;
+    border-radius: 2rpx;
+    background: linear-gradient(90deg, rgba(255, 255, 255, 0.92) 0%, rgba(255, 255, 255, 0.2) 100%);
+  }
 }
 
 /** 英雄区装饰光球 */
@@ -65,23 +118,66 @@
   pointer-events: none;
 }
 
+/** 页面级氛围底：顶部柔光 + 钴蓝灰底 */
+@mixin cv-page-ambient {
+  background:
+    radial-gradient(ellipse 100% 50% at 50% -8%, rgba(191, 219, 254, 0.28) 0%, transparent 52%),
+    $cv-bg;
+}
+
+/** Sheet 内容区背景：钴蓝氛围渐变 + 顶部柔光，与 hero 自然衔接 */
+@mixin cv-sheet-bg {
+  background:
+    radial-gradient(ellipse 130% 70% at 50% -18%, rgba(191, 219, 254, 0.55) 0%, transparent 58%),
+    linear-gradient(180deg, $cv-bg-sheet-top 0%, $cv-bg-sheet-mid 220rpx, $cv-bg-sheet-base 100%);
+}
+
+/** 列表/详情 scroll 区：sheet 叠在 hero 上 */
+@mixin cv-list-sheet {
+  position: relative;
+  z-index: 1;
+  flex: 1;
+  height: 0;
+  margin-top: -36rpx;
+  border-radius: $cv-radius-sheet $cv-radius-sheet 0 0;
+  @include cv-sheet-bg;
+  box-shadow: 0 -12rpx 48rpx rgba(29, 78, 216, 0.1);
+}
+
+/** 编辑感列表卡片：左侧钴蓝强调条 */
+@mixin cv-editorial-card-accent {
+  &::after {
+    content: '';
+    position: absolute;
+    left: 0;
+    top: 24rpx;
+    bottom: 24rpx;
+    width: 4rpx;
+    border-radius: 0 4rpx 4rpx 0;
+    background: linear-gradient(180deg, $cv-primary 0%, rgba(29, 78, 216, 0.12) 100%);
+    pointer-events: none;
+    z-index: 3;
+  }
+}
+
 /** 页面内容区：圆角 sheet 叠在 hero 上 */
 @mixin cv-body-sheet {
   position: relative;
   z-index: 1;
   margin-top: -40rpx;
   padding: 16rpx $cv-space-page calc(56rpx + #{$cv-tabbar-height} + env(safe-area-inset-bottom));
-  background: $cv-bg;
+  @include cv-sheet-bg;
   border-radius: $cv-radius-sheet $cv-radius-sheet 0 0;
+  box-shadow: 0 -12rpx 48rpx rgba(29, 78, 216, 0.08);
 }
 
 /** 毛玻璃面板（搜索栏、底栏） */
 @mixin cv-glass {
-  background: rgba(255, 255, 255, 0.9);
+  background: $cv-glass-bg;
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
-  border: 1rpx solid rgba(255, 255, 255, 0.75);
-  box-shadow: 0 10rpx 44rpx rgba(11, 18, 32, 0.08), $cv-shadow-inset;
+  border: 1rpx solid $cv-glass-border;
+  box-shadow: 0 10rpx 44rpx rgba(29, 78, 216, 0.1), $cv-shadow-inset;
 }
 
 /** 底部固定操作栏 */
@@ -119,7 +215,9 @@
   padding: $cv-space-page;
   padding-bottom: calc(#{$cv-space-page} + env(safe-area-inset-bottom));
   min-height: 100vh;
-  background: $cv-bg;
+  background:
+    radial-gradient(ellipse 100% 60% at 50% -10%, rgba(191, 219, 254, 0.35) 0%, transparent 55%),
+    linear-gradient(180deg, $cv-bg-elevated 0%, $cv-bg 100%);
   box-sizing: border-box;
 }
 
@@ -139,7 +237,7 @@
     height: 4rpx;
     margin-bottom: 12rpx;
     border-radius: 2rpx;
-    background: linear-gradient(90deg, $cv-primary 0%, rgba(29, 78, 216, 0.18) 100%);
+    background: linear-gradient(90deg, $cv-primary 0%, rgba(29, 78, 216, 0.12) 100%);
   }
 }
 
@@ -163,11 +261,11 @@
   align-items: center;
   gap: 16rpx;
   padding: 16rpx $cv-space-page 20rpx;
-  background: rgba(255, 255, 255, 0.94);
+  background: $cv-glass-bg;
   backdrop-filter: blur(28px);
   -webkit-backdrop-filter: blur(28px);
   border-top: 1rpx solid $cv-border;
-  box-shadow: 0 -8rpx 32rpx rgba(11, 18, 32, 0.04);
+  box-shadow: 0 -8rpx 32rpx rgba(29, 78, 216, 0.06);
 }
 
 /** AI 用户气泡 */

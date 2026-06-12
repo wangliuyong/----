@@ -154,21 +154,7 @@ async function main() {
     });
   }
 
-  // 同城便民 C 端演示用户与业务数据
-  const convUserHash = await bcrypt.hash('123456', 10);
-  await prisma.convUser.upsert({
-    where: { phone: '13800138000' },
-    update: { password: convUserHash },
-    create: {
-      phone: '13800138000',
-      password: convUserHash,
-      nickname: '同城用户',
-      avatar: '/static/mock/1.jpg',
-      openId: 'mock_openid_001',
-      userType: 'USER',
-      status: 'ACTIVE',
-    },
-  });
+  // 同城便民 C 端演示用户与业务数据（用户与业务数据在 seedConvenience 内统一 upsert）
   await seedConvenience(prisma);
 
   console.log('Seed completed (existing data preserved).');

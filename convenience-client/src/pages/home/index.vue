@@ -278,13 +278,14 @@ onMounted(loadData);
 
 .page-home {
   min-height: 100vh;
-  background: $cv-bg;
+  @include cv-page-ambient;
 }
 
 .page-home__hero {
   position: relative;
   overflow: hidden;
   @include cv-hero-bg;
+  @include cv-hero-fade-bottom;
   padding: 28rpx $cv-space-page 44rpx;
   padding-top: calc(28rpx + env(safe-area-inset-top));
 }

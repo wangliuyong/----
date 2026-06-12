@@ -268,7 +268,7 @@ onMounted(async () => {
   flex-direction: column;
   height: 100vh;
   box-sizing: border-box;
-  background: $cv-bg;
+  @include cv-page-ambient;
   overflow: hidden;
 }
 

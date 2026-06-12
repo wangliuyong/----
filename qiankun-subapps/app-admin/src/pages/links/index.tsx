@@ -12,6 +12,7 @@ export default function LinksPage() {
   return (
     <AdminCrudPage<LinkItem>
       title="友链管理"
+      description="维护站点底部或侧栏展示的外部友情链接"
       createLabel="新建友链"
       data={links}
       loading={loading}

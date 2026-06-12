@@ -12,8 +12,9 @@
         <u-icon name="photo" color="#cbd5e1" size="32" />
       </view>
       <view v-if="item.collected" class="info-list-card__fav">
-        <u-icon name="star-fill" color="#1d4ed8" size="12" />
+        <u-icon name="star-fill" :color="CV_PRIMARY" size="12" />
       </view>
+      <view class="info-list-card__media-shade" />
     </view>
 
     <view class="info-list-card__body">
@@ -39,6 +40,7 @@
 
 <script setup lang="ts">
 import type { CityInfoItem } from '@/types/city-info';
+import { CV_PRIMARY } from '@/constants/theme';
 import { formatDistance, formatPrice, formatRelativeTime } from '@/utils/format';
 
 defineProps<{
@@ -55,28 +57,40 @@ const emit = defineEmits<{
 @import '@/styles/mixins.scss';
 
 .info-list-card {
+  position: relative;
   display: flex;
   gap: 0;
   padding: 0;
   overflow: hidden;
-  margin-bottom: 16rpx;
+  margin-bottom: 20rpx;
   @include cv-pressable;
+  @include cv-editorial-card-accent;
 }
 
 .info-list-card__media {
   position: relative;
-  width: 200rpx;
+  width: 208rpx;
   flex-shrink: 0;
   align-self: stretch;
-  min-height: 200rpx;
+  min-height: 208rpx;
   background: $cv-surface-muted;
+  border-radius: $cv-radius-card 0 0 $cv-radius-card;
+  overflow: hidden;
+}
+
+.info-list-card__media-shade {
+  position: absolute;
+  inset: 0;
+  pointer-events: none;
+  background: linear-gradient(145deg, rgba(29, 78, 216, 0.1) 0%, transparent 55%);
+  z-index: 1;
 }
 
 .info-list-card__cover,
 .info-list-card__placeholder {
   width: 100%;
   height: 100%;
-  min-height: 200rpx;
+  min-height: 208rpx;
 }
 
 .info-list-card__placeholder {
@@ -96,7 +110,8 @@ const emit = defineEmits<{
   display: flex;
   align-items: center;
   justify-content: center;
-  box-shadow: 0 4rpx 12rpx rgba(11, 18, 32, 0.12);
+  box-shadow: 0 4rpx 16rpx rgba(29, 78, 216, 0.14);
+  z-index: 2;
 }
 
 .info-list-card__body {
@@ -104,7 +119,7 @@ const emit = defineEmits<{
   min-width: 0;
   display: flex;
   flex-direction: column;
-  padding: 20rpx 22rpx 18rpx;
+  padding: 22rpx 24rpx 20rpx 28rpx;
 }
 
 .info-list-card__head {
@@ -116,9 +131,13 @@ const emit = defineEmits<{
 }
 
 .info-list-card__cat {
-  font-size: 22rpx;
+  padding: 4rpx 14rpx;
+  border-radius: $cv-radius-pill;
+  font-size: 20rpx;
   font-weight: 600;
   color: $cv-primary;
+  background: rgba(29, 78, 216, 0.08);
+  border: 1rpx solid rgba(29, 78, 216, 0.12);
   flex-shrink: 0;
 }
 

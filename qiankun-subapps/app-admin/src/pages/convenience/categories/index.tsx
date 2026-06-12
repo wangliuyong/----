@@ -16,6 +16,7 @@ export default function ConvCategoriesPage() {
   return (
     <AdminCrudPage<ConvCategoryItem>
       title="分类管理"
+      description="便民信息的发布分类，影响前台筛选与展示"
       createLabel="新建分类"
       data={data ?? []}
       loading={loading}

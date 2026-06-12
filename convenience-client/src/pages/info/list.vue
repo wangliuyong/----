@@ -3,12 +3,13 @@
     <!-- 顶部英雄区：标题 + 结果统计 -->
     <view class="page-list__hero">
       <view class="page-list__hero-glow" />
+      <view class="page-list__hero-orb" />
       <view class="page-list__nav">
         <view class="page-list__back" hover-class="page-list__back--pressed" @click="onBack">
           <u-icon name="arrow-left" color="#fff" size="18" />
         </view>
         <view class="page-list__nav-text">
-          <text class="page-list__title">{{ pageTitle }}</text>
+          <text class="page-list__title page-list__title--editorial">{{ pageTitle }}</text>
           <text v-if="!loading || list.length" class="page-list__subtitle">
             {{ resultSummary }}
           </text>
@@ -17,7 +18,7 @@
 
       <!-- 搜索 -->
       <view class="page-list__search">
-        <u-icon name="search" color="#8b9bb8" size="18" />
+        <u-icon name="search" :color="CV_TEXT_MUTED" size="18" />
         <input
           v-model="keyword"
           class="page-list__search-input"
@@ -69,7 +70,7 @@
           <u-empty v-if="!list.length" mode="search" text="暂无相关信息" />
         </template>
 
-        <u-loadmore v-if="list.length" :status="loadStatus" color="#1d4ed8" />
+        <u-loadmore v-if="list.length" :status="loadStatus" :color="CV_PRIMARY" />
       </view>
     </scroll-view>
 
@@ -80,6 +81,7 @@
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { onLoad } from '@dcloudio/uni-app';
+import { CV_PRIMARY, CV_TEXT_MUTED } from '@/constants/theme';
 import { queryCityInfoList } from '@/api/city-info.api';
 import { queryCollectedIds } from '@/api/collect.api';
 import AiAssistantFab from '@/components/AiAssistantFab/AiAssistantFab.vue';
@@ -100,6 +102,10 @@ const loadStatus = ref<'loadmore' | 'loading' | 'nomore'>('loadmore');
 const sortIndex = ref(0);
 const sortBy = ref<'latest' | 'distance' | 'price'>('latest');
 const collectedIds = ref<number[]>([]);
+/** 首屏加载是否完成，防止 scroll-view 过早触发 loadMore 造成页码错乱 */
+const initialLoaded = ref(false);
+/** 请求序号，丢弃过期的并发响应 */
+let fetchSeq = 0;
 
 const sortList = [
   { name: '最新', key: 'latest' as const },
@@ -120,10 +126,11 @@ onLoad((query) => {
 });
 
 async function fetchList(reset = false) {
-  if (loading.value) return;
+  const seq = ++fetchSeq;
   if (reset) {
     page.value = 1;
     list.value = [];
+    initialLoaded.value = false;
   }
   loading.value = true;
   loadStatus.value = 'loading';
@@ -142,11 +149,22 @@ async function fetchList(reset = false) {
         collectedIds: collectedIds.value,
       },
     );
+    // 已有更新的请求在进行，忽略本次结果
+    if (seq !== fetchSeq) return;
     list.value = reset ? res.list : [...list.value, ...res.list];
     total.value = res.total;
     loadStatus.value = list.value.length >= total.value ? 'nomore' : 'loadmore';
+  } catch {
+    if (seq === fetchSeq && reset) {
+      list.value = [];
+      total.value = 0;
+      loadStatus.value = 'loadmore';
+    }
   } finally {
-    loading.value = false;
+    if (seq === fetchSeq) {
+      loading.value = false;
+      if (reset) initialLoaded.value = true;
+    }
   }
 }
 
@@ -167,6 +185,7 @@ function onSortChange(index: number) {
 }
 
 function loadMore() {
+  if (!initialLoaded.value || loading.value) return;
   if (loadStatus.value !== 'loadmore') return;
   page.value += 1;
   fetchList(false);
@@ -185,12 +204,13 @@ function onBack() {
 }
 
 onMounted(async () => {
-  const [, ids] = await Promise.all([
-    locationStore.fetchLocation(),
-    queryCollectedIds().catch(() => [] as number[]),
-  ]);
-  collectedIds.value = ids;
-  fetchList(true);
+  // 收藏 ID 与列表并行准备；定位不阻塞首屏（最多 10s），避免列表长时间空白
+  collectedIds.value = await queryCollectedIds().catch(() => [] as number[]);
+  await fetchList(true);
+  // 定位完成后若按距离排序，再刷新一次以计算距离
+  void locationStore.fetchLocation().then(() => {
+    if (sortBy.value === 'distance') fetchList(true);
+  });
 });
 </script>
 
@@ -202,7 +222,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: $cv-bg;
+  @include cv-page-ambient;
   overflow: hidden;
 }
 
@@ -211,12 +231,28 @@ onMounted(async () => {
   flex-shrink: 0;
   overflow: hidden;
   @include cv-hero-bg;
-  padding: 20rpx $cv-space-page 24rpx;
+  @include cv-hero-fade-bottom;
+  padding: 20rpx $cv-space-page 36rpx;
   padding-top: calc(20rpx + env(safe-area-inset-top));
 }
 
 .page-list__hero-glow {
   @include cv-hero-orb(240rpx, -50rpx, -40rpx);
+  z-index: 0;
+}
+
+/** 左下角辅助光球，增加 hero 纵深 */
+.page-list__hero-orb {
+  position: absolute;
+  width: 180rpx;
+  height: 180rpx;
+  bottom: 24rpx;
+  left: -72rpx;
+  border-radius: 50%;
+  background: rgba(96, 165, 250, 0.14);
+  border: 1rpx solid rgba(255, 255, 255, 0.1);
+  pointer-events: none;
+  z-index: 0;
 }
 
 .page-list__nav {
@@ -254,13 +290,14 @@ onMounted(async () => {
 .page-list__title {
   display: block;
   font-size: 40rpx;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.04em;
-  line-height: 1.2;
+  @include cv-hero-title;
   overflow: hidden;
   text-overflow: ellipsis;
   white-space: nowrap;
+
+  &--editorial {
+    @include cv-hero-title-rule;
+  }
 }
 
 .page-list__subtitle {
@@ -323,18 +360,17 @@ onMounted(async () => {
     color: $cv-primary;
     background: #fff;
     border-color: #fff;
-    box-shadow: 0 8rpx 24rpx rgba(11, 18, 32, 0.12);
+    box-shadow: 0 8rpx 28rpx rgba(29, 78, 216, 0.18);
   }
 }
 
 .page-list__scroll {
-  flex: 1;
-  height: 0;
+  @include cv-list-sheet;
   width: 100%;
 }
 
 .page-list__scroll-inner {
-  padding: 20rpx $cv-space-page 32rpx;
+  padding: 24rpx $cv-space-page calc(32rpx + env(safe-area-inset-bottom));
   box-sizing: border-box;
 }
 

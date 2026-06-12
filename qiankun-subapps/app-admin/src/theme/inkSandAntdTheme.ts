@@ -32,6 +32,16 @@ export const inkSandAntdTheme: ThemeConfig = {
       bodyBg: t.bg,
       headerBg: t.surfaceElevated,
     },
+    Card: {
+      borderRadiusLG: t.radius,
+      boxShadowTertiary: t.shadow,
+    },
+    Table: {
+      headerBg: 'rgba(250, 248, 245, 0.85)',
+      headerColor: '#57534e',
+      rowHoverBg: 'rgba(154, 52, 18, 0.03)',
+      borderColor: 'rgba(20, 20, 20, 0.06)',
+    },
     Menu: {
       darkItemBg: t.ink,
       darkSubMenuItemBg: '#1a1918',

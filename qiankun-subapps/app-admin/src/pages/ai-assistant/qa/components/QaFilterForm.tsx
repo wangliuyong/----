@@ -21,7 +21,7 @@ export default function QaFilterForm({
     <Form
       form={form}
       layout="inline"
-      style={{ marginBottom: 16 }}
+      className="admin-filter-bar"
       onFinish={onSearch}
     >
       <Form.Item name="keyword" label="关键词">

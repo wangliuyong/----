@@ -1,96 +1,114 @@
-import { Button, Card, Popconfirm, Table, Tag, message } from 'antd';
-import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
-import { useCallback, useEffect, useState } from 'react';
+import {
+  AlertOutlined,
+  ExclamationCircleOutlined,
+  SafetyCertificateOutlined,
+  UnorderedListOutlined,
+} from '@ant-design/icons';
+import { useMemo } from 'react';
+import { AdminPageShell, AdminSectionCard } from '../../../components/admin-page';
 import PageLoading from '../../../components/_common/PageLoading';
-import PermissionGuard from '../../../components/PermissionGuard';
-import { postConvReportDelete, queryConvReportList } from '../../../api/convenience.api';
-import type { ConvReportItem, ConvReportQuery } from '../../../types/convenience';
-
-const REPORT_TYPE_LABEL: Record<string, string> = {
-  SPAM: '垃圾信息',
-  FRAUD: '欺诈',
-  ILLEGAL: '违法',
-  OTHER: '其他',
-};
-
-const DEFAULT_QUERY: ConvReportQuery = { page: 1, pageSize: 10 };
+import ReportDetailModal from './components/ReportDetailModal';
+import ReportFilterForm from './components/ReportFilterForm';
+import ReportTable from './components/ReportTable';
+import ReportTypeBreakdown from './components/ReportTypeBreakdown';
+import { REPORT_TYPE_CONFIG, type ReportTypeKey } from './constants';
+import { useReportsPage } from './hooks/useReportsPage';
+import './styles/reports.scss';
 
 /** 路由 convenience/reports — 举报管理 */
 export default function ConvReportsPage() {
-  const [loading, setLoading] = useState(true);
-  const [filters, setFilters] = useState<ConvReportQuery>(DEFAULT_QUERY);
-  const [data, setData] = useState<{ list: ConvReportItem[]; total: number } | null>(null);
+  const page = useReportsPage();
 
-  const loadData = useCallback(async (query: ConvReportQuery) => {
-    setLoading(true);
-    try {
-      const res = await queryConvReportList(query);
-      setData({ list: res.list, total: res.total });
-    } finally {
-      setLoading(false);
-    }
-  }, []);
+  const columnHandlers = useMemo(
+    () => ({
+      onViewDetail: page.setDetail,
+      onDelete: (id: number) => void page.handleDelete(id),
+    }),
+    [page.setDetail, page.handleDelete],
+  );
 
-  useEffect(() => {
-    void loadData(filters);
-  }, [filters, loadData]);
+  if (page.loading && !page.data) return <PageLoading />;
 
-  const handleDelete = async (id: number) => {
-    await postConvReportDelete(id);
-    message.success('已删除');
-    await loadData(filters);
-  };
-
-  const columns: ColumnsType<ConvReportItem> = [
-    { title: 'ID', dataIndex: 'id', width: 72 },
-    { title: '举报人', dataIndex: 'userNickname', width: 120 },
-    { title: '被举报信息', dataIndex: 'infoTitle', ellipsis: true },
-    {
-      title: '类型',
-      dataIndex: 'reportType',
-      width: 100,
-      render: (v) => <Tag>{REPORT_TYPE_LABEL[v] ?? v}</Tag>,
-    },
-    { title: '说明', dataIndex: 'content', ellipsis: true },
-    { title: '时间', dataIndex: 'createdAt', width: 180 },
-    {
-      title: '操作',
-      width: 100,
-      render: (_, record) => (
-        <PermissionGuard code="admin:conv:reports:delete">
-          <Popconfirm title="确定删除该举报记录？" onConfirm={() => void handleDelete(record.id)}>
-            <Button type="link" size="small" danger>
-              删除
-            </Button>
-          </Popconfirm>
-        </PermissionGuard>
-      ),
-    },
-  ];
-
-  if (loading && !data) return <PageLoading />;
+  const activeType = page.filters.reportType;
+  const activeLabel = activeType ? REPORT_TYPE_CONFIG[activeType as ReportTypeKey]?.label : '全部';
+  const highRiskCount =
+    (page.typeStats.byType.FRAUD ?? 0) + (page.typeStats.byType.ILLEGAL ?? 0);
 
   return (
-    <Card title="举报管理">
-      <Table
-        rowKey="id"
-        loading={loading}
-        columns={columns}
-        dataSource={data?.list ?? []}
-        pagination={{
-          current: filters.page,
-          pageSize: filters.pageSize,
-          total: data?.total ?? 0,
-          showSizeChanger: true,
-        }}
-        onChange={(pagination: TablePaginationConfig) => {
-          setFilters((prev) => ({
-            ...prev,
-            page: pagination.current ?? 1,
-            pageSize: pagination.pageSize ?? 10,
-          }));
-        }}
+    <>
+      <AdminPageShell
+        title="举报管理"
+        description="用户提交的便民信息举报，按类型分布快速定位，核实后可归档删除"
+        stats={[
+          {
+            label: '举报总数',
+            value: page.typeStats.total,
+            icon: <AlertOutlined />,
+            accent: 'warning',
+          },
+          {
+            label: '欺诈 + 违法',
+            value: highRiskCount,
+            icon: <ExclamationCircleOutlined />,
+            accent: highRiskCount > 0 ? 'danger' : 'default',
+            hint: highRiskCount > 0 ? '建议优先处理' : '暂无高风险',
+          },
+          {
+            label: '当前筛选',
+            value: dataMatchLabel(page.data?.total, activeLabel),
+            icon: <UnorderedListOutlined />,
+            accent: 'primary',
+            hint: activeType ? `类型：${activeLabel}` : '显示全部类型',
+          },
+          {
+            label: '信息可追溯',
+            value: 'ID 关联',
+            icon: <SafetyCertificateOutlined />,
+            hint: '点击详情查看完整上下文',
+          },
+        ]}
+      >
+        <AdminSectionCard noPadding>
+          <ReportTypeBreakdown
+            stats={page.typeStats}
+            loading={page.statsLoading}
+            activeType={activeType}
+            onTypeClick={page.handleTypeFilter}
+          />
+
+          <div style={{ padding: '0 16px 16px' }}>
+            <ReportFilterForm
+              form={page.filterForm}
+              loading={page.loading || page.statsLoading}
+              onSearch={page.handleSearch}
+              onReset={page.handleReset}
+              onRefresh={() => void page.reloadAll()}
+            />
+
+            <ReportTable
+              loading={page.loading}
+              list={page.data?.list ?? []}
+              total={page.data?.total ?? 0}
+              page={page.filters.page ?? 1}
+              pageSize={page.filters.pageSize ?? 10}
+              onTableChange={page.handleTableChange}
+              columnHandlers={columnHandlers}
+            />
+          </div>
+        </AdminSectionCard>
+      </AdminPageShell>
+
+      <ReportDetailModal
+        record={page.detail}
+        onClose={() => page.setDetail(null)}
+        onDelete={page.handleDelete}
       />
-    </Card>
+    </>
   );
+}
+
+/** 当前筛选结果展示文案 */
+function dataMatchLabel(total: number | undefined, activeLabel: string): string {
+  if (total === undefined) return '-';
+  return activeLabel === '全部' ? `${total} 条` : `${total} 条匹配`;
 }

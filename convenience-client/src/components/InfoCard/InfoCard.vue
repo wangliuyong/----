@@ -46,12 +46,27 @@ function onClick() {
 @import '@/styles/tokens.scss';
 @import '@/styles/mixins.scss';
 
-/** 杂志式竖版卡片 */
+/** 杂志式竖版卡片：顶部钴蓝强调线 + 大图叙事 */
 .info-card {
+  position: relative;
   margin-bottom: 24rpx;
   overflow: hidden;
   @include cv-card;
   @include cv-pressable;
+
+  /** 卡片顶缘渐变强调线 */
+  &::before {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 28rpx;
+    right: 28rpx;
+    height: 3rpx;
+    border-radius: 0 0 4rpx 4rpx;
+    background: linear-gradient(90deg, transparent 0%, $cv-primary 50%, transparent 100%);
+    z-index: 2;
+    pointer-events: none;
+  }
 }
 
 .info-card__media {
@@ -76,7 +91,7 @@ function onClick() {
 .info-card__overlay {
   position: absolute;
   inset: 0;
-  background: linear-gradient(180deg, transparent 55%, rgba(11, 18, 32, 0.35) 100%);
+  background: linear-gradient(180deg, rgba(29, 78, 216, 0.06) 0%, transparent 35%, rgba(11, 18, 32, 0.42) 100%);
   pointer-events: none;
 }
 
@@ -88,8 +103,10 @@ function onClick() {
   font-size: 22rpx;
   font-weight: 600;
   color: #fff;
-  background: rgba(11, 18, 32, 0.5);
-  backdrop-filter: blur(10px);
+  background: rgba(11, 18, 32, 0.45);
+  backdrop-filter: blur(12px);
+  -webkit-backdrop-filter: blur(12px);
+  border: 1rpx solid rgba(255, 255, 255, 0.18);
   border-radius: $cv-radius-pill;
   letter-spacing: 0.02em;
 }

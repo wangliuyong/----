@@ -1,6 +1,6 @@
+import { TeamOutlined, UserOutlined } from '@ant-design/icons';
 import {
   Button,
-  Card,
   Form,
   Input,
   Modal,
@@ -13,6 +13,12 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { useCallback, useEffect, useState } from 'react';
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  ADMIN_TABLE_DEFAULTS,
+  mergeAdminTablePagination,
+} from '../../../components/admin-page';
 import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
 import {
@@ -125,15 +131,36 @@ export default function ConvUsersPage() {
 
   if (loading && !data) return <PageLoading />;
 
+  const activeCount = data?.list.filter((u) => u.status === 'ACTIVE').length ?? 0;
+
   return (
     <>
-      <Card title="C 端用户管理">
-        <Form
-          form={filterForm}
-          layout="inline"
-          style={{ marginBottom: 16 }}
-          onFinish={(values) => setFilters({ ...values, page: 1, pageSize: filters.pageSize })}
-        >
+      <AdminPageShell
+        title="C 端用户管理"
+        description="管理便民小程序注册用户，支持编辑资料与重置密码"
+        stats={[
+          {
+            label: '用户总数',
+            value: data?.total ?? 0,
+            icon: <TeamOutlined />,
+            accent: 'primary',
+          },
+          {
+            label: '当前页正常',
+            value: activeCount,
+            icon: <UserOutlined />,
+            accent: 'success',
+            hint: `本页 ${data?.list.length ?? 0} 人`,
+          },
+        ]}
+      >
+        <AdminSectionCard noPadding>
+          <Form
+            form={filterForm}
+            layout="inline"
+            className="admin-filter-bar"
+            onFinish={(values) => setFilters({ ...values, page: 1, pageSize: filters.pageSize })}
+          >
           <Form.Item name="keyword" label="关键词">
             <Input placeholder="昵称/手机号" allowClear style={{ width: 160 }} />
           </Form.Item>
@@ -170,12 +197,14 @@ export default function ConvUsersPage() {
           loading={loading}
           columns={columns}
           dataSource={data?.list ?? []}
-          pagination={{
+          size={ADMIN_TABLE_DEFAULTS.size}
+          className={ADMIN_TABLE_DEFAULTS.className}
+          scroll={{ x: 'max-content' }}
+          pagination={mergeAdminTablePagination({
             current: filters.page,
             pageSize: filters.pageSize,
             total: data?.total ?? 0,
-            showSizeChanger: true,
-          }}
+          })}
           onChange={(pagination: TablePaginationConfig) => {
             setFilters((prev) => ({
               ...prev,
@@ -184,7 +213,8 @@ export default function ConvUsersPage() {
             }));
           }}
         />
-      </Card>
+        </AdminSectionCard>
+      </AdminPageShell>
 
       <Modal title="编辑用户" open={editOpen} onOk={() => void handleSave()} onCancel={() => setEditOpen(false)}>
         <Form form={editForm} layout="vertical">

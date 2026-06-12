@@ -18,7 +18,7 @@ export default function AppLogFilterForm({
   onRefresh,
 }: AppLogFilterFormProps) {
   return (
-    <Form form={form} layout="inline" style={{ marginBottom: 16 }} onFinish={onSearch}>
+    <Form form={form} layout="inline" className="admin-filter-bar" onFinish={onSearch}>
       <Form.Item name="keyword" label="关键词">
         <Input allowClear placeholder="搜索消息内容" style={{ width: 200 }} />
       </Form.Item>

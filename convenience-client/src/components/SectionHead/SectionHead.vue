@@ -12,8 +12,10 @@
 </template>
 
 <script setup lang="ts">
+import { CV_PRIMARY } from '@/constants/theme';
+
 /** 钴蓝主色，与 tokens 同步供 u-icon 使用 */
-const primaryColor = '#1d4ed8';
+const primaryColor = CV_PRIMARY;
 
 defineProps<{
   title: string;
@@ -46,7 +48,7 @@ const emit = defineEmits<{
   height: 4rpx;
   margin-bottom: 14rpx;
   border-radius: 2rpx;
-  background: linear-gradient(90deg, $cv-primary 0%, rgba(29, 78, 216, 0.15) 100%);
+  background: linear-gradient(90deg, $cv-primary 0%, rgba(29, 78, 216, 0.12) 100%);
 }
 
 .section-head__title {

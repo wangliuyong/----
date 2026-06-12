@@ -1,22 +1,29 @@
-import { Card, Typography } from 'antd';
+import { DatabaseOutlined } from '@ant-design/icons';
 import type { ReactNode } from 'react';
+import { AdminPageShell, AdminSectionCard } from '../../../../components/admin-page';
 
 export interface KnowledgePageCardProps {
   children: ReactNode;
+  /** 当前列表总数（分页 total） */
+  total?: number;
 }
 
-/** 知识库页主卡片容器 */
-export default function KnowledgePageCard({ children }: KnowledgePageCardProps) {
+/** 知识库页主容器 */
+export default function KnowledgePageCard({ children, total }: KnowledgePageCardProps) {
   return (
-    <Card
+    <AdminPageShell
       title="知识库管理"
-      extra={
-        <Typography.Text type="secondary">
-          数据存储于 LanceDB 向量库，以下为已向量化分块
-        </Typography.Text>
-      }
+      description="LanceDB 向量库中的已向量化分块，支持检索、查看详情与批量删除"
+      stats={[
+        {
+          label: '向量分块',
+          value: total ?? '-',
+          icon: <DatabaseOutlined />,
+          accent: 'primary',
+        },
+      ]}
     >
-      {children}
-    </Card>
+      <AdminSectionCard>{children}</AdminSectionCard>
+    </AdminPageShell>
   );
 }

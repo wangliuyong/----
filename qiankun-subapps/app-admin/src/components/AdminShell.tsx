@@ -175,7 +175,11 @@ export default function AdminShell({
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => handleSiderCollapse(!collapsed)}
             />
-            <Typography.Text type="secondary">{pageTitle}</Typography.Text>
+          <Space size="middle" direction="vertical" style={{ gap: 0 }}>
+            <Typography.Title level={5} className="admin-shell-header__page-title">
+              {pageTitle}
+            </Typography.Title>
+          </Space>
           </Space>
           <Space size="middle">
             <Typography.Text>你好，{username}</Typography.Text>

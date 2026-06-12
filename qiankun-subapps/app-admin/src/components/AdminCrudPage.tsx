@@ -1,7 +1,6 @@
-import { DeleteOutlined, EditOutlined, PlusOutlined } from '@ant-design/icons';
+import { DeleteOutlined, EditOutlined, PlusOutlined, UnorderedListOutlined } from '@ant-design/icons';
 import {
   Button,
-  Card,
   Form,
   Modal,
   Popconfirm,
@@ -11,12 +10,21 @@ import {
   type FormInstance,
 } from 'antd';
 import type { ColumnsType } from 'antd/es/table';
-import { useState, type ReactNode } from 'react';
+import { useMemo, useState, type ReactNode } from 'react';
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  ADMIN_TABLE_DEFAULTS,
+  mergeAdminTablePagination,
+  type AdminStatItem,
+} from './admin-page';
 import PageLoading from './_common/PageLoading';
 import PermissionGuard from './PermissionGuard';
 
 export interface AdminCrudPageProps<T extends { id: number }> {
   title: string;
+  /** 页面功能说明 */
+  description?: string;
   createLabel: string;
   data: T[];
   loading: boolean;
@@ -35,11 +43,18 @@ export interface AdminCrudPageProps<T extends { id: number }> {
   deletePermission?: string;
   /** 操作列额外按钮 */
   extraActions?: (record: T) => ReactNode;
+  /** 自定义统计指标（默认展示总记录数） */
+  stats?: AdminStatItem[];
+  /** 是否展示总记录数统计，默认 true */
+  showTotalStat?: boolean;
+  /** 表格上方工具区（筛选等） */
+  toolbar?: ReactNode;
 }
 
-/** 后台标准 CRUD 页壳：Table + Modal Form + 权限控制 */
+/** 后台标准 CRUD 页壳：Hero + 统计 + Table + Modal Form + 权限控制 */
 export default function AdminCrudPage<T extends { id: number }>({
   title,
+  description,
   createLabel,
   data,
   loading,
@@ -56,11 +71,27 @@ export default function AdminCrudPage<T extends { id: number }>({
   updatePermission,
   deletePermission,
   extraActions,
+  stats,
+  showTotalStat = true,
+  toolbar,
 }: AdminCrudPageProps<T>) {
   const [modalOpen, setModalOpen] = useState(false);
   const [editing, setEditing] = useState<Partial<T> | null>(null);
   const [form] = Form.useForm();
   const [saving, setSaving] = useState(false);
+
+  const pageStats = useMemo(() => {
+    const items: AdminStatItem[] = stats ? [...stats] : [];
+    if (showTotalStat) {
+      items.unshift({
+        label: '总记录数',
+        value: data.length,
+        icon: <UnorderedListOutlined />,
+        accent: 'primary',
+      });
+    }
+    return items;
+  }, [data.length, showTotalStat, stats]);
 
   if (loading) return <PageLoading />;
 
@@ -109,6 +140,7 @@ export default function AdminCrudPage<T extends { id: number }>({
   const actionColumn: ColumnsType<T>[number] = {
     title: '操作',
     width: extraActions ? 200 : 140,
+    fixed: 'right',
     render: (_, record) => (
       <Space>
         {extraActions?.(record)}
@@ -129,8 +161,10 @@ export default function AdminCrudPage<T extends { id: number }>({
   };
 
   return (
-    <Card
+    <AdminPageShell
       title={title}
+      description={description}
+      stats={pageStats}
       extra={
         createPermission ? (
           <PermissionGuard code={createPermission}>{createBtn}</PermissionGuard>
@@ -139,12 +173,18 @@ export default function AdminCrudPage<T extends { id: number }>({
         )
       }
     >
-      <Table
-        rowKey="id"
-        columns={[...columns, actionColumn]}
-        dataSource={data}
-        pagination={{ pageSize: 10 }}
-      />
+      <AdminSectionCard noPadding>
+        {toolbar}
+        <Table
+          rowKey="id"
+          columns={[...columns, actionColumn]}
+          dataSource={data}
+          size={ADMIN_TABLE_DEFAULTS.size}
+          className={ADMIN_TABLE_DEFAULTS.className}
+          scroll={{ x: 'max-content' }}
+          pagination={mergeAdminTablePagination({ total: data.length })}
+        />
+      </AdminSectionCard>
 
       <Modal
         title={editing?.id ? modalTitles.edit : modalTitles.create}
@@ -159,6 +199,6 @@ export default function AdminCrudPage<T extends { id: number }>({
           {renderForm(form)}
         </Form>
       </Modal>
-    </Card>
+    </AdminPageShell>
   );
 }

@@ -16,10 +16,12 @@ export interface TabBarItemConfig {
   switchTab?: boolean;
 }
 
-/** 未选中 / 选中色，与 tokens v3 钴蓝体系一致 */
-export const TAB_BAR_ACTIVE_COLOR = '#1d4ed8';
-export const TAB_BAR_INACTIVE_COLOR = '#8b9bb8';
-export const TAB_BAR_BG = 'rgba(255, 255, 255, 0.92)';
+import { CV_PRIMARY, CV_TABBAR_BG, CV_TEXT_MUTED } from '@/constants/theme';
+
+/** 未选中 / 选中色，与 tokens v5 钴蓝体系一致 */
+export const TAB_BAR_ACTIVE_COLOR = CV_PRIMARY;
+export const TAB_BAR_INACTIVE_COLOR = CV_TEXT_MUTED;
+export const TAB_BAR_BG = CV_TABBAR_BG;
 
 export const TAB_BAR_ITEMS: TabBarItemConfig[] = [
   {

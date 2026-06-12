@@ -181,7 +181,7 @@
       <!-- #endif -->
     </view>
 
-    <AiAssistantFab />
+    <AiAssistantFab above-bottom-bar />
   </view>
 </template>
 
@@ -354,7 +354,7 @@ onMounted(async () => {
 
 .page-detail {
   min-height: 100vh;
-  background: $cv-bg;
+  @include cv-page-ambient;
 }
 
 .page-detail__scroll {
@@ -376,8 +376,8 @@ onMounted(async () => {
 .page-detail__sk-sheet {
   margin-top: -40rpx;
   padding: 32rpx $cv-space-page;
-  background: $cv-bg;
   border-radius: $cv-radius-sheet $cv-radius-sheet 0 0;
+  @include cv-sheet-bg;
 }
 
 .page-detail__sk-line {
@@ -554,8 +554,8 @@ onMounted(async () => {
   z-index: 1;
   margin-top: -32rpx;
   padding: 8rpx $cv-space-page 0;
-  background: $cv-bg;
   border-radius: $cv-radius-sheet $cv-radius-sheet 0 0;
+  @include cv-sheet-bg;
 }
 
 .page-detail__main {
@@ -756,6 +756,7 @@ onMounted(async () => {
   display: flex;
   align-items: center;
   gap: 16rpx;
+  z-index: 800;
 }
 
 .page-detail__bar-collect {

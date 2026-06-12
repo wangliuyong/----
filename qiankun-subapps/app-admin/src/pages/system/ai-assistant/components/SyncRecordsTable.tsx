@@ -1,4 +1,5 @@
 import { Card, Table } from 'antd';
+import { ADMIN_TABLE_DEFAULTS, mergeAdminTablePagination } from '../../../../components/admin-page';
 import type { AiSyncRecord } from '../../../../api/ai.api';
 import { SYNC_RECORD_COLUMNS } from './syncRecordColumns';
 
@@ -14,7 +15,9 @@ export default function SyncRecordsTable({ records }: SyncRecordsTableProps) {
         rowKey="id"
         columns={SYNC_RECORD_COLUMNS}
         dataSource={records}
-        pagination={{ pageSize: 5 }}
+        size={ADMIN_TABLE_DEFAULTS.size}
+        className={ADMIN_TABLE_DEFAULTS.className}
+        pagination={mergeAdminTablePagination({ pageSize: 5, total: records.length })}
         locale={{ emptyText: '暂无同步记录' }}
       />
     </Card>

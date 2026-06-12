@@ -20,6 +20,7 @@ export default function RolesPage() {
     <>
       <AdminCrudPage<AdminRoleRecord>
         title="角色管理"
+        description="RBAC 角色与权限包，控制菜单与按钮可见性"
         createLabel="新建角色"
         data={page.roles}
         loading={page.loading}

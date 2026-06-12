@@ -21,6 +21,8 @@ export default function AiAssistantPage() {
   return (
     <>
       <AiAssistantPageCard
+        vectorTotal={Object.values(stats).reduce((a, b) => a + b, 0)}
+        syncRecordCount={records.length}
         extra={
           <AiAssistantToolbar
             configStatus={aiConfig.configStatus}

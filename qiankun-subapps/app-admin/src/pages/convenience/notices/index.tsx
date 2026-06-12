@@ -16,6 +16,7 @@ export default function ConvNoticesPage() {
   return (
     <AdminCrudPage<ConvNoticeItem>
       title="公告管理"
+      description="发布至便民小程序的系统公告与通知"
       createLabel="新建公告"
       data={data ?? []}
       loading={loading}

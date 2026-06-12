@@ -1,5 +1,6 @@
 import { Table } from 'antd';
 import { useMemo } from 'react';
+import { ADMIN_TABLE_DEFAULTS } from '../../../../components/admin-page';
 import type { ModuleAdminTreeNode } from '../../../../router/moduleTreeUtils';
 import {
   createModuleAdminColumns,
@@ -23,6 +24,8 @@ export default function ModuleAdminTable({ treeData, columnHandlers }: ModuleAdm
       rowKey="rowKey"
       columns={columns}
       dataSource={treeData}
+      size={ADMIN_TABLE_DEFAULTS.size}
+      className={ADMIN_TABLE_DEFAULTS.className}
       pagination={false}
       expandable={{
         rowExpandable: (row) => Boolean(row.children?.length),

@@ -21,6 +21,7 @@ export default function UsersPage() {
     <>
       <AdminCrudPage<AdminUserRecord>
         title="用户管理"
+        description="后台登录账号，可分配角色与重置密码"
         createLabel="新建用户"
         data={page.users}
         loading={page.loading}

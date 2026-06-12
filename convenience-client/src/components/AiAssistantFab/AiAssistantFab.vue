@@ -3,7 +3,10 @@
   <view
     v-if="visible"
     class="ai-fab"
-    :class="{ 'ai-fab--above-tab': aboveTabBar }"
+    :class="{
+      'ai-fab--above-tab': aboveTabBar,
+      'ai-fab--above-bottom-bar': aboveBottomBar,
+    }"
     hover-class="ai-fab--pressed"
     :hover-stay-time="80"
     @click="goAiPage"
@@ -26,6 +29,8 @@ const AI_PAGE_ROUTE = AI_PAGE_PATH;
 const props = defineProps<{
   /** 是否让出底部 TabBar 高度，不传时根据当前路由自动判断 */
   aboveTabBar?: boolean;
+  /** 是否让出页面底部固定操作栏（如详情页收藏/举报栏） */
+  aboveBottomBar?: boolean;
 }>();
 
 /** 根据当前路由决定是否展示（AI 页内不重复入口） */
@@ -82,6 +87,11 @@ syncRouteState();
   &--above-tab {
     /* TabBar + 中间凸起发布按钮额外让位 */
     bottom: calc(#{$cv-tabbar-height} + 48rpx + env(safe-area-inset-bottom));
+  }
+
+  /* 详情/编辑等带固定底栏的页面：上移到操作栏之上，避免遮挡举报等按钮 */
+  &--above-bottom-bar {
+    bottom: calc(#{$cv-bottom-bar-stack} + 20rpx + env(safe-area-inset-bottom));
   }
 
   &--pressed {

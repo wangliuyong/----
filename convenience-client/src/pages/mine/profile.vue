@@ -145,7 +145,7 @@
       </view>
     </view>
 
-    <AiAssistantFab />
+    <AiAssistantFab above-bottom-bar />
     </template>
   </view>
 </template>
@@ -276,7 +276,7 @@ onMounted(async () => {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: $cv-bg;
+  @include cv-page-ambient;
   overflow: hidden;
 }
 

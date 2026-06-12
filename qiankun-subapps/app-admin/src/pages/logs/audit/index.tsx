@@ -1,3 +1,4 @@
+import { AuditOutlined, FileSearchOutlined } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
 import { listAuditLogs, type AuditLog } from '../../../api/logs.api';
 import PageLoading from '../../../components/_common/PageLoading';
@@ -21,7 +22,24 @@ export default function AuditLogsPage() {
 
   return (
     <>
-      <LogListCard title="操作审计日志">
+      <LogListCard
+        title="操作审计日志"
+        description="记录后台用户的创建、编辑、删除与登录等关键操作，便于追溯"
+        stats={[
+          {
+            label: '日志总数',
+            value: list.data?.total ?? 0,
+            icon: <AuditOutlined />,
+            accent: 'primary',
+          },
+          {
+            label: '当前页',
+            value: list.data?.items.length ?? 0,
+            icon: <FileSearchOutlined />,
+            hint: `第 ${list.data?.page ?? 1} 页`,
+          },
+        ]}
+      >
         <AuditLogFilterForm
           form={list.form}
           onSearch={list.handleSearch}

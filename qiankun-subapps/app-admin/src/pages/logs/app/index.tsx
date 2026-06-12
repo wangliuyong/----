@@ -1,3 +1,4 @@
+import { BugOutlined, WarningOutlined } from '@ant-design/icons';
 import { useMemo, useState } from 'react';
 import { listAppLogs, type AppLog } from '../../../api/logs.api';
 import PageLoading from '../../../components/_common/PageLoading';
@@ -21,7 +22,24 @@ export default function AppLogsPage() {
 
   return (
     <>
-      <LogListCard title="应用错误日志">
+      <LogListCard
+        title="应用错误日志"
+        description="前台与子应用运行时上报的异常堆栈，用于排查线上问题"
+        stats={[
+          {
+            label: '错误总数',
+            value: list.data?.total ?? 0,
+            icon: <BugOutlined />,
+            accent: 'danger',
+          },
+          {
+            label: '当前页',
+            value: list.data?.items.length ?? 0,
+            icon: <WarningOutlined />,
+            hint: `第 ${list.data?.page ?? 1} 页`,
+          },
+        ]}
+      >
         <AppLogFilterForm
           form={list.form}
           onSearch={list.handleSearch}

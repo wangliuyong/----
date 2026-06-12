@@ -1,4 +1,11 @@
 import type { PrismaClient } from '@prisma/client';
+import * as bcrypt from 'bcryptjs';
+import {
+  BANNER_SEED,
+  CITY_INFO_SEED,
+  CONV_USER_SEED,
+  NOTICE_SEED,
+} from './convenience-seed-data';
 
 /** 分类种子（与 convenience-client mock 对齐） */
 const CATEGORY_SEED: Array<{
@@ -30,7 +37,13 @@ const CATEGORY_SEED: Array<{
   { id: 62, parentId: 6, name: '教育培训', sort: 2 },
 ];
 
-/** 写入便民业务演示数据（表为空时） */
+const LEGACY_BANNER_FIX: Record<string, string> = {
+  '/static/mock/banner-1.jpg': '/static/mock/1.jpg',
+  '/static/mock/banner-2.jpg': '/static/mock/2.jpg',
+  '/static/mock/banner-3.jpg': '/static/mock/3.jpg',
+};
+
+/** 写入/补全便民业务演示数据（按标题去重，已有数据不覆盖） */
 export async function seedConvenience(prisma: PrismaClient) {
   const categoryCount = await prisma.convCategory.count();
   if (categoryCount === 0) {
@@ -47,143 +60,113 @@ export async function seedConvenience(prisma: PrismaClient) {
     }
   }
 
-  const bannerCount = await prisma.convBanner.count();
-  if (bannerCount === 0) {
-    await prisma.convBanner.createMany({
-      data: [
-        { imageUrl: '/static/mock/1.jpg', linkUrl: '', sort: 1, online: true },
-        { imageUrl: '/static/mock/2.jpg', linkUrl: '', sort: 2, online: true },
-        { imageUrl: '/static/mock/3.jpg', linkUrl: '', sort: 3, online: true },
-      ],
-    });
-  }
-
-  /** 修正旧种子中不存在的 banner-x.jpg 路径 */
-  const legacyBannerFix: Record<string, string> = {
-    '/static/mock/banner-1.jpg': '/static/mock/1.jpg',
-    '/static/mock/banner-2.jpg': '/static/mock/2.jpg',
-    '/static/mock/banner-3.jpg': '/static/mock/3.jpg',
-  };
-  for (const [oldUrl, newUrl] of Object.entries(legacyBannerFix)) {
+  /** 修正旧 banner 路径 */
+  for (const [oldUrl, newUrl] of Object.entries(LEGACY_BANNER_FIX)) {
     await prisma.convBanner.updateMany({
       where: { imageUrl: oldUrl },
       data: { imageUrl: newUrl },
     });
   }
 
-  const noticeCount = await prisma.convNotice.count();
-  if (noticeCount === 0) {
-    await prisma.convNotice.createMany({
-      data: [
-        {
-          title: '同城便民平台上线公告',
-          content:
-            '欢迎使用同城便民小程序，发布信息请遵守社区规范，违规内容将被下架处理。',
-          published: true,
-          createdAt: new Date('2026-06-01T10:00:00.000Z'),
-        },
-        {
-          title: '端午节服务安排',
-          content: '节日期间部分上门服务商家营业时间调整，请提前预约。',
-          published: true,
-          createdAt: new Date('2026-06-08T09:00:00.000Z'),
-        },
-      ],
+  /** 轮播图：按 imageUrl 增量补全 */
+  for (const banner of BANNER_SEED) {
+    const exists = await prisma.convBanner.findFirst({
+      where: { imageUrl: banner.imageUrl },
     });
+    if (!exists) {
+      await prisma.convBanner.create({ data: { ...banner } });
+    }
   }
 
-  const cityInfoCount = await prisma.convCityInfo.count();
-  if (cityInfoCount === 0) {
-    const user = await prisma.convUser.findFirst({ where: { phone: '13800138000' } });
-    if (user) {
-      await prisma.convCityInfo.createMany({
-        data: [
-          {
-            userId: user.id,
-            categoryId: 11,
-            title: '九成新 iPhone 14 128G',
-            content: '自用机，无拆修，电池健康 91%，配件齐全含原盒，浦东新区陆家嘴附近面交。',
-            price: 3999,
-            address: '浦东新区世纪大道',
-            latitude: 31.235,
-            longitude: 121.48,
-            images: JSON.stringify(['/static/mock/2.jpg']),
-            auditStatus: 'APPROVED',
-            viewCount: 328,
-            collectCount: 24,
-            createdAt: new Date('2026-06-10T08:30:00.000Z'),
-          },
-          {
-            userId: user.id,
-            categoryId: 21,
-            title: '电商运营全职 6K-10K',
-            content: '负责店铺日常运营，有淘宝/拼多多经验优先，五险一金，双休。',
-            price: 8000,
-            address: '静安区南京西路',
-            latitude: 31.23,
-            longitude: 121.45,
-            images: JSON.stringify(['/static/mock/3.jpg']),
-            auditStatus: 'APPROVED',
-            viewCount: 156,
-            collectCount: 12,
-            createdAt: new Date('2026-06-09T14:00:00.000Z'),
-          },
-          {
-            userId: user.id,
-            categoryId: 31,
-            title: '深度保洁 3小时起',
-            content: '专业团队上门，厨房油污、卫生间除垢、全屋除尘，工具自带。',
-            price: 45,
-            address: '闵行区莘庄',
-            latitude: 31.112,
-            longitude: 121.385,
-            images: JSON.stringify(['/static/mock/5.jpg']),
-            auditStatus: 'APPROVED',
-            viewCount: 89,
-            collectCount: 8,
-            createdAt: new Date('2026-06-08T10:00:00.000Z'),
-          },
-          {
-            userId: user.id,
-            categoryId: 41,
-            title: '两室一厅整租 近地铁',
-            content: '精装修，家电齐全，押一付三，随时看房，限长租。',
-            price: 5200,
-            address: '浦东新区张江',
-            latitude: 31.204,
-            longitude: 121.589,
-            images: JSON.stringify(['/static/mock/6.jpg']),
-            auditStatus: 'APPROVED',
-            viewCount: 412,
-            collectCount: 35,
-            createdAt: new Date('2026-06-07T16:30:00.000Z'),
-          },
-          {
-            userId: user.id,
-            categoryId: 11,
-            title: '待审核：测试发布信息',
-            content: '这是一条待审核的测试信息。',
-            price: 100,
-            images: JSON.stringify([]),
-            auditStatus: 'PENDING',
-            viewCount: 0,
-            collectCount: 0,
-            createdAt: new Date('2026-06-11T09:00:00.000Z'),
-          },
-        ],
-      });
+  /** 公告：按标题增量补全 */
+  for (const notice of NOTICE_SEED) {
+    const exists = await prisma.convNotice.findFirst({
+      where: { title: notice.title },
+    });
+    if (!exists) {
+      await prisma.convNotice.create({ data: { ...notice } });
+    }
+  }
 
-      const approved = await prisma.convCityInfo.findFirst({
-        where: { userId: user.id, auditStatus: 'APPROVED' },
-      });
-      if (approved) {
-        await prisma.convCollect.create({
-          data: { userId: user.id, infoId: approved.id },
-        });
-      }
+  /** 演示用户（密码 123456） */
+  const passwordHash = await bcrypt.hash('123456', 10);
+  const userByPhone = new Map<string, { id: number }>();
+  for (const u of CONV_USER_SEED) {
+    const row = await prisma.convUser.upsert({
+      where: { phone: u.phone },
+      update: { password: passwordHash, nickname: u.nickname, avatar: u.avatar },
+      create: {
+        phone: u.phone,
+        password: passwordHash,
+        nickname: u.nickname,
+        avatar: u.avatar,
+        openId: u.openId,
+        userType: 'USER',
+        status: 'ACTIVE',
+      },
+    });
+    userByPhone.set(u.phone, { id: row.id });
+  }
 
+  /** 便民信息：按标题增量补全（约 30+ 条） */
+  const createdInfoIds: number[] = [];
+  for (const item of CITY_INFO_SEED) {
+    const exists = await prisma.convCityInfo.findFirst({
+      where: { title: item.title },
+    });
+    if (exists) {
+      createdInfoIds.push(exists.id);
+      continue;
+    }
+
+    const user = userByPhone.get(item.userPhone);
+    if (!user) continue;
+
+    const row = await prisma.convCityInfo.create({
+      data: {
+        userId: user.id,
+        categoryId: item.categoryId,
+        title: item.title,
+        content: item.content,
+        price: item.price,
+        address: item.address,
+        latitude: item.latitude,
+        longitude: item.longitude,
+        images: JSON.stringify(item.images),
+        auditStatus: item.auditStatus,
+        viewCount: item.viewCount,
+        collectCount: item.collectCount,
+        createdAt: item.createdAt,
+      },
+    });
+    createdInfoIds.push(row.id);
+  }
+
+  /** 主账号收藏若干已通过的信息 */
+  const mainUser = userByPhone.get('13800138000');
+  if (mainUser) {
+    const toCollect = await prisma.convCityInfo.findMany({
+      where: { auditStatus: 'APPROVED' },
+      orderBy: { viewCount: 'desc' },
+      take: 5,
+    });
+    for (const info of toCollect) {
+      await prisma.convCollect.upsert({
+        where: { userId_infoId: { userId: mainUser.id, infoId: info.id } },
+        update: {},
+        create: { userId: mainUser.id, infoId: info.id },
+      });
+    }
+  }
+
+  /** AI 会话演示（无主会话时创建） */
+  if (mainUser) {
+    const sessionCount = await prisma.convAiSession.count({
+      where: { userId: mainUser.id },
+    });
+    if (sessionCount === 0) {
       const session = await prisma.convAiSession.create({
-        data: { userId: user.id, title: '如何发布信息？' },
+        data: { userId: mainUser.id, title: '如何发布信息？' },
       });
       await prisma.convAiMessage.createMany({
         data: [
@@ -201,6 +184,45 @@ export async function seedConvenience(prisma: PrismaClient) {
             createdAt: new Date('2026-06-10T10:00:05.000Z'),
           },
         ],
+      });
+
+      const session2 = await prisma.convAiSession.create({
+        data: { userId: mainUser.id, title: '附近有什么二手手机？' },
+      });
+      await prisma.convAiMessage.createMany({
+        data: [
+          {
+            sessionId: session2.id,
+            role: 'user',
+            content: '附近有什么二手手机？',
+            createdAt: new Date('2026-06-11T08:00:00.000Z'),
+          },
+          {
+            sessionId: session2.id,
+            role: 'assistant',
+            content:
+              '可以在首页「最新推荐」或分类「二手交易 → 数码家电」中查看，也支持按距离排序浏览。',
+            createdAt: new Date('2026-06-11T08:00:06.000Z'),
+          },
+        ],
+      });
+    }
+  }
+
+  /** 举报演示（无举报记录时创建 1 条） */
+  const reportCount = await prisma.convReport.count();
+  if (reportCount === 0 && mainUser) {
+    const target = await prisma.convCityInfo.findFirst({
+      where: { auditStatus: 'APPROVED', title: { not: { contains: '待审核' } } },
+    });
+    if (target) {
+      await prisma.convReport.create({
+        data: {
+          userId: mainUser.id,
+          infoId: target.id,
+          reportType: 'SPAM',
+          content: '演示举报：疑似重复发布',
+        },
       });
     }
   }

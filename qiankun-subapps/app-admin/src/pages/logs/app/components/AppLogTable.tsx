@@ -1,6 +1,7 @@
 import { Table } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { useMemo } from 'react';
+import { ADMIN_TABLE_DEFAULTS, mergeAdminTablePagination } from '../../../../components/admin-page';
 import type { AppLog, PaginatedResult } from '../../../../api/logs.api';
 import { createAppLogColumns, type AppLogColumnHandlers } from './appLogColumns';
 
@@ -26,14 +27,14 @@ export default function AppLogTable({
       loading={loading}
       columns={columns}
       dataSource={data?.items ?? []}
+      size={ADMIN_TABLE_DEFAULTS.size}
+      className={ADMIN_TABLE_DEFAULTS.className}
       scroll={{ x: 800 }}
-      pagination={{
+      pagination={mergeAdminTablePagination({
         current: data?.page ?? 1,
         pageSize: data?.pageSize ?? 20,
         total: data?.total ?? 0,
-        showSizeChanger: true,
-        showTotal: (total) => `共 ${total} 条`,
-      }}
+      })}
       onChange={onTableChange}
       locale={{ emptyText: '暂无错误日志' }}
     />

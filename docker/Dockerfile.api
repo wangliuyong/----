@@ -25,7 +25,7 @@ COPY nest-server/src ./src
 RUN pnpm exec prisma generate
 RUN pnpm exec nest build
 # 编译 seed 脚本供 remote-deploy 初始化数据
-RUN pnpm exec tsc prisma/seed.ts --outDir dist/prisma --esModuleInterop --skipLibCheck --module commonjs --target ES2021
+RUN pnpm exec tsc prisma/seed.ts prisma/rbac-seed.ts prisma/convenience-seed.ts prisma/convenience-seed-data.ts --outDir dist/prisma --esModuleInterop --skipLibCheck --module commonjs --target ES2021
 
 # 构建阶段验证 LanceDB native 可加载，避免运行时才 502
 RUN node -e "require('@lancedb/lancedb'); console.log('lancedb native ok')"

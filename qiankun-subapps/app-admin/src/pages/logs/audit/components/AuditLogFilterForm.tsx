@@ -18,7 +18,7 @@ export default function AuditLogFilterForm({
   onRefresh,
 }: AuditLogFilterFormProps) {
   return (
-    <Form form={form} layout="inline" style={{ marginBottom: 16 }} onFinish={onSearch}>
+    <Form form={form} layout="inline" className="admin-filter-bar" onFinish={onSearch}>
       <Form.Item name="action" label="操作类型">
         <Select
           allowClear

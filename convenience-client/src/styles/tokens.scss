@@ -1,36 +1,49 @@
 /**
- * 同城便民设计令牌 v4
+ * 同城便民设计令牌 v5
  * 风格：墨蓝编辑感 + 钴蓝主色 + 琥珀价格强调
- * 基调：冷灰银底、发丝边框、大圆角、英雄区深色径向光晕
+ * 基调：钴蓝氛围底、冷白卡片、发丝钴蓝边框、阴影带主色 tint
  */
 $cv-primary: #1d4ed8;
 $cv-primary-dark: #1e3a8a;
 $cv-primary-mid: #2563eb;
-$cv-primary-light: #dbeafe;
-$cv-primary-soft: rgba(29, 78, 216, 0.08);
+$cv-primary-light: #bfdbfe;
+$cv-primary-soft: rgba(29, 78, 216, 0.14);
+$cv-primary-border: rgba(29, 78, 216, 0.1);
 
-$cv-accent: #b45309;
-$cv-accent-soft: #fffbeb;
+$cv-accent: #c2410c;
+$cv-accent-soft: rgba(194, 65, 12, 0.1);
 
-$cv-bg: #e8ecf3;
-$cv-bg-elevated: #f3f6fa;
-$cv-surface: #ffffff;
-$cv-surface-muted: #f0f3f8;
+$cv-bg: #d4e2f5;
+$cv-bg-elevated: #dce9f8;
+/** Sheet 内容区：钴蓝 tint 层级，与 hero 衔接 */
+$cv-bg-sheet-top: #a8c4ea;
+$cv-bg-sheet-mid: #b8cff0;
+$cv-bg-sheet-base: #c8daf5;
 
-$cv-text: #0b1220;
-$cv-text-secondary: #3d4f6f;
-$cv-text-muted: #8b9bb8;
-$cv-border: rgba(11, 18, 32, 0.06);
-$cv-border-strong: rgba(11, 18, 32, 0.1);
+/** 卡片/面板：略带冷蓝的 off-white，避免纯白贴片感 */
+$cv-surface: #f8fbff;
+$cv-surface-muted: #eaf0fa;
+
+$cv-text: #0a1324;
+$cv-text-secondary: #334b6e;
+$cv-text-muted: #6b84a8;
+$cv-border: rgba(29, 78, 216, 0.1);
+$cv-border-strong: rgba(29, 78, 216, 0.16);
+
+/** 毛玻璃 / TabBar 半透明底 */
+$cv-glass-bg: rgba(248, 251, 255, 0.88);
+$cv-glass-border: rgba(255, 255, 255, 0.72);
+$cv-tabbar-bg: rgba(248, 251, 255, 0.92);
 
 $cv-radius-sheet: 44rpx;
 $cv-radius-card: 28rpx;
 $cv-radius-sm: 18rpx;
 $cv-radius-pill: 999rpx;
 
-$cv-shadow-card: 0 1rpx 0 rgba(255, 255, 255, 0.95) inset, 0 20rpx 56rpx rgba(11, 18, 32, 0.07);
-$cv-shadow-soft: 0 10rpx 36rpx rgba(11, 18, 32, 0.06);
-$cv-shadow-float: 0 28rpx 64rpx rgba(29, 78, 216, 0.12), 0 4rpx 16rpx rgba(11, 18, 32, 0.05);
+/** 阴影：混合墨蓝与钴蓝 hue，避免纯黑浮层 */
+$cv-shadow-card: 0 1rpx 0 rgba(255, 255, 255, 0.92) inset, 0 16rpx 48rpx rgba(29, 78, 216, 0.11);
+$cv-shadow-soft: 0 8rpx 32rpx rgba(29, 78, 216, 0.09);
+$cv-shadow-float: 0 24rpx 56rpx rgba(29, 78, 216, 0.16), 0 4rpx 12rpx rgba(11, 18, 32, 0.04);
 $cv-shadow-inset: inset 0 1rpx 0 rgba(255, 255, 255, 0.94);
 
 $cv-space-page: 32rpx;
@@ -42,7 +55,7 @@ $cv-ease-out: cubic-bezier(0.16, 1, 0.3, 1);
 $cv-cat-1: linear-gradient(152deg, #0b1220 0%, #1e3a8a 38%, #1d4ed8 100%);
 $cv-cat-2: linear-gradient(152deg, #1e293b 0%, #334155 45%, #475569 100%);
 $cv-cat-3: linear-gradient(152deg, #134e4a 0%, #0f766e 50%, #14b8a6 100%);
-$cv-cat-4: linear-gradient(152deg, #4a1d6a 0%, #7c3aed 45%, #a78bfa 100%);
+$cv-cat-4: linear-gradient(152deg, #312e81 0%, #4338ca 45%, #6366f1 100%);
 $cv-cat-5: linear-gradient(152deg, #7c2d12 0%, #c2410c 50%, #fb923c 100%);
 
 /** 英雄区 / AI 头部深色基底 */
@@ -51,6 +64,9 @@ $cv-hero-mid: #1e3a8a;
 
 /** TabBar 高度（与 u-tabbar placeholder 对齐） */
 $cv-tabbar-height: 100rpx;
+
+/** 固定底栏总高度：上内边距 20 + 按钮 88 + 下内边距 20，供 FAB / scroll-pad 让位 */
+$cv-bottom-bar-stack: 128rpx;
 
 /** AI 聊天专用 */
 $cv-ai-header-h: 168rpx;

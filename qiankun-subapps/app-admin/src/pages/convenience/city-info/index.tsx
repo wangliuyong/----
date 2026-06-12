@@ -1,6 +1,10 @@
 import {
+  AuditOutlined,
+  TeamOutlined,
+  UnorderedListOutlined,
+} from '@ant-design/icons';
+import {
   Button,
-  Card,
   Descriptions,
   Form,
   Image,
@@ -15,6 +19,12 @@ import {
 } from 'antd';
 import type { ColumnsType, TablePaginationConfig } from 'antd/es/table';
 import { useCallback, useEffect, useState } from 'react';
+import {
+  AdminPageShell,
+  AdminSectionCard,
+  ADMIN_TABLE_DEFAULTS,
+  mergeAdminTablePagination,
+} from '../../../components/admin-page';
 import PageLoading from '../../../components/_common/PageLoading';
 import PermissionGuard from '../../../components/PermissionGuard';
 import {
@@ -131,18 +141,41 @@ export default function ConvCityInfoPage() {
     }));
   };
 
+  const statusLabel = filters.auditStatus
+    ? AUDIT_STATUS_MAP[filters.auditStatus as keyof typeof AUDIT_STATUS_MAP]?.label
+    : '全部';
+
   if (loading && !data) return <PageLoading />;
 
   return (
     <>
-      <Card title="便民信息审核">
-        <Form
-          form={form}
-          layout="inline"
-          initialValues={DEFAULT_QUERY}
-          style={{ marginBottom: 16 }}
-          onFinish={(values) => setFilters({ ...values, page: 1, pageSize: filters.pageSize })}
-        >
+      <AdminPageShell
+        title="便民信息审核"
+        description="审核用户发布的便民信息，支持按状态筛选与详情预览"
+        stats={[
+          {
+            label: '匹配记录',
+            value: data?.total ?? 0,
+            icon: <UnorderedListOutlined />,
+            accent: 'primary',
+            hint: `筛选：${statusLabel}`,
+          },
+          {
+            label: '当前筛选',
+            value: statusLabel,
+            icon: <AuditOutlined />,
+            accent: filters.auditStatus === 'PENDING' ? 'warning' : 'default',
+          },
+        ]}
+      >
+        <AdminSectionCard noPadding>
+          <Form
+            form={form}
+            layout="inline"
+            className="admin-filter-bar"
+            initialValues={DEFAULT_QUERY}
+            onFinish={(values) => setFilters({ ...values, page: 1, pageSize: filters.pageSize })}
+          >
           <Form.Item name="auditStatus" label="审核状态">
             <Select
               allowClear
@@ -179,15 +212,18 @@ export default function ConvCityInfoPage() {
           loading={loading}
           columns={columns}
           dataSource={data?.list ?? []}
-          pagination={{
+          size={ADMIN_TABLE_DEFAULTS.size}
+          className={ADMIN_TABLE_DEFAULTS.className}
+          scroll={{ x: 'max-content' }}
+          pagination={mergeAdminTablePagination({
             current: filters.page,
             pageSize: filters.pageSize,
             total: data?.total ?? 0,
-            showSizeChanger: true,
-          }}
+          })}
           onChange={onTableChange}
         />
-      </Card>
+        </AdminSectionCard>
+      </AdminPageShell>
 
       <Modal
         title="信息详情"

@@ -45,7 +45,7 @@ export default function AiKnowledgePage() {
 
   return (
     <>
-      <KnowledgePageCard>
+      <KnowledgePageCard total={data?.total}>
         <KnowledgeFilterForm
           form={form}
           onSearch={handleSearch}

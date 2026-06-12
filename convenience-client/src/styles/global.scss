@@ -4,7 +4,7 @@
 /** 页面容器 */
 .cv-page {
   min-height: 100vh;
-  background: $cv-bg;
+  @include cv-page-ambient;
   box-sizing: border-box;
 }
 
@@ -65,8 +65,9 @@
   padding: 6rpx 18rpx;
   font-size: 22rpx;
   font-weight: 600;
-  color: $cv-primary;
+  color: $cv-primary-dark;
   background: $cv-primary-soft;
+  border: 1rpx solid $cv-primary-border;
   border-radius: $cv-radius-pill;
   letter-spacing: 0.02em;
 }
@@ -103,6 +104,7 @@
     height: 76rpx;
     border-radius: 22rpx;
     background: $cv-primary-soft;
+    border: 1rpx solid $cv-primary-border;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -150,5 +152,5 @@
   height: 4rpx;
   margin-bottom: 28rpx;
   border-radius: 2rpx;
-  background: linear-gradient(90deg, $cv-primary 0%, rgba(29, 78, 216, 0.15) 100%);
+  background: linear-gradient(90deg, $cv-primary 0%, rgba(29, 78, 216, 0.12) 100%);
 }

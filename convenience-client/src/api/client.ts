@@ -19,6 +19,20 @@ function buildUrl(path: string): string {
   return `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 }
 
+/** GET 请求将 data 序列化为 query string，避免部分端对 data 处理不一致 */
+function appendQuery(url: string, data?: Record<string, unknown> | string): string {
+  if (!data || typeof data === 'string') return url;
+  const params = new URLSearchParams();
+  Object.entries(data).forEach(([key, value]) => {
+    if (value !== undefined && value !== null && value !== '') {
+      params.append(key, String(value));
+    }
+  });
+  const qs = params.toString();
+  if (!qs) return url;
+  return `${url}${url.includes('?') ? '&' : '?'}${qs}`;
+}
+
 /** 统一 Toast 错误提示 */
 function showError(message: string) {
   uni.showToast({ title: message, icon: 'none', duration: 2500 });
@@ -41,11 +55,17 @@ export function request<T>(path: string, config: RequestConfig = {}): Promise<T>
     if (token) header.Authorization = `Bearer ${token}`;
   }
 
+  const isGet = method === 'GET';
+  const url = isGet && data && typeof data === 'object'
+    ? appendQuery(buildUrl(path), data as Record<string, unknown>)
+    : buildUrl(path);
+  const requestData = isGet ? undefined : data;
+
   return new Promise((resolve, reject) => {
     uni.request({
-      url: buildUrl(path),
+      url,
       method,
-      data,
+      data: requestData,
       header,
       success: (res) => {
         const status = res.statusCode as number;

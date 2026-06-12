@@ -1,6 +1,7 @@
 import { Table } from 'antd';
 import type { TablePaginationConfig } from 'antd/es/table';
 import { useMemo } from 'react';
+import { ADMIN_TABLE_DEFAULTS, mergeAdminTablePagination } from '../../../../components/admin-page';
 import type { AiChatSessionItem, PaginatedAiChatSessions } from '../../../../api/ai.api';
 import { createQaSessionColumns, type QaSessionColumnHandlers } from './qaSessionColumns';
 
@@ -35,6 +36,8 @@ export default function QaSessionTable({
       loading={loading}
       columns={columns}
       dataSource={data?.items ?? []}
+      size={ADMIN_TABLE_DEFAULTS.size}
+      className={ADMIN_TABLE_DEFAULTS.className}
       scroll={{ x: 960 }}
       rowSelection={
         canDelete
@@ -44,13 +47,11 @@ export default function QaSessionTable({
             }
           : undefined
       }
-      pagination={{
+      pagination={mergeAdminTablePagination({
         current: data?.page ?? 1,
         pageSize: data?.pageSize ?? 20,
         total: data?.total ?? 0,
-        showSizeChanger: true,
-        showTotal: (total) => `共 ${total} 条`,
-      }}
+      })}
       onChange={onTableChange}
       locale={{ emptyText: '暂无用户问答记录' }}
     />

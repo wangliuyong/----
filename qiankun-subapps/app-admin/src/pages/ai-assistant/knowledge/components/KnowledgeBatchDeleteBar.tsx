@@ -16,13 +16,16 @@ export default function KnowledgeBatchDeleteBar({
 
   return (
     <PermissionGuard code="admin:ai-knowledge:delete">
-      <div style={{ marginBottom: 12 }}>
+      <div className="admin-batch-bar">
+        <span className="admin-batch-bar__count">
+          已选 <strong>{selectedCount}</strong> 条向量块
+        </span>
         <Popconfirm
           title={`确定删除选中的 ${selectedCount} 条向量块？`}
           onConfirm={onConfirm}
         >
           <Button danger icon={<DeleteOutlined />}>
-            批量删除（{selectedCount}）
+            批量删除
           </Button>
         </Popconfirm>
       </div>

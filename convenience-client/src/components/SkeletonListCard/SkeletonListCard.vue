@@ -2,8 +2,8 @@
   <view class="cv-sk-list-card">
     <SkeletonBlock
       class="cv-sk-list-card__media"
-      width="200rpx"
-      height="200rpx"
+      width="208rpx"
+      height="208rpx"
       radius="0"
       :shimmer="true"
     />
@@ -27,14 +27,18 @@ import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 .cv-sk-list-card {
   display: flex;
   overflow: hidden;
-  border-radius: $cv-radius-sm;
+  margin-bottom: 20rpx;
+  border-radius: $cv-radius-card;
   background: $cv-surface;
   border: 1rpx solid $cv-border;
+  box-shadow: $cv-shadow-card;
 }
 
 .cv-sk-list-card__media {
   flex-shrink: 0;
-  min-height: 200rpx;
+  min-height: 208rpx;
+  border-radius: $cv-radius-card 0 0 $cv-radius-card;
+  overflow: hidden;
 }
 
 .cv-sk-list-card__body {

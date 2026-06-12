@@ -203,7 +203,7 @@ async function onPhoneLogin() {
   display: flex;
   flex-direction: column;
   height: 100vh;
-  background: $cv-bg;
+  @include cv-page-ambient;
   overflow: hidden;
 }
 

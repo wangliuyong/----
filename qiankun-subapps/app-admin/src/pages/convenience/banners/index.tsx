@@ -16,6 +16,7 @@ export default function ConvBannersPage() {
   return (
     <AdminCrudPage<ConvBannerItem>
       title="轮播图管理"
+      description="配置便民小程序首页轮播图，支持排序与上下线"
       createLabel="新建轮播图"
       data={data ?? []}
       loading={loading}

@@ -12,6 +12,7 @@ export default function ProjectsPage() {
   return (
     <AdminCrudPage<Project>
       title="项目管理"
+      description="展示在首页的项目作品集，含技术栈与预览链接"
       createLabel="新建项目"
       data={projects}
       loading={loading}

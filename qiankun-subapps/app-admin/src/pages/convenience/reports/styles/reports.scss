@@ -1,0 +1,152 @@
+/* 举报管理页：类型分布 chips + 表格单元格 + 详情弹窗 */
+
+.report-type-breakdown {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: stretch;
+  gap: 10px;
+  padding: 14px 16px;
+  background: rgba(250, 248, 245, 0.55);
+  border-bottom: 1px solid rgba(20, 20, 20, 0.06);
+}
+
+.report-type-breakdown__empty {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 8px 12px;
+  font-size: 13px;
+  color: #a8a29e;
+}
+
+.report-type-chip {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  padding: 10px 14px;
+  text-align: left;
+  background: #fff;
+  border: 1px solid rgba(20, 20, 20, 0.08);
+  border-radius: 2px;
+  cursor: pointer;
+  transition:
+    border-color 0.2s ease,
+    box-shadow 0.2s ease,
+    transform 0.15s ease;
+
+  &:hover:not(:disabled) {
+    border-color: rgba(154, 52, 18, 0.22);
+    box-shadow: 0 10px 28px -22px rgba(20, 20, 20, 0.25);
+  }
+
+  &:active:not(:disabled) {
+    transform: scale(0.98);
+  }
+
+  &:disabled {
+    opacity: 0.65;
+    cursor: not-allowed;
+  }
+
+  &--active {
+    border-color: rgba(154, 52, 18, 0.35);
+    background: rgba(154, 52, 18, 0.04);
+    box-shadow: inset 0 0 0 1px rgba(154, 52, 18, 0.08);
+  }
+
+  &--warning .report-type-chip__icon {
+    color: #b45309;
+    background: rgba(180, 83, 9, 0.1);
+  }
+
+  &--danger .report-type-chip__icon {
+    color: #b91c1c;
+    background: rgba(185, 28, 28, 0.1);
+  }
+}
+
+.report-type-chip__icon {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  width: 32px;
+  height: 32px;
+  font-size: 16px;
+  color: #9a3412;
+  background: rgba(154, 52, 18, 0.08);
+  border-radius: 2px;
+}
+
+.report-type-chip__body {
+  display: flex;
+  flex-direction: column;
+  gap: 2px;
+  min-width: 0;
+}
+
+.report-type-chip__label {
+  font-size: 13px;
+  font-weight: 600;
+  color: #141414;
+  line-height: 1.3;
+}
+
+.report-type-chip__value {
+  font-size: 20px;
+  font-weight: 600;
+  color: #9a3412;
+  font-variant-numeric: tabular-nums;
+  line-height: 1.2;
+}
+
+.report-type-chip__meta {
+  font-size: 11px;
+  color: #78716c;
+  line-height: 1.35;
+}
+
+.report-cell-info-title {
+  font-weight: 500;
+  color: #141414;
+}
+
+.report-cell-content {
+  color: #57534e;
+
+  &--muted {
+    color: #a8a29e;
+    font-style: italic;
+  }
+}
+
+.report-cell-time {
+  font-variant-numeric: tabular-nums;
+  color: #57534e;
+}
+
+.report-detail-descriptions {
+  margin-bottom: 0;
+}
+
+.report-detail-hint {
+  margin-top: 16px;
+  padding: 12px 14px;
+  background: rgba(250, 248, 245, 0.8);
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 2px;
+  font-size: 13px;
+  line-height: 1.55;
+}
+
+@media (max-width: 767px) {
+  .report-type-breakdown {
+    padding: 12px;
+  }
+
+  .report-type-chip {
+    flex: 1 1 calc(50% - 6px);
+    min-width: calc(50% - 6px);
+  }
+}
