@@ -1,4 +1,5 @@
 import { request } from './client';
+import { isLoggedIn } from '@/utils/auth';
 import type { PageResult } from '@/types/api-response';
 import type { CollectItem } from '@/types/city-info';
 import { resolveMediaUrls } from '@/utils/media';
@@ -28,7 +29,14 @@ export function postUncollect(infoId: number): Promise<void> {
   return request<void>(`/collects/${infoId}`, { method: 'DELETE' });
 }
 
-/** 获取已收藏 infoId 列表（供列表页标记） */
+/**
+ * 获取已收藏 infoId 列表（供列表页标记）
+ * 未登录时直接返回空数组，避免 401 触发跳转登录打断首页数据加载
+ */
 export function queryCollectedIds(): Promise<number[]> {
-  return request<number[]>('/collects/ids');
+  if (!isLoggedIn()) return Promise.resolve([]);
+  return request<number[]>('/collects/ids', {
+    skipErrorMessage: true,
+    skipAuthRedirect: true,
+  }).catch(() => []);
 }

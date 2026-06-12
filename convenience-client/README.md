@@ -7,7 +7,7 @@ uni-app + uview-plus 多端客户端，支持 **微信小程序 / H5 / APP**。
 - uni-app Vue3 + TypeScript + Vite
 - uview-plus 3.x
 - Pinia
-- Mock 数据层（可切换真实 NestJS API）
+- NestJS 便民后端 API
 
 ## 快速开始
 
@@ -22,19 +22,18 @@ pnpm run dev:app       # APP
 
 | 变量 | 说明 |
 |------|------|
-| `VITE_USE_MOCK` | 仅 **开发环境** 生效；`true` 使用 Mock。打包/App 云打包固定走真实接口 |
 | `VITE_API_BASE_URL` | API 基址 |
-| `.env.development` | 本地开发（默认 Mock + `http://localhost:3002/api`） |
-| `.env.production` | H5 生产构建（`/api` 同域反代） |
-| `.env.build` | **HBuilderX 云打包** 使用（须填手机可访问的完整 API 地址） |
+| `VITE_API_BASE_URL_MP_WEIXIN` | 微信小程序本地开发 API 基址（默认 `http://47.116.30.137/api`） |
+| `.env.development` | H5 本地开发（`http://localhost:3001/api`）；小程序 dev 走 `VITE_API_BASE_URL_MP_WEIXIN` |
+| `.env.production` | H5 / 小程序生产构建 |
+| `.env.build` | **HBuilderX 云打包**（须填手机可访问的完整 API 地址） |
 
 ### App 打包对接真实后端
 
 1. 编辑 `.env.build`，将 `VITE_API_BASE_URL` 改为你 Nest 服务地址（如 `http://192.168.0.8:3002/api`，真机不能用 `localhost`）
 2. 重新云打包：`pnpm run android:pack:cloud`
-3. 开发阶段仍可在 `.env.development` 里用 `VITE_USE_MOCK=true` 调试
 
-## Mock 账号
+## 测试账号
 
 - 手机号：`13800138000`
 - 密码：`123456`
@@ -44,7 +43,6 @@ pnpm run dev:app       # APP
 ```
 src/
 ├── api/          # query* / post* 接口层
-├── mock/         # Mock 数据
 ├── pages/        # 页面（TabBar + 子页）
 ├── components/   # 业务组件
 ├── stores/       # Pinia
@@ -74,7 +72,7 @@ pnpm run android:pack:cloud
 /Applications/HBuilderX.app/Contents/MacOS/cli user login --username 你的账号 --password 你的密码
 ```
 
-打包成功后 CLI 会输出 APK 下载链接。也可在 HBuilderX：**发行 → 查看云打包状态**。
+打包 CLI 会输出 APK 下载链接。也可在 HBuilderX：**发行 → 查看云打包状态**。
 
 | 配置项 | 值 |
 |--------|-----|
@@ -107,4 +105,3 @@ pnpm run android:pack:offline
 pnpm run build:app
 # 产物: dist/build/app → 导入 HBuilderX 运行/打包
 ```
-

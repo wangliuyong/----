@@ -162,9 +162,7 @@
       </template>
     </view>
 
-    <!-- #ifndef MP-WEIXIN -->
     <AppTabBar page-path="pages/mine/index" />
-    <!-- #endif -->
   </view>
 </template>
 

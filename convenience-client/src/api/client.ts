@@ -1,4 +1,5 @@
 import type { ApiResponse } from '@/types/api-response';
+import { getApiBaseUrl } from '@/utils/api-base-url';
 import { getAccessToken, redirectToLogin } from '@/utils/auth';
 
 /** HTTP 请求配置 */
@@ -9,9 +10,11 @@ export interface RequestConfig {
   auth?: boolean;
   /** 是否跳过全局错误提示 */
   skipErrorMessage?: boolean;
+  /** 401 时不跳转登录页（用于收藏 ID 等可选登录接口） */
+  skipAuthRedirect?: boolean;
 }
 
-const BASE_URL = import.meta.env.VITE_API_BASE_URL || '/api';
+const BASE_URL = getApiBaseUrl();
 
 /** 拼接完整 URL */
 function buildUrl(path: string): string {
@@ -19,17 +22,20 @@ function buildUrl(path: string): string {
   return `${BASE_URL.replace(/\/$/, '')}/${path.replace(/^\//, '')}`;
 }
 
-/** GET 请求将 data 序列化为 query string，避免部分端对 data 处理不一致 */
+/**
+ * GET 请求将 data 序列化为 query string
+ * 手写拼接，兼容微信小程序（部分基础库 URLSearchParams 不可用）
+ */
 function appendQuery(url: string, data?: Record<string, unknown> | string): string {
   if (!data || typeof data === 'string') return url;
-  const params = new URLSearchParams();
+  const parts: string[] = [];
   Object.entries(data).forEach(([key, value]) => {
     if (value !== undefined && value !== null && value !== '') {
-      params.append(key, String(value));
+      parts.push(`${encodeURIComponent(key)}=${encodeURIComponent(String(value))}`);
     }
   });
-  const qs = params.toString();
-  if (!qs) return url;
+  if (!parts.length) return url;
+  const qs = parts.join('&');
   return `${url}${url.includes('?') ? '&' : '?'}${qs}`;
 }
 
@@ -44,7 +50,13 @@ function showError(message: string) {
  * - 统一解析 ApiResponse
  */
 export function request<T>(path: string, config: RequestConfig = {}): Promise<T> {
-  const { method = 'GET', data, auth = true, skipErrorMessage = false } = config;
+  const {
+    method = 'GET',
+    data,
+    auth = true,
+    skipErrorMessage = false,
+    skipAuthRedirect = false,
+  } = config;
 
   const header: Record<string, string> = {
     'Content-Type': 'application/json',
@@ -70,7 +82,7 @@ export function request<T>(path: string, config: RequestConfig = {}): Promise<T>
       success: (res) => {
         const status = res.statusCode as number;
         if (status === 401) {
-          redirectToLogin();
+          if (!skipAuthRedirect) redirectToLogin();
           reject(new Error('未登录'));
           return;
         }

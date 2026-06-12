@@ -58,6 +58,10 @@
       "urlCheck": false,
       "minified": true
     },
+    "optimization": {
+      "subPackages": true
+    },
+    "lazyCodeLoading": "requiredComponents",
     "usingComponents": true,
     "requiredPrivateInfos": ["getLocation", "chooseLocation"],
     "permission": {

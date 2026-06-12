@@ -7,7 +7,7 @@ import {
   NOTICE_SEED,
 } from './convenience-seed-data';
 
-/** 分类种子（与 convenience-client mock 对齐） */
+/** 分类种子 */
 const CATEGORY_SEED: Array<{
   id: number;
   parentId: number | null;
@@ -37,14 +37,36 @@ const CATEGORY_SEED: Array<{
   { id: 62, parentId: 6, name: '教育培训', sort: 2 },
 ];
 
-const LEGACY_BANNER_FIX: Record<string, string> = {
-  '/static/mock/banner-1.jpg': '/static/mock/1.jpg',
-  '/static/mock/banner-2.jpg': '/static/mock/2.jpg',
-  '/static/mock/banner-3.jpg': '/static/mock/3.jpg',
-};
+/** 清理历史 mock 静态图路径（客户端已移除 static/mock） */
+async function cleanupLegacyMockMedia(prisma: PrismaClient) {
+  await prisma.convBanner.updateMany({
+    where: { imageUrl: { startsWith: '/static/mock/' } },
+    data: { imageUrl: '', online: false },
+  });
+  await prisma.convUser.updateMany({
+    where: { avatar: { startsWith: '/static/mock/' } },
+    data: { avatar: '' },
+  });
+  const infos = await prisma.convCityInfo.findMany({
+    select: { id: true, images: true },
+  });
+  for (const info of infos) {
+    try {
+      const list = JSON.parse(info.images || '[]') as string[];
+      if (!Array.isArray(list) || !list.some((url) => url.includes('/static/mock/'))) continue;
+      await prisma.convCityInfo.update({
+        where: { id: info.id },
+        data: { images: JSON.stringify([]) },
+      });
+    } catch {
+      // 忽略非法 JSON
+    }
+  }
+}
 
 /** 写入/补全便民业务演示数据（按标题去重，已有数据不覆盖） */
 export async function seedConvenience(prisma: PrismaClient) {
+  await cleanupLegacyMockMedia(prisma);
   const categoryCount = await prisma.convCategory.count();
   if (categoryCount === 0) {
     for (const cat of CATEGORY_SEED) {
@@ -60,13 +82,6 @@ export async function seedConvenience(prisma: PrismaClient) {
     }
   }
 
-  /** 修正旧 banner 路径 */
-  for (const [oldUrl, newUrl] of Object.entries(LEGACY_BANNER_FIX)) {
-    await prisma.convBanner.updateMany({
-      where: { imageUrl: oldUrl },
-      data: { imageUrl: newUrl },
-    });
-  }
 
   /** 轮播图：按 imageUrl 增量补全 */
   for (const banner of BANNER_SEED) {

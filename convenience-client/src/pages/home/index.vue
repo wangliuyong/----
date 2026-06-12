@@ -139,9 +139,7 @@
       </view>
     </view>
 
-    <!-- #ifndef MP-WEIXIN -->
     <AppTabBar page-path="pages/home/index" />
-    <!-- #endif -->
 
     <!-- 省市区选择弹层（页面根级，避免 hero 内 overflow 导致 H5 不可见） -->
     <RegionPickerPopup
@@ -214,18 +212,30 @@ function formatNoticeDate(iso?: string) {
   return `${d.getMonth() + 1}月${d.getDate()}日`;
 }
 
-/** 加载首页数据 */
+/** 加载首页数据（推荐列表与轮播/分类并行，避免被收藏接口 401 打断） */
 async function loadData() {
   loading.value = true;
 
+  const lat = locationStore.latitude;
+  const lng = locationStore.longitude;
+
   try {
-    const [bannerResult, noticeResult, categoryResult, collectedResult] =
-      await Promise.allSettled([
-        queryBannerList(),
-        queryNoticeList(),
-        queryCategoryTree(),
-        queryCollectedIds(),
-      ]);
+    const [
+      bannerResult,
+      noticeResult,
+      categoryResult,
+      collectedResult,
+      cityInfoResult,
+    ] = await Promise.allSettled([
+      queryBannerList(),
+      queryNoticeList(),
+      queryCategoryTree(),
+      queryCollectedIds(),
+      queryCityInfoList(
+        { page: 1, pageSize: 7, sortBy: 'latest' },
+        { lat, lng, collectedIds: [] },
+      ),
+    ]);
 
     if (bannerResult.status === 'fulfilled') {
       banners.value = bannerResult.value;
@@ -237,19 +247,17 @@ async function loadData() {
       categories.value = categoryResult.value;
     }
 
-    const collectedIds =
-      collectedResult.status === 'fulfilled' ? collectedResult.value : [];
-
-    const page = await queryCityInfoList(
-      { page: 1, pageSize: 7, sortBy: 'latest' },
-      {
-        lat: locationStore.latitude,
-        lng: locationStore.longitude,
-        collectedIds,
-      },
-    );
-    infoList.value = page.list;
-    totalInfoCount.value = page.total;
+    if (cityInfoResult.status === 'fulfilled') {
+      const collectedIds =
+        collectedResult.status === 'fulfilled' ? collectedResult.value : [];
+      infoList.value = cityInfoResult.value.list.map((item) => ({
+        ...item,
+        collected: collectedIds.includes(item.id),
+      }));
+      totalInfoCount.value = cityInfoResult.value.total;
+    } else {
+      uni.showToast({ title: '推荐加载失败，请检查网络', icon: 'none' });
+    }
   } catch {
     uni.showToast({ title: '推荐加载失败，请检查网络', icon: 'none' });
   } finally {

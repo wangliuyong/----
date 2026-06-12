@@ -3,9 +3,11 @@ import { onLaunch, onShow } from '@dcloudio/uni-app';
 import { useUserStore } from '@/stores/user';
 import { useLocationStore } from '@/stores/location';
 
-/** 隐藏原生 TabBar，改用 uview-plus 自定义底部导航（图标字体） */
+/** 隐藏微信/APP 原生 TabBar，各 Tab 页内挂载 uview AppTabBar */
 function hideNativeTabBar() {
+  // #ifdef MP-WEIXIN || APP-PLUS
   uni.hideTabBar({ animation: false, fail: () => { } });
+  // #endif
 }
 
 /** 应用启动时恢复登录态，并隐藏原生 TabBar */

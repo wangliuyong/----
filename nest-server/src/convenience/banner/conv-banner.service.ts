@@ -7,10 +7,10 @@ import type { AdminBannerPayloadDto } from '../admin/dto/conv-admin.dto';
 export class ConvBannerService {
   constructor(private readonly prisma: PrismaService) {}
 
-  /** 查询在线轮播图列表 */
+  /** 查询在线轮播图列表（排除无有效图片地址的记录） */
   async findOnlineList() {
     const list = await this.prisma.convBanner.findMany({
-      where: { online: true },
+      where: { online: true, imageUrl: { not: '' } },
       orderBy: { sort: 'asc' },
     });
     return list.map(serializeBanner);

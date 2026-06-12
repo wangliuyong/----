@@ -390,9 +390,11 @@ function onBack() {
   });
 }
 
-/** APP 端兜底：确保原生 TabBar 不露出 */
+/** 发布页隐藏原生 TabBar（小程序 / APP） */
 function hideNativeTabBar() {
+  // #ifdef MP-WEIXIN || APP-PLUS
   uni.hideTabBar({ animation: false, fail: () => { } });
+  // #endif
 }
 
 /** 滚动定位到第一个未填写的必填项 */

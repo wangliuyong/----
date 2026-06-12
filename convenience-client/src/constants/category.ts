@@ -1,6 +1,6 @@
 /**
  * 一级分类 UI 映射（图标 / 副文案）
- * 与 mockCategories 根节点 id 对应
+ * 与后端分类树一级节点 id 对应
  */
 export const CATEGORY_ROOT_ICON: Record<number, string> = {
   1: 'bag',

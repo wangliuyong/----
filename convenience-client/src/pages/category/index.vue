@@ -98,9 +98,7 @@
       </view>
     </view>
 
-    <!-- #ifndef MP-WEIXIN -->
     <AppTabBar page-path="pages/category/index" />
-    <!-- #endif -->
     </template>
   </view>
 </template>

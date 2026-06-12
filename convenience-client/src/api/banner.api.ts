@@ -5,5 +5,7 @@ import { resolveMediaUrl } from '@/utils/media';
 /** 查询首页轮播图（公开接口，无需登录） */
 export async function queryBannerList(): Promise<BannerItem[]> {
   const list = await request<BannerItem[]>('/banners', { auth: false });
-  return list.map((b) => ({ ...b, imageUrl: resolveMediaUrl(b.imageUrl) }));
+  return list
+    .map((b) => ({ ...b, imageUrl: resolveMediaUrl(b.imageUrl) }))
+    .filter((b) => b.imageUrl);
 }

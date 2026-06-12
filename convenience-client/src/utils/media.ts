@@ -1,3 +1,5 @@
+import { getApiBaseUrl } from '@/utils/api-base-url';
+
 /**
  * H5 子路径部署时（如 /convenience/），为 /static 资源补全应用 base
  * 小程序 / App 本地 static 目录无需前缀
@@ -35,7 +37,7 @@ export function resolveMediaUrl(url?: string | null): string {
     return resolveStaticAssetUrl(url);
   }
 
-  const apiBase = import.meta.env.VITE_API_BASE_URL || '/api';
+  const apiBase = getApiBaseUrl();
   const origin = apiBase.replace(/\/api\/?$/, '');
 
   if (url.startsWith('/api/')) {

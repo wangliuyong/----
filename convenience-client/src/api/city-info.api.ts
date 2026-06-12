@@ -28,7 +28,10 @@ export async function queryCityInfoList(
   query: CityInfoQuery,
   options?: { lat?: number; lng?: number; collectedIds?: number[] },
 ): Promise<PageResult<CityInfoItem>> {
-  const res = await request<PageResult<CityInfoItem>>('/city-info', { data: query });
+  const res = await request<PageResult<CityInfoItem>>('/city-info', {
+    data: query,
+    auth: false,
+  });
   let list = enrichList(res.list, options?.lat, options?.lng, options?.collectedIds ?? []);
 
   if (query.sortBy === 'distance') {
