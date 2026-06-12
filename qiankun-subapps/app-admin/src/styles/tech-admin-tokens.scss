@@ -1,0 +1,64 @@
+/**
+ * Tech Admin 设计 Token — 仅作用于 .app-admin 作用域
+ * 深色科技风：电光青强调 + 玻璃拟态面板
+ */
+.app-admin {
+  --ta-bg: #070b14;
+  --ta-bg-elevated: #0c1222;
+  --ta-bg-header: rgba(12, 18, 34, 0.88);
+  --ta-surface: rgba(15, 23, 42, 0.72);
+  --ta-surface-solid: #111827;
+  --ta-surface-hover: rgba(30, 41, 59, 0.85);
+
+  --ta-accent: #22d3ee;
+  --ta-accent-hover: #06b6d4;
+  --ta-accent-active: #0891b2;
+  --ta-accent-soft: rgba(34, 211, 238, 0.12);
+  --ta-accent-border: rgba(34, 211, 238, 0.28);
+  --ta-accent-glow: rgba(34, 211, 238, 0.35);
+
+  --ta-text: #e2e8f0;
+  --ta-muted: #94a3b8;
+  --ta-faint: #64748b;
+
+  --ta-line: rgba(148, 163, 184, 0.12);
+  --ta-line-strong: rgba(148, 163, 184, 0.22);
+  --ta-shadow: 0 24px 64px -32px rgba(0, 0, 0, 0.65);
+  --ta-shadow-glow: 0 0 40px -8px rgba(34, 211, 238, 0.25);
+
+  --ta-danger: #f87171;
+  --ta-success: #34d399;
+  --ta-warning: #fbbf24;
+
+  --ta-sider-bg: #050810;
+  --ta-sider-border: rgba(34, 211, 238, 0.08);
+
+  --ta-font: 'IBM Plex Sans', 'PingFang SC', 'Helvetica Neue', sans-serif;
+  --ta-font-mono: 'IBM Plex Mono', 'JetBrains Mono', 'Fira Code', monospace;
+
+  --ta-radius: 12px;
+  --ta-radius-sm: 8px;
+  --ta-radius-lg: 16px;
+
+  /* 覆盖共享 Token，使 Tailwind accent 类在后台生效 */
+  --ed-bg: var(--ta-bg);
+  --ed-bg-header: var(--ta-bg-header);
+  --ed-surface: var(--ta-surface);
+  --ed-surface-elevated: var(--ta-surface-solid);
+  --ed-text: var(--ta-text);
+  --ed-muted: var(--ta-muted);
+  --ed-faint: var(--ta-faint);
+  --ed-line: var(--ta-line);
+  --ed-shadow: var(--ta-shadow);
+  --ed-accent: var(--ta-accent);
+  --ed-accent-hover: var(--ta-accent-hover);
+  --ed-accent-soft: var(--ta-accent-soft);
+  --ed-accent-border: var(--ta-accent-border);
+  --ed-btn-bg: var(--ta-accent);
+  --ed-btn-fg: #041016;
+  --ed-btn-border: var(--ta-accent);
+
+  color: var(--ta-text);
+  font-family: var(--ta-font);
+  background: var(--ta-bg);
+}

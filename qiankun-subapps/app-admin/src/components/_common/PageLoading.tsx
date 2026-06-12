@@ -1,10 +1,10 @@
-import { Spin } from 'antd';
+import { UiSpin } from '../ui';
 
 /** 管理页首屏加载占位 */
 export default function PageLoading() {
   return (
-    <div style={{ textAlign: 'center', padding: 48 }}>
-      <Spin description="加载中..." />
+    <div className="page-loading">
+      <UiSpin description="加载中..." />
     </div>
   );
 }

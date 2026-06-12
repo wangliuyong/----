@@ -14,7 +14,7 @@ export interface LoginPageLayoutProps {
  */
 export default function LoginPageLayout({ children }: LoginPageLayoutProps) {
   return (
-    <div className="admin-login">
+    <div className="app-admin admin-login">
       <LoginHeroPanel />
       <LoginFormPanel>{children}</LoginFormPanel>
     </div>

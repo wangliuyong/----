@@ -26,6 +26,8 @@
     "dev:convenience:full": "concurrently -k -n api,client,admin -c blue,magenta,bgBlue \"pnpm run dev:api\" \"pnpm run dev:convenience:h5\" \"pnpm --dir qiankun-subapps/app-admin run dev:standalone\"",
     "build:convenience:h5": "pnpm --dir convenience-client run build:h5",
     "build:convenience:mp": "pnpm --dir convenience-client run build:mp-weixin",
+    "deploy:convenience": "bash docker/deploy.sh",
+    "deploy:convenience:mp": "pnpm --dir convenience-client run deploy:mp-weixin",
     "build:convenience:app": "pnpm --dir convenience-client run build:app",
     "build:convenience:android": "pnpm --dir convenience-client run android:pack:cloud",
     "build:api": "pnpm --dir nest-server run build",

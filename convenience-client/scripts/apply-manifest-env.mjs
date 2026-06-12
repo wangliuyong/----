@@ -20,6 +20,9 @@ const amapSecurityCode =
 const amapAndroid =
   process.env.VITE_AMAP_KEY_ANDROID || process.env.AMAP_KEY_ANDROID || '';
 const amapIos = process.env.VITE_AMAP_KEY_IOS || process.env.AMAP_KEY_IOS || '';
+/** 微信小程序 AppID（构建时写入 manifest.json → mp-weixin.appid） */
+const mpWeixinAppid =
+  process.env.VITE_MP_WEIXIN_APPID || process.env.MP_WEIXIN_APPID || '';
 /** H5 路由 base，生产部署为 /convenience/ */
 const h5Base = process.env.VITE_H5_BASE || process.env.H5_BASE || '';
 
@@ -43,6 +46,13 @@ text = text.replace(
   `$1${amapIos}$2`,
 );
 
+if (mpWeixinAppid) {
+  text = text.replace(
+    /("mp-weixin"\s*:\s*\{\s*"appid"\s*:\s*")[^"]*(")/,
+    `$1${mpWeixinAppid}$2`,
+  );
+}
+
 if (h5Base) {
   text = text.replace(/("base"\s*:\s*")[^"]*(")/, `$1${h5Base}$2`);
 }
@@ -54,5 +64,6 @@ console.log(
     `, amap.security=${amapSecurityCode ? 'set' : '(empty)'}` +
     `, amap.android=${amapAndroid ? `${amapAndroid.slice(0, 6)}***` : '(empty)'}` +
     `, amap.ios=${amapIos ? `${amapIos.slice(0, 6)}***` : '(empty)'}` +
+    `, mp.appid=${mpWeixinAppid ? `${mpWeixinAppid.slice(0, 6)}***` : '(empty)'}` +
     (h5Base ? `, h5.base=${h5Base}` : ''),
 );

@@ -1,5 +1,8 @@
 @use '../../_shared/styles/index';
+@use './styles/tech-admin-tokens';
+@use './styles/tech-admin-antd-overrides';
 @use './components/admin-page/admin-page';
+@use './components/ui/ui';
 
 html,
 body,
@@ -9,66 +12,68 @@ body,
   overflow: hidden;
 }
 
-/* 整页固定高度：侧栏 + 顶栏不随内容滚动，仅内容区滚动 */
+.page-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-height: 240px;
+}
+
+/* ── 主布局壳 ── */
 .admin-shell-root {
+  display: flex;
   height: 100vh;
   overflow: hidden;
 }
 
-.admin-shell-body {
+.admin-shell-sider {
+  flex-shrink: 0;
   display: flex;
   flex-direction: column;
-  min-width: 0;
   height: 100vh;
   overflow: hidden;
-}
+  background: var(--ta-sider-bg);
+  border-right: 1px solid var(--ta-sider-border);
+  transition: width 0.2s ease;
+  position: relative;
 
-.admin-shell-header {
-  flex-shrink: 0;
-  z-index: 10;
-}
-
-.admin-shell-content {
-  flex: 1;
-  min-height: 0;
-  padding: 24px;
-  overflow-x: hidden;
-  overflow-y: auto;
-  background: var(--ed-bg, #faf8f5);
-}
-
-/* 侧栏折叠过渡：隐藏溢出、固定 Logo 占位，减少 Menu 闪动 */
-.admin-shell-sider {
-  box-shadow: 2px 0 8px rgba(0, 0, 0, 0.08);
-  height: 100vh;
-  overflow: hidden;
-
-  .ant-layout-sider-children {
-    display: flex;
-    flex-direction: column;
+  &::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    right: 0;
+    width: 1px;
     height: 100%;
-    overflow: hidden;
+    background: linear-gradient(180deg, var(--ta-accent-glow), transparent 40%, transparent 60%, rgba(34, 211, 238, 0.08));
+    pointer-events: none;
   }
 
   &__brand {
     position: relative;
+    flex-shrink: 0;
     height: 56px;
-    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
-    color: #fff;
-    font-weight: 600;
-    font-size: 16px;
-    line-height: 56px;
-    text-align: center;
+    display: flex;
+    align-items: center;
+    justify-content: center;
     overflow: hidden;
+    border-bottom: 1px solid var(--ta-line);
+  }
+
+  &__brand-glow {
+    position: absolute;
+    inset: 0;
+    background: radial-gradient(circle at 30% 0%, rgba(34, 211, 238, 0.15), transparent 60%);
+    pointer-events: none;
   }
 
   &__brand-full,
   &__brand-mini {
     position: absolute;
-    inset: 0;
-    display: flex;
-    align-items: center;
-    justify-content: center;
+    font-size: 15px;
+    font-weight: 700;
+    letter-spacing: 0.12em;
+    text-transform: uppercase;
+    color: var(--ta-accent);
     transition: opacity 0.2s ease;
   }
 
@@ -78,9 +83,11 @@ body,
 
   &__brand-mini {
     opacity: 0;
+    font-size: 14px;
+    letter-spacing: 0.05em;
   }
 
-  &.ant-layout-sider-collapsed {
+  &--collapsed {
     .admin-shell-sider__brand-full {
       opacity: 0;
     }
@@ -91,18 +98,90 @@ body,
   }
 }
 
-.admin-shell-menu.ant-menu {
+.admin-shell-body {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  height: 100vh;
+  overflow: hidden;
+}
+
+.admin-shell-header {
+  flex-shrink: 0;
+  z-index: 10;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px;
+  height: 56px;
+  padding: 0 20px;
+  background: var(--ta-bg-header);
+  border-bottom: 1px solid var(--ta-line);
+  backdrop-filter: blur(12px);
+
+  &__left {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    min-width: 0;
+  }
+
+  &__titles {
+    min-width: 0;
+  }
+
+  &__page-title {
+    margin: 0;
+    font-size: 15px;
+    font-weight: 600;
+    color: var(--ta-text);
+    letter-spacing: -0.01em;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+
+  &__actions {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    flex-shrink: 0;
+  }
+
+  &__user {
+    font-size: 13px;
+    color: var(--ta-muted);
+    white-space: nowrap;
+  }
+}
+
+.admin-shell-content {
   flex: 1;
   min-height: 0;
+  padding: 20px;
   overflow-x: hidden;
   overflow-y: auto;
+  background: transparent;
+}
 
-  /* 折叠宽度动画期间关闭 padding/width 过渡，避免子菜单文字抖动 */
-  .ant-menu-submenu-title,
-  .ant-menu-item {
-    transition:
-      background 0.2s ease,
-      color 0.2s ease,
-      border-color 0.2s ease !important;
+@media (max-width: 767px) {
+  .admin-shell-header {
+    padding: 0 12px;
+
+    &__user {
+      display: none;
+    }
+  }
+
+  .admin-shell-content {
+    padding: 14px;
+  }
+}
+
+@media (prefers-reduced-transparency: reduce) {
+  .admin-shell-header {
+    backdrop-filter: none;
+    background: var(--ta-bg-elevated);
   }
 }
