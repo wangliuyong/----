@@ -11,6 +11,10 @@ node_modules
 .DS_Store
 dist
 *.local
+android/.cache
+android/offline-sdk
+android/output
+android/keystore/*.keystore
 
 # Editor directories and files
 .idea
