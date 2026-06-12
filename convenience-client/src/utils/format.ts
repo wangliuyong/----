@@ -53,3 +53,16 @@ export const REPORT_TYPE_LABEL: Record<string, string> = {
   ILLEGAL: '违法违规',
   OTHER: '其他',
 };
+
+/** 审核状态文案 */
+export const AUDIT_STATUS_LABEL: Record<string, string> = {
+  PENDING: '待审核',
+  APPROVED: '已通过',
+  REJECTED: '已拒绝',
+};
+
+/** 手机号脱敏展示 */
+export function formatPhoneMask(phone?: string): string {
+  if (!phone || phone.length < 7) return '';
+  return `${phone.slice(0, 3)}****${phone.slice(-4)}`;
+}

@@ -18,7 +18,7 @@
 <script setup lang="ts">
 import { computed, ref } from 'vue';
 import { onShow } from '@dcloudio/uni-app';
-import { AI_PAGE_PATH, TAB_BAR_ITEMS } from '@/constants/tabbar';
+import { AI_PAGE_PATH, isTabBarHiddenPath, isTabSwitchPath, normalizeRoute } from '@/constants/tabbar';
 
 /** AI 聊天页路由，在此页不展示悬浮入口 */
 const AI_PAGE_ROUTE = AI_PAGE_PATH;
@@ -41,12 +41,12 @@ function syncRouteState() {
   visible.value = currentRoute.value !== AI_PAGE_ROUTE;
 }
 
-/** 是否位于带 TabBar 的页面（AI 聊天页虽为 Tab 但会隐藏 TabBar） */
+/** 是否位于带 TabBar 的 switchTab 页面 */
 const hasTabBarOnPage = computed(() => {
-  const route = currentRoute.value;
+  const route = normalizeRoute(currentRoute.value);
   if (!route) return false;
-  if (route === AI_PAGE_ROUTE) return false;
-  return TAB_BAR_ITEMS.some((item) => item.pagePath === route);
+  if (isTabBarHiddenPath(route)) return false;
+  return isTabSwitchPath(route);
 });
 
 /** 最终是否让出 TabBar 高度：显式 prop 优先，否则自动推断 */

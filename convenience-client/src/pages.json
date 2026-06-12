@@ -128,10 +128,6 @@
         "text": "分类"
       },
       {
-        "pagePath": "pages/publish/index",
-        "text": "发布"
-      },
-      {
         "pagePath": "pages/ai/index",
         "text": "AI"
       },

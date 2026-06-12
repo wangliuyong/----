@@ -54,7 +54,7 @@
     </view>
 
     <!-- #ifndef MP-WEIXIN -->
-    <AppTabBar />
+    <AppTabBar page-path="pages/home/index" />
     <!-- #endif -->
   </view>
 </template>

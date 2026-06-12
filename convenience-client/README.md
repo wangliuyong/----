@@ -22,8 +22,17 @@ pnpm run dev:app       # APP
 
 | 变量 | 说明 |
 |------|------|
-| `VITE_USE_MOCK` | `true` 使用 Mock，`false` 请求真实后端 |
-| `VITE_API_BASE_URL` | API 基址，默认 `http://localhost:3002/api` |
+| `VITE_USE_MOCK` | 仅 **开发环境** 生效；`true` 使用 Mock。打包/App 云打包固定走真实接口 |
+| `VITE_API_BASE_URL` | API 基址 |
+| `.env.development` | 本地开发（默认 Mock + `http://localhost:3002/api`） |
+| `.env.production` | H5 生产构建（`/api` 同域反代） |
+| `.env.build` | **HBuilderX 云打包** 使用（须填手机可访问的完整 API 地址） |
+
+### App 打包对接真实后端
+
+1. 编辑 `.env.build`，将 `VITE_API_BASE_URL` 改为你 Nest 服务地址（如 `http://192.168.0.8:3002/api`，真机不能用 `localhost`）
+2. 重新云打包：`pnpm run android:pack:cloud`
+3. 开发阶段仍可在 `.env.development` 里用 `VITE_USE_MOCK=true` 调试
 
 ## Mock 账号
 

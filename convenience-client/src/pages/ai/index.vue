@@ -4,7 +4,7 @@
     <view class="page-ai__header">
       <view class="page-ai__header-glow" />
       <view class="page-ai__header-row">
-        <view class="page-ai__back" @click="goBack">
+        <view class="page-ai__back" hover-class="page-ai__back--pressed" @tap.stop="goBack">
           <u-icon name="arrow-left" color="rgba(255,255,255,0.92)" size="18" />
         </view>
         <view class="page-ai__brand">
@@ -72,8 +72,9 @@ import { ref, nextTick, onMounted } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { queryAiMessages, streamAiChat } from '@/api/ai.api';
 import AiMessageBubble from '@/components/AiMessageBubble/AiMessageBubble.vue';
-import { TAB_BAR_ITEMS } from '@/constants/tabbar';
+import { isTabBarPath } from '@/constants/tabbar';
 import { useTabBarPage } from '@/composables/useTabBarPage';
+import { useTabBarStore } from '@/stores/tabbar';
 import { useAiStore } from '@/stores/ai';
 import { useUserStore } from '@/stores/user';
 import type { AiMessageItem } from '@/types/city-info';
@@ -106,22 +107,43 @@ function goHistory() {
   uni.navigateTo({ url: '/pages/ai/history' });
 }
 
+/** 规范化页面路由，便于与 TabBar 配置比对 */
+function normalizeRoute(route?: string) {
+  return (route ?? '').replace(/^\//, '').split('?')[0];
+}
+
+/**
+ * 离开 AI 聊天并回到首页 Tab
+ * Tab 页之间 navigateBack 常只会刷新当前页，因此默认 switchTab；失败时 reLaunch 兜底
+ */
+function leaveToHomeTab() {
+  const tabBarStore = useTabBarStore();
+  tabBarStore.activeIndex = 0;
+  tabBarStore.tabBarHidden = false;
+  uni.switchTab({
+    url: '/pages/home/index',
+    fail: () => {
+      uni.reLaunch({ url: '/pages/home/index' });
+    },
+  });
+}
+
 /**
  * 离开 AI 聊天
- * AI 为 Tab 页，switchTab 进入时栈内无上一页，navigateBack 只会刷新当前页
- * 仅当上一页是次级页（如历史会话）时才 navigateBack，否则 switchTab 回首页
+ * 仅当上一页是次级页（如历史会话）时才 navigateBack，否则回首页 Tab
  */
 function goBack() {
   const pages = getCurrentPages();
   if (pages.length > 1) {
-    const prevRoute = pages[pages.length - 2]?.route ?? '';
-    const prevIsTab = TAB_BAR_ITEMS.some((item) => item.pagePath === prevRoute);
-    if (!prevIsTab) {
-      uni.navigateBack();
+    const prevRoute = normalizeRoute(pages[pages.length - 2]?.route);
+    if (prevRoute && !isTabBarPath(`/${prevRoute}`)) {
+      uni.navigateBack({
+        fail: () => leaveToHomeTab(),
+      });
       return;
     }
   }
-  uni.switchTab({ url: '/pages/home/index' });
+  leaveToHomeTab();
 }
 
 function useChip(text: string) {
@@ -254,6 +276,8 @@ $ai-composer-offset: calc(112rpx + env(safe-area-inset-bottom));
 }
 
 .page-ai__back {
+  position: relative;
+  z-index: 2;
   width: 64rpx;
   height: 64rpx;
   border-radius: 50%;
@@ -264,6 +288,11 @@ $ai-composer-offset: calc(112rpx + env(safe-area-inset-bottom));
   justify-content: center;
   flex-shrink: 0;
   @include cv-pressable;
+}
+
+.page-ai__back--pressed {
+  transform: scale(0.96);
+  opacity: 0.88;
 }
 
 .page-ai__brand {

@@ -102,6 +102,29 @@ export async function queryCityInfoDetail(id: number): Promise<CityInfoItem> {
   return request<CityInfoItem>(`/city-info/${id}`);
 }
 
+/** 查询我发布的便民信息（含待审核） */
+export async function queryMyCityInfoList(page = 1, pageSize = 10): Promise<PageResult<CityInfoItem>> {
+  if (useMock()) {
+    await mockDelay(200);
+    const userId = 1;
+    const list = [...mockState.cityInfoList]
+      .filter((item) => item.userId === userId)
+      .sort((a, b) => new Date(b.createdAt).getTime() - new Date(a.createdAt).getTime())
+      .map((item) => ({
+        ...item,
+        categoryName: item.categoryName || findCategoryName(item.categoryId),
+      }));
+    const start = (page - 1) * pageSize;
+    return {
+      list: list.slice(start, start + pageSize),
+      total: list.length,
+      page,
+      pageSize,
+    };
+  }
+  return request<PageResult<CityInfoItem>>('/city-info/mine', { data: { page, pageSize } });
+}
+
 /** 发布便民信息 */
 export async function postCityInfo(payload: CityInfoPayload): Promise<CityInfoItem> {
   if (useMock()) {
