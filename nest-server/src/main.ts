@@ -2,9 +2,10 @@ import { ValidationPipe } from '@nestjs/common';
 import { NestFactory } from '@nestjs/core';
 import { AppModule } from './app.module';
 import { AppLogService } from './logging/app-log.service';
+import { NestExpressApplication } from '@nestjs/platform-express';
 
 async function bootstrap() {
-  const app = await NestFactory.create(AppModule, { bufferLogs: true });
+  const app = await NestFactory.create<NestExpressApplication>(AppModule, { bufferLogs: true });
 
   /** 应用 error 日志写入 SQLite AppLog 表（info/warn 等仅控制台） */
   const appLog = app.get(AppLogService);
@@ -15,6 +16,7 @@ async function bootstrap() {
     'http://localhost:3000',
     'http://localhost:4001',
     'http://localhost:4007',
+    'http://localhost:5175',
   ];
   if (process.env.CORS_ORIGIN) {
     corsOrigins.push(process.env.CORS_ORIGIN);

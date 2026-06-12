@@ -1,4 +1,6 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
+import { JwtModule } from '@nestjs/jwt';
+import { ConvenienceModule } from '../convenience/convenience.module';
 import { RbacModule } from '../rbac/rbac.module';
 import { AdminAiController } from './admin-ai.controller';
 import { AiController } from './ai.controller';
@@ -13,7 +15,13 @@ import { AiVectorStoreService } from './services/ai-vector-store.service';
 
 /** AI 小助手模块：RAG 向量库 + LangChain Agent + 管理端同步 */
 @Module({
-  imports: [RbacModule],
+  imports: [
+    RbacModule,
+    forwardRef(() => ConvenienceModule),
+    JwtModule.register({
+      secret: process.env.JWT_SECRET || 'personal-site-dev-secret',
+    }),
+  ],
   controllers: [AiController, AdminAiController],
   providers: [
     AiConfigService,

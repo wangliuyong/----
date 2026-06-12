@@ -1,6 +1,4 @@
 import { request } from './client';
-import { mockDelay, mockUser } from '@/mock/data';
-import { useMock } from '@/utils/platform';
 import type {
   LoginResult,
   PhoneLoginPayload,
@@ -8,71 +6,52 @@ import type {
   UserProfile,
   WechatLoginPayload,
 } from '@/types/user';
+import { resolveMediaUrl } from '@/utils/media';
 
-/** Mock 登录结果 */
-function buildMockLogin(): LoginResult {
+/** 解析用户头像等媒体字段 */
+function normalizeUser(user: UserProfile): UserProfile {
   return {
-    accessToken: 'mock_jwt_token_' + Date.now(),
-    user: { ...mockUser },
+    ...user,
+    avatar: user.avatar ? resolveMediaUrl(user.avatar) : undefined,
   };
 }
 
 /** 微信 code 登录 */
 export async function postWechatLogin(payload: WechatLoginPayload): Promise<LoginResult> {
-  if (useMock()) {
-    await mockDelay();
-    return buildMockLogin();
-  }
-  return request<LoginResult>('/auth/wechat-login', {
+  const result = await request<LoginResult>('/auth/wechat-login', {
     method: 'POST',
     data: payload,
     auth: false,
   });
+  return { ...result, user: normalizeUser(result.user) };
 }
 
 /** 手机号密码登录 */
 export async function postPhoneLogin(payload: PhoneLoginPayload): Promise<LoginResult> {
-  if (useMock()) {
-    await mockDelay();
-    if (payload.phone === '13800138000' && payload.password === '123456') {
-      return buildMockLogin();
-    }
-    throw new Error('手机号或密码错误（Mock：13800138000 / 123456）');
-  }
-  return request<LoginResult>('/auth/phone-login', {
+  const result = await request<LoginResult>('/auth/phone-login', {
     method: 'POST',
     data: payload,
     auth: false,
   });
+  return { ...result, user: normalizeUser(result.user) };
 }
 
 /** 获取当前用户信息 */
 export async function queryProfile(): Promise<UserProfile> {
-  if (useMock()) {
-    await mockDelay(200);
-    return { ...mockUser };
-  }
-  return request<UserProfile>('/user/profile');
+  const user = await request<UserProfile>('/user/profile');
+  return normalizeUser(user);
 }
 
 /** 更新用户资料 */
 export async function postUpdateProfile(payload: UpdateProfilePayload): Promise<UserProfile> {
-  if (useMock()) {
-    await mockDelay();
-    Object.assign(mockUser, payload);
-    return { ...mockUser };
-  }
-  return request<UserProfile>('/user/profile', {
+  const user = await request<UserProfile>('/user/profile', {
     method: 'PUT',
     data: payload,
   });
+  return normalizeUser(user);
 }
 
 /** 退出登录 */
-export async function postLogout(): Promise<void> {
-  if (useMock()) {
-    await mockDelay(100);
-    return;
-  }
+export function postLogout(): Promise<void> {
   return request<void>('/auth/logout', { method: 'POST' });
 }

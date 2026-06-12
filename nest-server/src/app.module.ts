@@ -12,6 +12,7 @@ import { PrismaModule } from './prisma/prisma.module';
 import { ProjectModule } from './project/project.module';
 import { RbacModule } from './rbac/rbac.module';
 import { SiteModule } from './site/site.module';
+import { ConvenienceModule } from './convenience/convenience.module';
 
 @Module({
   imports: [
@@ -27,6 +28,7 @@ import { SiteModule } from './site/site.module';
     ProjectModule,
     MessageModule,
     LinkModule,
+    ConvenienceModule,
     AiModule,
   ],
 })

@@ -150,10 +150,11 @@ function onBack() {
   uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/mine/index' }) });
 }
 
+/** 登录成功后跳转首页 Tab */
 function onLoginSuccess() {
   uni.showToast({ title: '登录成功', icon: 'success' });
   setTimeout(() => {
-    uni.navigateBack({ fail: () => uni.switchTab({ url: '/pages/mine/index' }) });
+    uni.switchTab({ url: '/pages/home/index' });
   }, 500);
 }
 

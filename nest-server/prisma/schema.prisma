@@ -200,6 +200,151 @@ model AiChatMessage {
   @@index([createdAt])
 }
 
+// ─── 同城便民 C 端业务 ─────────────────────────────────────────
+
+/** C 端用户（微信小程序 / 手机号登录） */
+model ConvUser {
+  id         Int             @id @default(autoincrement())
+  openId     String?         @unique
+  phone      String?         @unique
+  password   String?
+  nickname   String
+  avatar     String?
+  /** USER | MERCHANT | ADMIN */
+  userType   String          @default("USER")
+  /** ACTIVE | DISABLED */
+  status     String          @default("ACTIVE")
+  realName   String?
+  createdAt  DateTime        @default(now())
+  cityInfos  ConvCityInfo[]
+  collects   ConvCollect[]
+  reports    ConvReport[]
+  aiSessions ConvAiSession[]
+  images     ConvImage[]
+}
+
+/** 用户上传图片（二进制存库，不落地磁盘） */
+model ConvImage {
+  id        Int      @id @default(autoincrement())
+  userId    Int
+  user      ConvUser @relation(fields: [userId], references: [id], onDelete: Cascade)
+  mimeType  String
+  /** 图片二进制数据 */
+  data      Bytes
+  size      Int
+  createdAt DateTime @default(now())
+
+  @@index([userId])
+}
+
+/** 便民分类（支持固定 ID 种子数据） */
+model ConvCategory {
+  id        Int            @id
+  parentId  Int?
+  name      String
+  sort      Int            @default(0)
+  enabled   Boolean        @default(true)
+  parent    ConvCategory?  @relation("ConvCategoryTree", fields: [parentId], references: [id])
+  children  ConvCategory[] @relation("ConvCategoryTree")
+  cityInfos ConvCityInfo[]
+}
+
+/** 首页轮播图 */
+model ConvBanner {
+  id       Int     @id @default(autoincrement())
+  imageUrl String
+  linkUrl  String?
+  sort     Int     @default(0)
+  online   Boolean @default(true)
+}
+
+/** 平台公告 */
+model ConvNotice {
+  id        Int      @id @default(autoincrement())
+  title     String
+  content   String
+  published Boolean  @default(true)
+  createdAt DateTime @default(now())
+}
+
+/** 便民信息 */
+model ConvCityInfo {
+  id           Int            @id @default(autoincrement())
+  userId       Int
+  user         ConvUser       @relation(fields: [userId], references: [id])
+  categoryId   Int
+  category     ConvCategory   @relation(fields: [categoryId], references: [id])
+  title        String
+  content      String
+  price        Float?
+  address      String?
+  latitude     Float?
+  longitude    Float?
+  /** JSON 字符串数组 */
+  images       String         @default("[]")
+  /** PENDING | APPROVED | REJECTED */
+  auditStatus  String         @default("PENDING")
+  viewCount    Int            @default(0)
+  collectCount Int            @default(0)
+  createdAt    DateTime       @default(now())
+  collects     ConvCollect[]
+  reports      ConvReport[]
+
+  @@index([categoryId])
+  @@index([userId])
+  @@index([auditStatus])
+  @@index([createdAt])
+}
+
+/** 用户收藏 */
+model ConvCollect {
+  id        Int          @id @default(autoincrement())
+  userId    Int
+  user      ConvUser     @relation(fields: [userId], references: [id])
+  infoId    Int
+  info      ConvCityInfo @relation(fields: [infoId], references: [id], onDelete: Cascade)
+  createdAt DateTime     @default(now())
+
+  @@unique([userId, infoId])
+  @@index([userId])
+}
+
+/** 信息举报 */
+model ConvReport {
+  id         Int          @id @default(autoincrement())
+  userId     Int
+  user       ConvUser     @relation(fields: [userId], references: [id])
+  infoId     Int
+  info       ConvCityInfo @relation(fields: [infoId], references: [id])
+  /** SPAM | FRAUD | ILLEGAL | OTHER */
+  reportType String
+  content    String
+  createdAt  DateTime     @default(now())
+}
+
+/** 便民 AI 会话 */
+model ConvAiSession {
+  id        Int             @id @default(autoincrement())
+  userId    Int
+  user      ConvUser        @relation(fields: [userId], references: [id])
+  title     String
+  createdAt DateTime        @default(now())
+  messages  ConvAiMessage[]
+}
+
+/** 便民 AI 消息 */
+model ConvAiMessage {
+  id        Int           @id @default(autoincrement())
+  sessionId Int
+  session   ConvAiSession @relation(fields: [sessionId], references: [id], onDelete: Cascade)
+  /** user | assistant */
+  role      String
+  content   String
+  createdAt DateTime      @default(now())
+
+  @@index([sessionId])
+}
+
 /** 前台页面访问记录（仅 app-web 子应用路径，供管理端统计） */
 model SitePageView {
   id        Int      @id @default(autoincrement())
