@@ -60,7 +60,8 @@
     {
       "path": "pages/info/detail",
       "style": {
-        "navigationBarTitleText": "信息详情"
+        "navigationBarTitleText": "信息详情",
+        "navigationStyle": "custom"
       }
     },
     {
