@@ -76,7 +76,7 @@ export default function DashboardVisitRecordsPanel({ records }: DashboardVisitRe
     <Card
       title={
         <span>
-          <GlobalOutlined aria-hidden style={{ marginRight: 8, color: 'var(--ta-accent)' }} />
+          <GlobalOutlined aria-hidden style={{ marginRight: 8, color: '#9a3412' }} />
           访问记录
         </span>
       }

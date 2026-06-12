@@ -3,7 +3,7 @@ import AdminStatGrid from './AdminStatGrid';
 
 /**
  * 后台页面统一外壳：Hero 标题区 + 统计指标 + 内容区
- * 对齐 Tech Admin 设计语言，提升信息层次与可读性
+ * 对齐 Ink & Sand 设计语言，提升信息层次与可读性
  */
 export default function AdminPageShell({
   title,

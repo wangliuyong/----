@@ -1,6 +1,6 @@
 @use '../../../../_shared/styles/tokens' as t;
 
-/* ── 后台页面通用布局（Tech Admin） ── */
+/* ── 后台页面通用布局 ── */
 .admin-page {
   display: flex;
   flex-direction: column;
@@ -8,38 +8,19 @@
   min-width: 0;
 }
 
-/* Hero：渐变玻璃标题区 */
+/* Hero：与 dashboard 一致的暖色渐变标题区 */
 .admin-page__hero {
   display: flex;
   flex-wrap: wrap;
   align-items: flex-end;
   justify-content: space-between;
   gap: 16px;
-  padding: 20px 24px;
-  border-radius: var(--ta-radius);
+  padding: 18px 22px;
+  border-radius: 2px;
   background:
-    linear-gradient(135deg, rgba(34, 211, 238, 0.1) 0%, rgba(15, 23, 42, 0.85) 45%, rgba(8, 13, 24, 0.95) 100%);
-  border: 1px solid var(--ta-line-strong);
-  box-shadow: var(--ta-shadow);
-  position: relative;
-  overflow: hidden;
-
-  &::before {
-    content: '';
-    position: absolute;
-    top: -40%;
-    right: -10%;
-    width: 240px;
-    height: 240px;
-    border-radius: 50%;
-    background: radial-gradient(circle, rgba(34, 211, 238, 0.12), transparent 70%);
-    pointer-events: none;
-  }
-}
-
-.admin-page__hero-copy {
-  position: relative;
-  z-index: 1;
+    linear-gradient(135deg, rgba(154, 52, 18, 0.07) 0%, rgba(250, 248, 245, 0.92) 48%, #fff 100%);
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  box-shadow: 0 20px 44px -34px rgba(20, 20, 20, 0.22);
 }
 
 .admin-page__title {
@@ -48,20 +29,18 @@
   font-weight: 600;
   line-height: 1.25;
   letter-spacing: -0.02em;
-  color: var(--ta-text);
+  color: #141414;
 }
 
 .admin-page__description {
-  margin: 8px 0 0;
+  margin: 6px 0 0;
   max-width: 56ch;
   font-size: 14px;
   line-height: 1.55;
-  color: var(--ta-muted);
+  color: #78716c;
 }
 
 .admin-page__hero-actions {
-  position: relative;
-  z-index: 1;
   display: flex;
   flex-wrap: wrap;
   align-items: center;
@@ -75,28 +54,27 @@
   min-width: 0;
 }
 
-/* ── 统计指标网格 ── */
+/* ── 统计指标卡片 ── */
 .admin-stat-grid {
-  display: grid;
-  grid-template-columns: repeat(auto-fit, minmax(160px, 1fr));
-  gap: 12px;
+  margin: 0;
 }
 
 .admin-stat-card {
   display: flex;
   align-items: flex-start;
   gap: 12px;
-  padding: 16px 18px;
-  background: var(--ta-surface-solid);
-  border: 1px solid var(--ta-line);
-  border-radius: var(--ta-radius);
-  box-shadow: var(--ta-shadow);
+  height: 100%;
+  padding: 14px 16px;
+  background: #fff;
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 2px;
+  box-shadow: 0 12px 32px -28px rgba(20, 20, 20, 0.18);
   transition: border-color 0.2s ease, box-shadow 0.2s ease;
 }
 
 .admin-stat-card:hover {
-  border-color: var(--ta-accent-border);
-  box-shadow: var(--ta-shadow), var(--ta-shadow-glow);
+  border-color: rgba(154, 52, 18, 0.14);
+  box-shadow: 0 16px 36px -28px rgba(20, 20, 20, 0.22);
 }
 
 .admin-stat-card__icon {
@@ -104,13 +82,12 @@
   align-items: center;
   justify-content: center;
   flex-shrink: 0;
-  width: 40px;
-  height: 40px;
+  width: 36px;
+  height: 36px;
   font-size: 18px;
-  color: var(--ta-accent);
-  background: var(--ta-accent-soft);
-  border-radius: var(--ta-radius-sm);
-  border: 1px solid var(--ta-accent-border);
+  color: #9a3412;
+  background: rgba(154, 52, 18, 0.08);
+  border-radius: 2px;
 }
 
 .admin-stat-card__body {
@@ -123,94 +100,86 @@
 .admin-stat-card__label {
   font-size: 12px;
   line-height: 1.4;
-  color: var(--ta-muted);
+  color: #78716c;
 }
 
 .admin-stat-card__value {
-  font-family: var(--ta-font-mono);
   font-size: 24px;
   font-weight: 600;
   line-height: 1.2;
   letter-spacing: -0.02em;
-  color: var(--ta-text);
+  color: #141414;
   font-variant-numeric: tabular-nums;
 }
 
 .admin-stat-card__hint {
   font-size: 11px;
   line-height: 1.35;
-  color: var(--ta-faint);
+  color: #a8a29e;
 }
 
-.admin-stat-card--warning .admin-stat-card__value,
+.admin-stat-card--warning .admin-stat-card__value {
+  color: #b45309;
+}
+
 .admin-stat-card--warning .admin-stat-card__icon {
-  color: var(--ta-warning);
+  color: #b45309;
+  background: rgba(180, 83, 9, 0.1);
 }
 
-.admin-stat-card--warning .admin-stat-card__icon {
-  background: rgba(251, 191, 36, 0.12);
-  border-color: rgba(251, 191, 36, 0.28);
-}
-
-.admin-stat-card--success .admin-stat-card__value,
-.admin-stat-card--success .admin-stat-card__icon {
-  color: var(--ta-success);
+.admin-stat-card--success .admin-stat-card__value {
+  color: #15803d;
 }
 
 .admin-stat-card--success .admin-stat-card__icon {
-  background: rgba(52, 211, 153, 0.12);
-  border-color: rgba(52, 211, 153, 0.28);
+  color: #15803d;
+  background: rgba(21, 128, 61, 0.1);
 }
 
-.admin-stat-card--danger .admin-stat-card__value,
-.admin-stat-card--danger .admin-stat-card__icon {
-  color: var(--ta-danger);
+.admin-stat-card--danger .admin-stat-card__value {
+  color: #b91c1c;
 }
 
 .admin-stat-card--danger .admin-stat-card__icon {
-  background: rgba(248, 113, 113, 0.12);
-  border-color: rgba(248, 113, 113, 0.28);
+  color: #b91c1c;
+  background: rgba(185, 28, 28, 0.1);
 }
 
 .admin-stat-card--primary .admin-stat-card__value {
-  color: var(--ta-accent);
+  color: #9a3412;
 }
 
 /* ── 内容区卡片 ── */
-.admin-section-card {
-  border: 1px solid var(--ta-line);
-  border-radius: var(--ta-radius);
-  background: var(--ta-surface-solid);
-  box-shadow: var(--ta-shadow);
-  overflow: hidden;
+.admin-section-card.ant-card {
+  border: 1px solid rgba(20, 20, 20, 0.06);
+  border-radius: 2px;
+  box-shadow: 0 16px 40px -32px rgba(20, 20, 20, 0.16);
 }
 
-.admin-section-card__head {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  gap: 12px;
+.admin-section-card.ant-card .ant-card-head {
   min-height: 48px;
   padding: 0 20px;
-  border-bottom: 1px solid var(--ta-line);
+  border-bottom: 1px solid rgba(20, 20, 20, 0.06);
 }
 
-.admin-section-card__title {
-  margin: 0;
+.admin-section-card.ant-card .ant-card-head-title {
   font-size: 15px;
   font-weight: 600;
-  color: var(--ta-text);
 }
 
-.admin-section-card__body {
+.admin-section-card.ant-card .ant-card-body {
   padding: 20px;
 }
 
-.admin-section-card--flush .admin-section-card__body {
+.admin-section-card--flush.ant-card .ant-card-body {
   padding: 0;
 }
 
-/* ── 筛选工具条 ── */
+.admin-section-card--flush.ant-card .ant-table-wrapper {
+  border-radius: 0 0 2px 2px;
+}
+
+/* ── 筛选工具条（FilterForm 容器） ── */
 .admin-filter-bar {
   display: flex;
   flex-wrap: wrap;
@@ -218,19 +187,45 @@
   gap: 12px 16px;
   margin-bottom: 16px;
   padding: 14px 16px;
-  background: rgba(8, 13, 24, 0.65);
-  border-bottom: 1px solid var(--ta-line);
+  background: rgba(250, 248, 245, 0.65);
+  border: 1px solid rgba(20, 20, 20, 0.05);
+  border-radius: 2px;
 }
 
-/* ── 数据表格（自定义 UiTable + Ant Design 过渡） ── */
-.admin-data-table.ui-table-wrap,
+.admin-filter-bar .ant-form-item {
+  margin-bottom: 0;
+}
+
+/* ── 数据表格增强 ── */
 .admin-data-table.ant-table-wrapper {
-  .ant-table-thead > tr > th {
-    font-family: var(--ta-font-mono);
-    font-size: 10px;
-    letter-spacing: 0.08em;
-    text-transform: uppercase;
+  .ant-table {
+    font-size: 13px;
   }
+
+  .ant-table-thead > tr > th {
+    font-weight: 600;
+    font-size: 12px;
+    color: #57534e;
+    background: rgba(250, 248, 245, 0.85) !important;
+    border-bottom: 1px solid rgba(20, 20, 20, 0.08);
+  }
+
+  .ant-table-tbody > tr > td {
+    border-bottom: 1px solid rgba(20, 20, 20, 0.05);
+  }
+
+  .ant-table-tbody > tr:hover > td {
+    background: rgba(154, 52, 18, 0.03) !important;
+  }
+
+  .ant-pagination {
+    margin: 16px 20px !important;
+  }
+}
+
+/* 表格贴边模式下的分页内边距 */
+.admin-section-card--flush .admin-data-table.ant-table-wrapper .ant-pagination {
+  padding: 0 4px;
 }
 
 /* ── 批量操作条 ── */
@@ -241,24 +236,39 @@
   gap: 12px;
   margin-bottom: 12px;
   padding: 10px 14px;
-  background: var(--ta-accent-soft);
-  border: 1px solid var(--ta-accent-border);
-  border-radius: var(--ta-radius-sm);
+  background: rgba(154, 52, 18, 0.05);
+  border: 1px solid rgba(154, 52, 18, 0.12);
+  border-radius: 2px;
 }
 
 .admin-batch-bar__count {
   font-size: 13px;
-  color: var(--ta-muted);
+  color: #57534e;
 }
 
 .admin-batch-bar__count strong {
-  color: var(--ta-accent);
+  color: #9a3412;
   font-weight: 600;
+}
+
+/* ── 顶栏页面标题增强 ── */
+.admin-shell-header__page-title {
+  margin: 0 !important;
+  font-size: 15px !important;
+  font-weight: 600 !important;
+  color: #141414 !important;
+  letter-spacing: -0.01em;
+}
+
+.admin-shell-header__breadcrumb {
+  font-size: 12px;
+  color: #a8a29e;
+  line-height: 1.2;
 }
 
 @media (max-width: 767px) {
   .admin-page__hero {
-    padding: 16px 18px;
+    padding: 14px 16px;
   }
 
   .admin-page__title {
@@ -267,11 +277,5 @@
 
   .admin-stat-card__value {
     font-size: 20px;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .admin-stat-card {
-    transition: none;
   }
 }

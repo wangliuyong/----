@@ -13,10 +13,7 @@
       <text class="page-publish__desc">真实、清晰的信息更容易被同城用户看到</text>
       <view class="page-publish__progress">
         <view class="page-publish__progress-track">
-          <view
-            class="page-publish__progress-fill"
-            :style="{ width: `${completionPercent}%` }"
-          />
+          <view class="page-publish__progress-fill" :style="{ width: `${completionPercent}%` }" />
         </view>
         <text class="page-publish__progress-label">必填 {{ completionCount }}/3</text>
       </view>
@@ -39,233 +36,160 @@
       </template>
 
       <template v-else>
-      <!-- 区块 1：分类 -->
-      <view
-        id="publish-field-category"
-        class="page-publish__section cv-card"
-        :class="{ 'page-publish__section--error': errors.categoryId }"
-      >
-        <view class="page-publish__section-head">
-          <view
-            class="page-publish__section-badge"
-            :class="{ 'page-publish__section-badge--error': errors.categoryId }"
-          >
-            1
-          </view>
-          <view class="page-publish__section-meta">
-            <text
-              class="page-publish__section-title"
-              :class="{ 'page-publish__section-title--error': errors.categoryId }"
-            >
-              选择分类<text class="page-publish__required">*</text>
+        <!-- 区块 1：分类 -->
+        <view id="publish-field-category" class="page-publish__section cv-card"
+          :class="{ 'page-publish__section--error': errors.categoryId }">
+          <view class="page-publish__section-head">
+            <view class="page-publish__section-badge"
+              :class="{ 'page-publish__section-badge--error': errors.categoryId }">
+              1
+            </view>
+            <view class="page-publish__section-meta">
+              <text class="page-publish__section-title"
+                :class="{ 'page-publish__section-title--error': errors.categoryId }">
+                选择分类<text class="page-publish__required">*</text>
+              </text>
+              <text class="page-publish__section-sub">先选大类，再点具体类型</text>
+            </view>
+            <text v-if="errors.categoryId" class="page-publish__section-tip page-publish__section-tip--warn">
+              请选择
             </text>
-            <text class="page-publish__section-sub">先选大类，再点具体类型</text>
           </view>
-          <text v-if="errors.categoryId" class="page-publish__section-tip page-publish__section-tip--warn">
-            请选择
+
+          <!-- 一级分类：静态换行，不参与滚动 -->
+          <CategoryRootStrip :list="categories" :active-id="activeRootId" layout="wrap" :show-hint="false"
+            :class="{ 'page-publish__category-strip--error': errors.categoryId }" @select="onSelectRootItem" />
+
+          <!-- 二级分类：本页唯一横向滚动区 -->
+          <scroll-view v-if="activeChildren.length" scroll-x enable-flex class="page-publish__chips-scroll"
+            :show-scrollbar="false">
+            <view class="page-publish__chips">
+              <view v-for="child in activeChildren" :key="child.id" class="page-publish__chip"
+                :class="{ 'page-publish__chip--active': form.categoryId === child.id }"
+                @click="onSelectCategory(child.id)">
+                {{ child.name }}
+              </view>
+            </view>
+          </scroll-view>
+
+          <text v-if="errors.categoryId" class="page-publish__field-error page-publish__field-error--block">
+            请选择具体分类后再提交
           </text>
-        </view>
 
-        <!-- 一级分类：静态换行，不参与滚动 -->
-        <CategoryRootStrip
-          :list="categories"
-          :active-id="activeRootId"
-          layout="wrap"
-          :show-hint="false"
-          :class="{ 'page-publish__category-strip--error': errors.categoryId }"
-          @select="onSelectRootItem"
-        />
-
-        <!-- 二级分类：本页唯一横向滚动区 -->
-        <scroll-view
-          v-if="activeChildren.length"
-          scroll-x
-          enable-flex
-          class="page-publish__chips-scroll"
-          :show-scrollbar="false"
-        >
-          <view class="page-publish__chips">
-            <view
-              v-for="child in activeChildren"
-              :key="child.id"
-              class="page-publish__chip"
-              :class="{ 'page-publish__chip--active': form.categoryId === child.id }"
-              @click="onSelectCategory(child.id)"
-            >
-              {{ child.name }}
+          <view v-if="categoryLabel" class="page-publish__picked">
+            <view class="page-publish__picked-icon">
+              <u-icon name="checkmark-circle-fill" color="#1d4ed8" size="16" />
+            </view>
+            <view class="page-publish__picked-text">
+              <text class="page-publish__picked-label">已选分类</text>
+              <text class="page-publish__picked-value">{{ categoryLabel }}</text>
             </view>
           </view>
-        </scroll-view>
-
-        <text v-if="errors.categoryId" class="page-publish__field-error page-publish__field-error--block">
-          请选择具体分类后再提交
-        </text>
-
-        <view v-if="categoryLabel" class="page-publish__picked">
-          <view class="page-publish__picked-icon">
-            <u-icon name="checkmark-circle-fill" color="#1d4ed8" size="16" />
-          </view>
-          <view class="page-publish__picked-text">
-            <text class="page-publish__picked-label">已选分类</text>
-            <text class="page-publish__picked-value">{{ categoryLabel }}</text>
-          </view>
-        </view>
-      </view>
-
-      <!-- 区块 2：标题与详情 -->
-      <view
-        id="publish-field-title"
-        class="page-publish__section cv-card"
-        :class="{ 'page-publish__section--error': errors.title || errors.content }"
-      >
-        <view class="page-publish__section-head">
-          <view class="page-publish__section-badge">2</view>
-          <view class="page-publish__section-meta">
-            <text class="page-publish__section-title">标题与详情</text>
-            <text class="page-publish__section-sub">一句话概括，详情写清楚关键信息</text>
-          </view>
         </view>
 
-        <view class="page-publish__field">
-          <view class="page-publish__field-head">
-            <text
-              class="page-publish__field-label"
-              :class="{ 'page-publish__field-label--error': errors.title }"
-            >
-              标题<text class="page-publish__required">*</text>
-            </text>
-            <text class="page-publish__field-count">{{ form.title.length }}/50</text>
-          </view>
-          <view
-            class="page-publish__input-wrap"
-            :class="{ 'page-publish__input-wrap--error': errors.title }"
-          >
-            <u-input
-              v-model="form.title"
-              placeholder="例如：九成新 iPad，配件齐全"
-              maxlength="50"
-              border="none"
-              :custom-style="inputStyle"
-              @blur="touchField('title')"
-            />
-          </view>
-          <text v-if="errors.title" class="page-publish__field-error">请填写标题</text>
-        </view>
-
-        <view id="publish-field-content" class="page-publish__field page-publish__field--last">
-          <view class="page-publish__field-head">
-            <text
-              class="page-publish__field-label"
-              :class="{ 'page-publish__field-label--error': errors.content }"
-            >
-              详情描述<text class="page-publish__required">*</text>
-            </text>
-            <text class="page-publish__field-count">{{ form.content.length }}/500</text>
-          </view>
-          <view
-            class="page-publish__textarea-wrap"
-            :class="{ 'page-publish__textarea-wrap--error': errors.content }"
-          >
-            <u-textarea
-              v-model="form.content"
-              placeholder="描述成色、时间、联系方式等，信息越完整越容易成交"
-              maxlength="500"
-              height="220rpx"
-              border="none"
-              :custom-style="textareaStyle"
-              @blur="touchField('content')"
-            />
-          </view>
-          <text v-if="errors.content" class="page-publish__field-error">请填写详情</text>
-        </view>
-      </view>
-
-      <!-- 区块 3：价格与地址 -->
-      <view class="page-publish__section cv-card">
-        <view class="page-publish__section-head">
-          <view class="page-publish__section-badge page-publish__section-badge--muted">3</view>
-          <view class="page-publish__section-meta">
-            <text class="page-publish__section-title">价格与位置</text>
-            <text class="page-publish__section-sub">选填，有助于同城用户快速判断</text>
-          </view>
-        </view>
-
-        <view class="page-publish__field">
-          <text class="page-publish__field-label">价格（元）</text>
-          <view class="page-publish__input-wrap page-publish__input-wrap--price">
-            <text class="page-publish__currency">¥</text>
-            <u-input
-              v-model="form.price"
-              type="digit"
-              placeholder="留空表示面议"
-              border="none"
-              :custom-style="inputStyle"
-            />
-          </view>
-        </view>
-
-        <view class="page-publish__field page-publish__field--last">
-          <view class="page-publish__field-head">
-            <text class="page-publish__field-label">地址</text>
-            <view class="page-publish__loc-btn" @click="onPickLocation">
-              <u-icon name="map-fill" color="#1d4ed8" size="13" />
-              <text>地图选点</text>
+        <!-- 区块 2：标题与详情 -->
+        <view id="publish-field-title" class="page-publish__section cv-card"
+          :class="{ 'page-publish__section--error': errors.title || errors.content }">
+          <view class="page-publish__section-head">
+            <view class="page-publish__section-badge">2</view>
+            <view class="page-publish__section-meta">
+              <text class="page-publish__section-title">标题与详情</text>
+              <text class="page-publish__section-sub">一句话概括，详情写清楚关键信息</text>
             </view>
           </view>
-          <view class="page-publish__input-wrap">
-            <u-input
-              v-model="form.address"
-              placeholder="小区、街道或地标，便于附近的人找到"
-              border="none"
-              :custom-style="inputStyle"
-            />
+
+          <view class="page-publish__field">
+            <view class="page-publish__field-head">
+              <text class="page-publish__field-label" :class="{ 'page-publish__field-label--error': errors.title }">
+                标题<text class="page-publish__required">*</text>
+              </text>
+              <text class="page-publish__field-count">{{ form.title.length }}/50</text>
+            </view>
+            <view class="page-publish__input-wrap" :class="{ 'page-publish__input-wrap--error': errors.title }">
+              <u-input v-model="form.title" placeholder="例如：九成新 iPad，配件齐全" maxlength="50" border="none"
+                :custom-style="inputStyle" @blur="touchField('title')" />
+            </view>
+            <text v-if="errors.title" class="page-publish__field-error">请填写标题</text>
+          </view>
+
+          <view id="publish-field-content" class="page-publish__field page-publish__field--last">
+            <view class="page-publish__field-head">
+              <text class="page-publish__field-label" :class="{ 'page-publish__field-label--error': errors.content }">
+                详情描述<text class="page-publish__required">*</text>
+              </text>
+              <text class="page-publish__field-count">{{ form.content.length }}/500</text>
+            </view>
+            <view class="page-publish__textarea-wrap" :class="{ 'page-publish__textarea-wrap--error': errors.content }">
+              <u-textarea v-model="form.content" placeholder="描述成色、时间、联系方式等，信息越完整越容易成交" maxlength="500" height="220rpx"
+                border="none" :custom-style="textareaStyle" @blur="touchField('content')" />
+            </view>
+            <text v-if="errors.content" class="page-publish__field-error">请填写详情</text>
           </view>
         </view>
-      </view>
 
-      <!-- 区块 4：图片 -->
-      <view class="page-publish__section cv-card">
-        <view class="page-publish__section-head">
-          <view class="page-publish__section-badge page-publish__section-badge--muted">4</view>
-          <view class="page-publish__section-meta">
-            <text class="page-publish__section-title">添加图片</text>
-            <text class="page-publish__section-sub">最多 6 张，校验通过后提交时上传</text>
+        <!-- 区块 3：价格与地址 -->
+        <view class="page-publish__section cv-card">
+          <view class="page-publish__section-head">
+            <view class="page-publish__section-badge page-publish__section-badge--muted">3</view>
+            <view class="page-publish__section-meta">
+              <text class="page-publish__section-title">价格与位置</text>
+              <text class="page-publish__section-sub">选填，有助于同城用户快速判断</text>
+            </view>
+          </view>
+
+          <view class="page-publish__field">
+            <text class="page-publish__field-label">价格（元）</text>
+            <view class="page-publish__input-wrap page-publish__input-wrap--price">
+              <text class="page-publish__currency">¥</text>
+              <u-input v-model="form.price" type="digit" placeholder="留空表示面议" border="none"
+                :custom-style="inputStyle" />
+            </view>
+          </view>
+
+          <view class="page-publish__field page-publish__field--last">
+            <view class="page-publish__field-head">
+              <text class="page-publish__field-label">地址</text>
+              <view class="page-publish__loc-btn" @click="onPickLocation">
+                <u-icon name="map-fill" color="#1d4ed8" size="13" />
+                <text>地图选点</text>
+              </view>
+            </view>
+            <view class="page-publish__input-wrap">
+              <u-input v-model="form.address" placeholder="小区、街道或地标，便于附近的人找到" border="none"
+                :custom-style="inputStyle" />
+            </view>
           </view>
         </view>
 
-        <view class="page-publish__upload">
-          <u-upload
-            :file-list="fileList"
-            name="image"
-            multiple
-            :max-count="6"
-            width="152rpx"
-            height="152rpx"
-            @after-read="onAfterRead"
-            @delete="onDelete"
-          />
-        </view>
-      </view>
+        <!-- 区块 4：图片 -->
+        <view class="page-publish__section cv-card">
+          <view class="page-publish__section-head">
+            <view class="page-publish__section-badge page-publish__section-badge--muted">4</view>
+            <view class="page-publish__section-meta">
+              <text class="page-publish__section-title">添加图片</text>
+              <text class="page-publish__section-sub">最多 6 张，校验通过后提交时上传</text>
+            </view>
+          </view>
 
-      <!-- 审核提示 -->
-      <view class="page-publish__notice">
-        <u-icon name="info-circle" color="#8b9bb8" size="14" />
-        <text>提交后将进入人工审核，通过后展示在首页与分类列表</text>
-      </view>
+          <view class="page-publish__upload">
+            <u-upload :file-list="fileList" name="image" multiple :max-count="6" width="152rpx" height="152rpx"
+              @after-read="onAfterRead" @delete="onDelete" />
+          </view>
+        </view>
+
+        <!-- 审核提示 -->
+        <view class="page-publish__notice">
+          <u-icon name="info-circle" color="#8b9bb8" size="14" />
+          <text>提交后将进入人工审核，通过后展示在首页与分类列表</text>
+        </view>
       </template>
     </view>
 
     <!-- 底部提交栏（本页沉浸式，不展示 TabBar） -->
     <view class="page-publish__actions cv-bottom-bar">
       <view class="page-publish__submit-wrap">
-        <u-button
-          type="primary"
-          :text="submitButtonText"
-          shape="circle"
-          :loading="submitting || uploadingImages"
-          :disabled="submitting || uploadingImages"
-          @click="onSubmit"
-        />
+        <u-button type="primary" :text="submitButtonText" shape="circle" :loading="submitting || uploadingImages"
+          :disabled="submitting || uploadingImages" @click="onSubmit" />
       </view>
     </view>
 
@@ -468,7 +392,7 @@ function onBack() {
 
 /** APP 端兜底：确保原生 TabBar 不露出 */
 function hideNativeTabBar() {
-  uni.hideTabBar({ animation: false, fail: () => {} });
+  uni.hideTabBar({ animation: false, fail: () => { } });
 }
 
 /** 滚动定位到第一个未填写的必填项 */

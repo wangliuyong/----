@@ -32,7 +32,8 @@
     "build:convenience:android": "pnpm --dir convenience-client run android:pack:cloud",
     "build:api": "pnpm --dir nest-server run build",
     "build:web": "pnpm run build:subapps && pnpm --dir next-host run build",
-    "sync:db": "bash docker/sync-db-to-server.sh"
+    "sync:db": "bash docker/sync-db-to-server.sh",
+    "sync:convenience:env": "bash docker/sync-convenience-env.sh"
   },
   "devDependencies": {
     "concurrently": "^9.1.2"

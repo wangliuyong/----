@@ -65,6 +65,7 @@
     "@dcloudio/uni-mp-weixin": "3.0.0-4080420251103001",
     "@dcloudio/uni-mp-xhs": "3.0.0-4080420251103001",
     "@dcloudio/uni-quickapp-webview": "3.0.0-4080420251103001",
+    "@vant/area-data": "^2.1.0",
     "dayjs": "^1.11.21",
     "pinia": "^2.2.8",
     "uview-plus": "^3.8.49",

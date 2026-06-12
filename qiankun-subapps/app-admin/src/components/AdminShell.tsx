@@ -1,10 +1,13 @@
 import { HomeOutlined, LogoutOutlined, MenuFoldOutlined, MenuUnfoldOutlined } from '@ant-design/icons';
+import { Button, Layout, Menu, Space, Typography, theme } from 'antd';
+import type { MenuProps } from 'antd';
 import { useEffect, useMemo, useRef, useState, type ReactNode } from 'react';
 import type { AdminMenuNode } from '../types/rbac';
 import { usePageTitle } from '../context/PageTitleContext';
 import { buildMenuItems, findOpenGroupKeysByPath, isMenuGroupKey } from '../router/menuUtils';
 import { isAdminStandalone } from '../utils/runtime';
-import { SidebarMenu, UiButton } from './ui';
+
+const { Header, Sider, Content } = Layout;
 
 const SIDER_COLLAPSED_KEY = 'admin-sider-collapsed';
 const SIDER_TRANSITION_MS = 200;
@@ -30,7 +33,7 @@ interface AdminShellProps {
   children: ReactNode;
 }
 
-/** 后台主布局：自定义侧栏 + 玻璃顶栏 + 内容区 */
+/** Ant Design 后台主布局：动态菜单侧栏 + 顶栏 + 内容区 */
 export default function AdminShell({
   username,
   menus,
@@ -40,6 +43,7 @@ export default function AdminShell({
   children,
 }: AdminShellProps) {
   const pageTitle = usePageTitle();
+  const { token } = theme.useToken();
   const initialCollapsed = readSiderCollapsed();
   const [collapsed, setCollapsed] = useState(initialCollapsed);
   const [menuExpanded, setMenuExpanded] = useState(!initialCollapsed);
@@ -98,69 +102,98 @@ export default function AdminShell({
 
   const menuItems = useMemo(() => buildMenuItems(menus), [menus]);
 
-  const handleMenuClick = (key: string) => {
-    if (isMenuGroupKey(key, menus)) return;
-    onNavigate(key);
+  const handleMenuClick: MenuProps['onClick'] = ({ key }) => {
+    const keyStr = String(key);
+    if (isMenuGroupKey(keyStr, menus)) return;
+    onNavigate(keyStr);
   };
 
-  const menuOpenProps =
+  const menuOpenProps: Pick<MenuProps, 'openKeys' | 'onOpenChange'> =
     collapsed || !menuExpanded
-      ? { openKeys: [] as string[] }
+      ? {}
       : {
-          openKeys,
-          onOpenChange: (keys: string[]) => {
-            savedOpenKeysRef.current = keys;
-            setOpenKeys(keys);
-          },
-        };
+        openKeys,
+        onOpenChange: (keys) => {
+          savedOpenKeysRef.current = keys;
+          setOpenKeys(keys);
+        },
+      };
 
   return (
-    <div className="admin-shell-root">
-      <aside
-        className={`admin-shell-sider${collapsed ? ' admin-shell-sider--collapsed' : ''}`}
-        style={{ width: collapsed ? 64 : 220 }}
+    <Layout className="admin-shell-root">
+      <Sider
+        className="admin-shell-sider"
+        collapsible
+        collapsed={collapsed}
+        onCollapse={handleSiderCollapse}
+        trigger={null}
+        width={220}
+        breakpoint="lg"
+        collapsedWidth={64}
+        onBreakpoint={(broken) => {
+          if (broken) {
+            savedOpenKeysRef.current = openKeys.length > 0 ? openKeys : savedOpenKeysRef.current;
+            setMenuExpanded(false);
+            setCollapsed(true);
+          }
+        }}
+        theme="dark"
       >
         <div className="admin-shell-sider__brand">
-          <span className="admin-shell-sider__brand-glow" aria-hidden />
-          <span className="admin-shell-sider__brand-full">控制台</span>
-          <span className="admin-shell-sider__brand-mini">控</span>
+          <span className="admin-shell-sider__brand-full">网站后台设置</span>
+          <span className="admin-shell-sider__brand-mini">后台</span>
         </div>
-        <SidebarMenu
-          items={menuItems}
+        <Menu
+          className="admin-shell-menu"
+          theme="dark"
+          mode="inline"
+          inlineCollapsed={collapsed}
           selectedKeys={[currentPath]}
-          collapsed={collapsed}
+          items={menuItems}
           onClick={handleMenuClick}
+          style={{ borderInlineEnd: 0 }}
           {...menuOpenProps}
         />
-      </aside>
+      </Sider>
 
-      <div className="admin-shell-body">
-        <header className="admin-shell-header">
-          <div className="admin-shell-header__left">
-            <UiButton
-              variant="default"
-              size="sm"
+      <Layout className="admin-shell-body">
+        <Header
+          className="admin-shell-header"
+          style={{
+            padding: '0 24px',
+            background: token.colorBgContainer,
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'space-between',
+            borderBottom: `1px solid ${token.colorBorderSecondary}`,
+          }}
+        >
+          <Space size="middle">
+            <Button
+              type="text"
               aria-label={collapsed ? '展开菜单' : '折叠菜单'}
               icon={collapsed ? <MenuUnfoldOutlined /> : <MenuFoldOutlined />}
               onClick={() => handleSiderCollapse(!collapsed)}
             />
-            <div className="admin-shell-header__titles">
-              <h1 className="admin-shell-header__page-title">{pageTitle}</h1>
-            </div>
-          </div>
-          <div className="admin-shell-header__actions">
-            <span className="admin-shell-header__user">你好，{username}</span>
-            <UiButton variant="ghost" size="sm" icon={<HomeOutlined />} href={publicSiteHref} target="_blank">
+            <Space size="middle" direction="vertical" style={{ gap: 0 }}>
+              <Typography.Title level={5} className="admin-shell-header__page-title">
+                {pageTitle}
+              </Typography.Title>
+            </Space>
+          </Space>
+          <Space size="middle">
+            <Typography.Text>你好，{username}</Typography.Text>
+            <Button type="link" icon={<HomeOutlined />} href={publicSiteHref} target="_blank">
               返回前台
-            </UiButton>
-            <UiButton variant="default" size="sm" icon={<LogoutOutlined />} onClick={onLogout}>
+            </Button>
+            <Button type="text" danger icon={<LogoutOutlined />} onClick={onLogout}>
               退出
-            </UiButton>
-          </div>
-        </header>
+            </Button>
+          </Space>
+        </Header>
 
-        <main className="admin-shell-content">{children}</main>
-      </div>
-    </div>
+        <Content className="admin-shell-content">{children}</Content>
+      </Layout>
+    </Layout>
   );
 }

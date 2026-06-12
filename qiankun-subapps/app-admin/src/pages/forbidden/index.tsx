@@ -1,7 +1,7 @@
+import { Button, Result } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import { useAuth } from '../../context/AuthContext';
 import { getDefaultMenuPath } from '../../router/menuUtils';
-import { UiButton, UiResult } from '../../components/ui';
 
 /** 403 无权限页 */
 export default function ForbiddenPage() {
@@ -10,14 +10,14 @@ export default function ForbiddenPage() {
   const home = profile ? `/${getDefaultMenuPath(profile.menus)}` : '/dashboard';
 
   return (
-    <UiResult
+    <Result
       status="403"
       title="403"
       subTitle="抱歉，您没有权限访问此页面"
       extra={
-        <UiButton variant="primary" onClick={() => navigate(home, { replace: true })}>
+        <Button type="primary" onClick={() => navigate(home, { replace: true })}>
           返回首页
-        </UiButton>
+        </Button>
       }
     />
   );

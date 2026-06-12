@@ -1,29 +1,34 @@
 /**
- * 管理后台登录页 — 深色科技风分栏布局
+ * 管理后台登录页 — 分栏布局 + 摄影背景
+ * 仅由 login 路由引入，不影响 AdminShell 内页样式
  */
 
 .admin-login {
-  --login-accent: var(--ta-accent, #22d3ee);
-  --login-accent-soft: var(--ta-accent-soft, rgba(34, 211, 238, 0.12));
-  --login-text: var(--ta-text, #e2e8f0);
-  --login-muted: var(--ta-muted, #94a3b8);
-  --login-faint: var(--ta-faint, #64748b);
-  --login-line: var(--ta-line, rgba(148, 163, 184, 0.12));
-  --login-surface: var(--ta-bg-elevated, #0c1222);
-  --login-shadow: var(--ta-shadow, 0 24px 64px -32px rgba(0, 0, 0, 0.65));
+  --login-serif: var(--ed-serif, 'Noto Serif SC', serif);
+  --login-sans: var(--ed-sans, 'IBM Plex Sans', sans-serif);
+  --login-text: var(--ed-text, #141414);
+  --login-muted: var(--ed-muted, #6f6a65);
+  --login-faint: var(--ed-faint, #a8a29e);
+  --login-line: var(--ed-line, rgba(20, 20, 20, 0.08));
+  --login-accent: var(--ed-accent, #9a3412);
+  --login-accent-soft: var(--ed-accent-soft, rgba(154, 52, 18, 0.08));
+  --login-surface: var(--ed-surface-elevated, #ffffff);
+  --login-shadow: var(--ed-shadow, 0 24px 48px -32px rgba(20, 20, 20, 0.18));
+  --login-ink: #141414;
 
   min-height: 100dvh;
   display: grid;
   grid-template-columns: 1fr;
-  font-family: var(--ta-font, 'IBM Plex Sans', sans-serif);
+  font-family: var(--login-sans);
   color: var(--login-text);
-  background: var(--ta-bg, #070b14);
+  background: var(--login-surface);
 
   @media (min-width: 960px) {
-    grid-template-columns: 1.1fr 0.9fr;
+    grid-template-columns: 1.05fr 0.95fr;
   }
 }
 
+/* 登录页独立全屏：覆盖 AdminShell 对 body 的 overflow:hidden，避免移动端被裁剪 */
 html:has(.admin-login),
 body:has(.admin-login),
 body:has(.admin-login) #root {
@@ -32,15 +37,16 @@ body:has(.admin-login) #root {
   overflow: auto;
 }
 
-/* 左侧视觉区 */
+/* ---------- 左侧：背景图 + 品牌区 ---------- */
 .admin-login-hero {
   position: relative;
   display: flex;
   flex-direction: column;
   justify-content: flex-end;
-  min-height: 320px;
+  min-height: 280px;
   padding: 32px 28px 36px;
   overflow: hidden;
+  color: #f0ebe4;
 
   @media (min-width: 960px) {
     min-height: 100dvh;
@@ -59,82 +65,74 @@ body:has(.admin-login) #root {
   height: 100%;
   object-fit: cover;
   object-position: center 40%;
-  opacity: 0.45;
-  filter: saturate(0.6) contrast(1.1);
+  transform: scale(1.02);
 }
 
+/* 暖炭渐变遮罩：保证文字可读，与 Ink & Sand 暗色底一致 */
 .admin-login-hero__scrim {
   position: absolute;
   inset: 0;
   background:
-    linear-gradient(180deg, rgba(7, 11, 20, 0.2) 0%, rgba(7, 11, 20, 0.75) 50%, rgba(5, 8, 16, 0.95) 100%),
-    radial-gradient(ellipse 80% 60% at 20% 0%, rgba(34, 211, 238, 0.15), transparent 55%);
-}
-
-.admin-login-hero__grid {
-  position: absolute;
-  inset: 0;
-  background-image:
-    linear-gradient(rgba(34, 211, 238, 0.04) 1px, transparent 1px),
-    linear-gradient(90deg, rgba(34, 211, 238, 0.04) 1px, transparent 1px);
-  background-size: 48px 48px;
-  mask-image: linear-gradient(180deg, rgba(0, 0, 0, 0.5), transparent 80%);
+    linear-gradient(
+      180deg,
+      rgba(18, 17, 16, 0.35) 0%,
+      rgba(18, 17, 16, 0.72) 52%,
+      rgba(18, 17, 16, 0.92) 100%
+    ),
+    linear-gradient(135deg, rgba(154, 52, 18, 0.18) 0%, transparent 55%);
 }
 
 .admin-login-hero__content {
   position: relative;
   z-index: 1;
-  max-width: 30rem;
-  animation: admin-login-enter 0.75s cubic-bezier(0.16, 1, 0.3, 1) both;
+  max-width: 28rem;
+  animation: admin-login-enter 0.75s cubic-bezier(0.22, 1, 0.36, 1) both;
 }
 
 .admin-login-hero__brand {
   display: inline-flex;
   align-items: center;
   gap: 10px;
-  margin: 0 0 20px;
-  font-family: var(--ta-font-mono, monospace);
-  font-size: 11px;
-  font-weight: 500;
-  letter-spacing: 0.2em;
+  margin: 0 0 18px;
+  font-size: 0.72rem;
+  font-weight: 600;
+  letter-spacing: 0.18em;
   text-transform: uppercase;
-  color: var(--login-accent);
+  color: rgba(240, 235, 228, 0.72);
 
   &::before {
     content: '';
-    width: 32px;
+    width: 28px;
     height: 1px;
-    background: var(--login-accent);
-    opacity: 0.6;
+    background: currentColor;
+    opacity: 0.55;
   }
 }
 
 .admin-login-hero__title {
-  margin: 0 0 14px;
-  font-size: clamp(1.85rem, 4vw, 2.6rem);
-  font-weight: 700;
-  line-height: 1.12;
-  letter-spacing: -0.03em;
-  background: linear-gradient(135deg, #fff 0%, var(--login-accent) 100%);
-  -webkit-background-clip: text;
-  background-clip: text;
-  color: transparent;
+  margin: 0 0 12px;
+  font-family: var(--login-serif);
+  font-size: clamp(1.75rem, 4vw, 2.35rem);
+  font-weight: 600;
+  line-height: 1.15;
+  letter-spacing: -0.02em;
 }
 
 .admin-login-hero__lead {
   margin: 0 0 28px;
   font-size: 0.98rem;
   line-height: 1.7;
-  color: var(--login-muted);
+  color: rgba(240, 235, 228, 0.78);
 }
 
+/* ---------- 能力列表 ---------- */
 .admin-login-features {
   list-style: none;
   margin: 0;
   padding: 0;
   display: flex;
   flex-direction: column;
-  gap: 12px;
+  gap: 14px;
 }
 
 .admin-login-feature {
@@ -143,11 +141,11 @@ body:has(.admin-login) #root {
   gap: 12px 14px;
   align-items: start;
   padding: 14px 16px;
-  border: 1px solid var(--login-line);
-  border-radius: var(--ta-radius-sm, 8px);
-  background: rgba(15, 23, 42, 0.55);
-  backdrop-filter: blur(8px);
-  animation: admin-login-enter 0.65s cubic-bezier(0.16, 1, 0.3, 1) both;
+  border: 1px solid rgba(240, 235, 228, 0.12);
+  border-radius: 2px;
+  background: rgba(255, 255, 255, 0.06);
+  backdrop-filter: blur(6px);
+  animation: admin-login-enter 0.65s cubic-bezier(0.22, 1, 0.36, 1) both;
 
   @for $i from 1 through 6 {
     &:nth-child(#{$i}) {
@@ -162,10 +160,9 @@ body:has(.admin-login) #root {
   justify-content: center;
   width: 40px;
   height: 40px;
-  border-radius: var(--ta-radius-sm, 8px);
-  background: var(--login-accent-soft);
-  border: 1px solid rgba(34, 211, 238, 0.25);
-  color: var(--login-accent);
+  border-radius: 2px;
+  background: rgba(249, 115, 22, 0.16);
+  color: #fb923c;
   font-size: 18px;
 }
 
@@ -173,24 +170,23 @@ body:has(.admin-login) #root {
   margin: 0 0 4px;
   font-size: 0.92rem;
   font-weight: 600;
-  color: var(--login-text);
+  color: #f0ebe4;
 }
 
 .admin-login-feature__desc {
   margin: 0;
   font-size: 0.82rem;
   line-height: 1.55;
-  color: var(--login-muted);
+  color: rgba(240, 235, 228, 0.62);
 }
 
-/* 右侧表单区 */
+/* ---------- 右侧：表单区 ---------- */
 .admin-login-panel {
   display: flex;
   align-items: center;
   justify-content: center;
   padding: 32px 24px 40px;
   background: var(--login-surface);
-  border-left: 1px solid var(--login-line);
 
   @media (min-width: 960px) {
     padding: 48px 40px;
@@ -200,7 +196,7 @@ body:has(.admin-login) #root {
 .admin-login-panel__inner {
   width: 100%;
   max-width: 400px;
-  animation: admin-login-enter 0.7s cubic-bezier(0.16, 1, 0.3, 1) 0.08s both;
+  animation: admin-login-enter 0.7s cubic-bezier(0.22, 1, 0.36, 1) 0.08s both;
 }
 
 .admin-login-panel__header {
@@ -209,11 +205,11 @@ body:has(.admin-login) #root {
 
 .admin-login-panel__title {
   margin: 0 0 8px;
+  font-family: var(--login-serif);
   font-size: 1.65rem;
-  font-weight: 700;
+  font-weight: 600;
   line-height: 1.2;
-  letter-spacing: -0.02em;
-  color: var(--login-text);
+  letter-spacing: -0.01em;
 }
 
 .admin-login-panel__subtitle {
@@ -226,8 +222,8 @@ body:has(.admin-login) #root {
 .admin-login-panel__card {
   padding: 28px 24px 24px;
   border: 1px solid var(--login-line);
-  border-radius: var(--ta-radius, 12px);
-  background: rgba(8, 13, 24, 0.85);
+  border-radius: 2px;
+  background: var(--login-surface);
   box-shadow: var(--login-shadow);
 }
 
@@ -237,29 +233,6 @@ body:has(.admin-login) #root {
   line-height: 1.5;
   color: var(--login-faint);
   text-align: center;
-}
-
-.admin-login-form {
-  display: flex;
-  flex-direction: column;
-  gap: 18px;
-}
-
-.admin-login-form__alert {
-  margin-bottom: 4px;
-}
-
-.admin-login-form__label {
-  display: block;
-  margin-bottom: 6px;
-  font-size: 13px;
-  color: var(--login-muted);
-}
-
-.admin-login-form__error {
-  margin: 6px 0 0;
-  font-size: 12px;
-  color: var(--ta-danger, #f87171);
 }
 
 @keyframes admin-login-enter {
@@ -285,6 +258,6 @@ body:has(.admin-login) #root {
 @media (prefers-reduced-transparency: reduce) {
   .admin-login-feature {
     backdrop-filter: none;
-    background: rgba(15, 23, 42, 0.95);
+    background: rgba(32, 30, 28, 0.85);
   }
 }

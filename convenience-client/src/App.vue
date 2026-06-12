@@ -5,7 +5,7 @@ import { useLocationStore } from '@/stores/location';
 
 /** 隐藏原生 TabBar，改用 uview-plus 自定义底部导航（图标字体） */
 function hideNativeTabBar() {
-  uni.hideTabBar({ animation: false, fail: () => {} });
+  uni.hideTabBar({ animation: false, fail: () => { } });
 }
 
 /** 应用启动时恢复登录态，并隐藏原生 TabBar */

@@ -53,6 +53,36 @@ EOF
   fi
 }
 
+# 从本地 nest-server/.env 读取指定 key 的值（不含引号）
+read_local_env() {
+  local key="$1"
+  local file="${PROJECT_ROOT}/nest-server/.env"
+  [[ -f "$file" ]] || return 1
+  local line
+  line=$(grep -E "^${key}=" "$file" | tail -1 || true)
+  [[ -n "$line" ]] || return 1
+  local val="${line#*=}"
+  val="${val%\"}"; val="${val#\"}"
+  val="${val%\'}"; val="${val#\'}"
+  [[ -n "$val" ]] || return 1
+  printf '%s' "$val"
+}
+
+# 合并单个环境变量到服务器 ${REMOTE_DIR}/.env
+merge_remote_env_key() {
+  local key="$1"
+  local val
+  val="$(read_local_env "$key" || true)"
+  [[ -n "$val" ]] || return 0
+  echo "==> 同步 ${key} → 服务器 .env"
+  ssh_cmd 30 "touch '${REMOTE_DIR}/.env' && (grep -v '^${key}=' '${REMOTE_DIR}/.env' 2>/dev/null || true) > '${REMOTE_DIR}/.env.tmp' && printf '%s=%s\n' '${key}' '${val}' >> '${REMOTE_DIR}/.env.tmp' && mv '${REMOTE_DIR}/.env.tmp' '${REMOTE_DIR}/.env'"
+}
+
+# 同步便民后端依赖的环境变量（高德逆地理等）
+sync_convenience_env_to_server() {
+  merge_remote_env_key "AMAP_WEB_SERVICE_KEY"
+}
+
 echo "==> 打包项目文件..."
 TAR_FILE="/tmp/personal-site-deploy.tar.gz"
 ENV_FILE="/tmp/personal-site.env"
@@ -66,6 +96,7 @@ COPYFILE_DISABLE=1 tar czf "$TAR_FILE" \
   --exclude='*.db-journal' \
   --exclude='.git' \
   --exclude='.env.local' \
+  --exclude='nest-server/.env' \
   .
 printf 'PUBLIC_ORIGIN=http://%s\nHTTP_PORT=80\n' "$SERVER_IP" > "$ENV_FILE"
 
@@ -81,6 +112,8 @@ fi
 ssh_cmd 120 tar -xzf "${REMOTE_DIR}/deploy.tar.gz" -C "${REMOTE_DIR}"
 ssh_cmd 30 rm -f "${REMOTE_DIR}/deploy.tar.gz"
 ssh_cmd 30 chmod +x "${REMOTE_DIR}/docker/remote-deploy.sh"
+
+sync_convenience_env_to_server
 
 echo "==> 远程构建并启动 Docker（首次约 15–30 分钟，请耐心等待）..."
 ssh_cmd 3600 "${REMOTE_DIR}/docker/remote-deploy.sh"

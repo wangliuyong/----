@@ -31,13 +31,8 @@
 
       <!-- 排序胶囊 -->
       <view v-if="list.length" class="page-collect__sort">
-        <view
-          v-for="(item, index) in sortList"
-          :key="item.key"
-          class="page-collect__sort-item"
-          :class="{ 'page-collect__sort-item--active': sortIndex === index }"
-          @click="onSortChange(index)"
-        >
+        <view v-for="(item, index) in sortList" :key="item.key" class="page-collect__sort-item"
+          :class="{ 'page-collect__sort-item--active': sortIndex === index }" @click="onSortChange(index)">
           {{ item.name }}
         </view>
       </view>
@@ -53,12 +48,7 @@
 
         <!-- 收藏列表 -->
         <template v-else-if="sortedList.length">
-          <InfoListCard
-            v-for="item in sortedList"
-            :key="item.id"
-            :item="item"
-            @click="goDetail"
-          />
+          <InfoListCard v-for="item in sortedList" :key="item.id" :item="item" @click="goDetail" />
         </template>
 
         <!-- 空状态 -->

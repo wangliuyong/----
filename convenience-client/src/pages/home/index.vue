@@ -5,11 +5,11 @@
       <view class="page-home__hero-orb page-home__hero-orb--1" />
       <view class="page-home__hero-orb page-home__hero-orb--2" />
       <view class="page-home__hero-top">
-        <view class="page-home__location" @click="onLocationTap">
+        <view class="page-home__location" @tap.stop="openRegionPicker" @click.stop="openRegionPicker">
           <view class="page-home__location-icon">
             <u-icon name="map-fill" color="#fff" size="14" />
           </view>
-          <text class="page-home__city">{{ locationStore.locating ? '定位中...' : locationStore.cityName }}</text>
+          <text class="page-home__city">{{ locationStore.cityName }}</text>
           <u-icon name="arrow-down-fill" color="rgba(255,255,255,0.7)" size="10" />
         </view>
       </view>
@@ -142,11 +142,21 @@
     <!-- #ifndef MP-WEIXIN -->
     <AppTabBar page-path="pages/home/index" />
     <!-- #endif -->
+
+    <!-- 省市区选择弹层（页面根级，避免 hero 内 overflow 导致 H5 不可见） -->
+    <RegionPickerPopup
+      v-model:show="regionPickerShow"
+      :province="locationStore.province"
+      :city="locationStore.city"
+      :district="locationStore.district"
+      @confirm="onRegionConfirm"
+    />
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
+import { onShow } from '@dcloudio/uni-app';
 import { queryBannerList } from '@/api/banner.api';
 import { queryCategoryTree } from '@/api/category.api';
 import { queryCityInfoList } from '@/api/city-info.api';
@@ -156,12 +166,12 @@ import AppTabBar from '@/components/AppTabBar/AppTabBar.vue';
 import CategoryGrid from '@/components/CategoryGrid/CategoryGrid.vue';
 import HomeFeaturedCard from '@/components/HomeFeaturedCard/HomeFeaturedCard.vue';
 import HomeInfoTile from '@/components/HomeInfoTile/HomeInfoTile.vue';
+import RegionPickerPopup from '@/components/RegionPickerPopup/RegionPickerPopup.vue';
 import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
 import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import HomeQuickActions from '@/components/HomeQuickActions/HomeQuickActions.vue';
 import SectionHead from '@/components/SectionHead/SectionHead.vue';
 import { openPublishPage } from '@/constants/tabbar';
-import { useLocationAction } from '@/composables/useLocationAction';
 import { useTabBarPage } from '@/composables/useTabBarPage';
 import { useLocationStore } from '@/stores/location';
 import type { BannerItem, CategoryItem, CityInfoItem, NoticeItem } from '@/types/city-info';
@@ -170,13 +180,14 @@ useTabBarPage();
 
 const primaryColor = '#1d4ed8';
 const locationStore = useLocationStore();
-const { openLocationPicker } = useLocationAction(() => loadData());
 const banners = ref<BannerItem[]>([]);
 const notices = ref<NoticeItem[]>([]);
 const categories = ref<CategoryItem[]>([]);
 const infoList = ref<CityInfoItem[]>([]);
 const totalInfoCount = ref(0);
 const loading = ref(true);
+/** 省市区选择弹层 */
+const regionPickerShow = ref(false);
 
 const swiperList = computed(() =>
   banners.value.map((b) => ({ image: b.imageUrl, title: '' })),
@@ -206,17 +217,28 @@ function formatNoticeDate(iso?: string) {
 /** 加载首页数据 */
 async function loadData() {
   loading.value = true;
+
   try {
-    const [bannerRes, noticeRes, categoryRes, collectedIds] = await Promise.all([
-      queryBannerList(),
-      queryNoticeList(),
-      queryCategoryTree(),
-      queryCollectedIds().catch(() => [] as number[]),
-      locationStore.fetchLocation(),
-    ]);
-    banners.value = bannerRes;
-    notices.value = noticeRes;
-    categories.value = categoryRes;
+    const [bannerResult, noticeResult, categoryResult, collectedResult] =
+      await Promise.allSettled([
+        queryBannerList(),
+        queryNoticeList(),
+        queryCategoryTree(),
+        queryCollectedIds(),
+      ]);
+
+    if (bannerResult.status === 'fulfilled') {
+      banners.value = bannerResult.value;
+    }
+    if (noticeResult.status === 'fulfilled') {
+      notices.value = noticeResult.value;
+    }
+    if (categoryResult.status === 'fulfilled') {
+      categories.value = categoryResult.value;
+    }
+
+    const collectedIds =
+      collectedResult.status === 'fulfilled' ? collectedResult.value : [];
 
     const page = await queryCityInfoList(
       { page: 1, pageSize: 7, sortBy: 'latest' },
@@ -228,13 +250,22 @@ async function loadData() {
     );
     infoList.value = page.list;
     totalInfoCount.value = page.total;
+  } catch {
+    uni.showToast({ title: '推荐加载失败，请检查网络', icon: 'none' });
   } finally {
     loading.value = false;
   }
 }
 
-function onLocationTap() {
-  openLocationPicker();
+/** 打开省市区选择 */
+function openRegionPicker() {
+  regionPickerShow.value = true;
+}
+
+/** 确认省市区 */
+function onRegionConfirm(payload: { province: string; city: string; district: string }) {
+  locationStore.applyRegion(payload.province, payload.city, payload.district);
+  void loadData();
 }
 
 function goSearch() {
@@ -270,6 +301,12 @@ function goDetail(item: CityInfoItem) {
 }
 
 onMounted(loadData);
+/** Tab 页切回首页时刷新推荐（小程序端缓存页面不会重新 onMounted） */
+onShow(() => {
+  if (!loading.value && !infoList.value.length) {
+    void loadData();
+  }
+});
 </script>
 
 <style lang="scss" scoped>
@@ -308,7 +345,7 @@ onMounted(loadData);
 
 .page-home__hero-top {
   position: relative;
-  z-index: 1;
+  z-index: 10;
 }
 
 .page-home__location {
@@ -320,6 +357,7 @@ onMounted(loadData);
   border: 1rpx solid rgba(255, 255, 255, 0.18);
   border-radius: $cv-radius-pill;
   backdrop-filter: blur(12px);
+  cursor: pointer;
   @include cv-pressable;
 }
 

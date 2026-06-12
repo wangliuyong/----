@@ -19,15 +19,8 @@
       <!-- 搜索 -->
       <view class="page-list__search">
         <u-icon name="search" :color="CV_TEXT_MUTED" size="18" />
-        <input
-          v-model="keyword"
-          class="page-list__search-input"
-          type="text"
-          confirm-type="search"
-          placeholder="搜索标题或详情"
-          placeholder-class="page-list__search-ph"
-          @confirm="onSearch"
-        />
+        <input v-model="keyword" class="page-list__search-input" type="text" confirm-type="search" placeholder="搜索标题或详情"
+          placeholder-class="page-list__search-ph" @confirm="onSearch" />
         <view v-if="keyword" class="page-list__search-clear" @click="onClearKeyword">
           <u-icon name="close-circle-fill" color="#cbd5e1" size="16" />
         </view>
@@ -35,25 +28,15 @@
 
       <!-- 排序：胶囊标签 -->
       <view class="page-list__sort">
-        <view
-          v-for="(item, index) in sortList"
-          :key="item.key"
-          class="page-list__sort-item"
-          :class="{ 'page-list__sort-item--active': sortIndex === index }"
-          @click="onSortChange(index)"
-        >
+        <view v-for="(item, index) in sortList" :key="item.key" class="page-list__sort-item"
+          :class="{ 'page-list__sort-item--active': sortIndex === index }" @click="onSortChange(index)">
           {{ item.name }}
         </view>
       </view>
     </view>
 
     <!-- 列表区 -->
-    <scroll-view
-      class="page-list__scroll"
-      scroll-y
-      :show-scrollbar="false"
-      @scrolltolower="loadMore"
-    >
+    <scroll-view class="page-list__scroll" scroll-y :show-scrollbar="false" @scrolltolower="loadMore">
       <view class="page-list__scroll-inner">
         <!-- 骨架屏 -->
         <view v-if="loading && !list.length" class="page-list__skeleton">
@@ -61,12 +44,7 @@
         </view>
 
         <template v-else>
-          <InfoListCard
-            v-for="item in list"
-            :key="item.id"
-            :item="item"
-            @click="goDetail"
-          />
+          <InfoListCard v-for="item in list" :key="item.id" :item="item" @click="goDetail" />
           <u-empty v-if="!list.length" mode="search" text="暂无相关信息" />
         </template>
 

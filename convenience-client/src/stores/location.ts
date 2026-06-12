@@ -1,11 +1,18 @@
 import { defineStore } from 'pinia';
-import { queryReverseGeocode } from '@/utils/geocode';
+import { queryReverseGeocode, extractCityFromMapResult } from '@/utils/geocode';
 import { ensureLocationPermission, getCurrentPosition } from '@/utils/location';
+import { formatRegionFull, formatRegionLabel } from '@/utils/region-label';
 import { isApp, isH5, isMpWeixin } from '@/utils/platform';
 
 const STORAGE_KEY = 'conv_location';
 
 interface LocationState {
+  /** 省（首页省市区选择） */
+  province: string;
+  /** 市 */
+  city: string;
+  /** 区 */
+  district: string;
   /** 城市名称（首页展示） */
   cityName: string;
   /** 详细地址 */
@@ -17,21 +24,34 @@ interface LocationState {
 }
 
 interface StoredLocation {
+  province?: string;
+  city?: string;
+  district?: string;
   cityName: string;
   address: string;
   latitude: number;
   longitude: number;
 }
 
-/** 用户定位 Store（高德地图统一：GPS + 地图选点页） */
+/** 用户定位 Store（首页省市区 + 其他页 GPS/地图选点） */
 export const useLocationStore = defineStore('location', {
   state: (): LocationState => ({
-    cityName: '本地同城',
-    address: '',
+    province: '上海市',
+    city: '上海市',
+    district: '黄浦区',
+    cityName: '上海',
+    address: '上海市上海市黄浦区',
     latitude: 31.2304,
     longitude: 121.4737,
     locating: false,
   }),
+
+  getters: {
+    /** 首页 region picker 绑定值 [省, 市, 区] */
+    regionCodes(state): [string, string, string] {
+      return [state.province, state.city, state.district];
+    },
+  },
 
   actions: {
     /** 从本地缓存恢复上次选中的位置 */
@@ -40,15 +60,34 @@ export const useLocationStore = defineStore('location', {
         const raw = uni.getStorageSync(STORAGE_KEY) as string;
         if (!raw) return;
         const data = JSON.parse(raw) as StoredLocation;
+        if (data.province && data.city) {
+          this.province = data.province;
+          this.city = data.city;
+          this.district = data.district || '';
+          this.cityName = data.cityName || formatRegionLabel(data.province, data.city, data.district);
+          this.address = data.address || formatRegionFull(data.province, data.city, data.district);
+        }
         if (typeof data.latitude === 'number' && typeof data.longitude === 'number') {
-          this.cityName = data.cityName || this.cityName;
-          this.address = data.address || '';
           this.latitude = data.latitude;
           this.longitude = data.longitude;
+        }
+        if (!data.province && data.cityName) {
+          this.cityName = data.cityName;
+          this.address = data.address || '';
         }
       } catch {
         // 缓存损坏时忽略
       }
+    },
+
+    /** 首页：应用省市区选择结果 */
+    applyRegion(province: string, city: string, district = '') {
+      this.province = province;
+      this.city = city;
+      this.district = district;
+      this.cityName = formatRegionLabel(province, city, district);
+      this.address = formatRegionFull(province, city, district);
+      this.persist();
     },
 
     /** 写入位置并持久化 */
@@ -62,6 +101,9 @@ export const useLocationStore = defineStore('location', {
 
     persist() {
       const data: StoredLocation = {
+        province: this.province,
+        city: this.city,
+        district: this.district,
         cityName: this.cityName,
         address: this.address,
         latitude: this.latitude,
@@ -133,9 +175,30 @@ export const useLocationStore = defineStore('location', {
       }
     },
 
-    /** 各端统一：打开高德地图选点页（H5 / App / 小程序） */
+    /** 各端统一：打开地图选点（微信小程序用原生选点，避免开发者工具 map 瓦片空白） */
     async chooseOnMap(): Promise<boolean> {
+      // #ifdef MP-WEIXIN
+      return this.chooseByNativePicker();
+      // #endif
       return this.openMapPickerPage();
+    },
+
+    /** 微信小程序 / 系统原生地图选点 */
+    chooseByNativePicker(): Promise<boolean> {
+      return new Promise((resolve) => {
+        uni.chooseLocation({
+          success: (res) => {
+            this.applyLocation({
+              latitude: res.latitude,
+              longitude: res.longitude,
+              cityName: extractCityFromMapResult(res.name, res.address),
+              address: res.address || res.name || '',
+            });
+            resolve(true);
+          },
+          fail: () => resolve(false),
+        });
+      });
     },
 
     /** 打开地图选点页，选点结果经 eventChannel 回传 */

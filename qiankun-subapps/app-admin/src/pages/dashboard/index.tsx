@@ -1,8 +1,7 @@
 import { ReloadOutlined } from '@ant-design/icons';
-import { Typography } from 'antd';
+import { Button, Popconfirm, Space, Typography } from 'antd';
 import { useNavigate } from 'react-router-dom';
 import PageLoading from '../../components/_common/PageLoading';
-import { UiButton, UiPopconfirm, UiSpace } from '../../components/ui';
 import DashboardSortableLayout from './components/DashboardSortableLayout';
 import { useDashboardOverview } from './hooks/useDashboardOverview';
 import { useDashboardSectionOrder } from './hooks/useDashboardSectionOrder';
@@ -29,30 +28,28 @@ export default function DashboardPage() {
             访问、内容概况与服务器状态一屏掌握
           </p>
         </div>
-        <UiSpace wrap>
+        <Space wrap>
           {isEditing ? (
             <>
-              <UiPopconfirm
+              <Popconfirm
                 title="恢复默认顺序？"
+                onConfirm={resetOrder}
                 okText="恢复"
                 cancelText="取消"
-                onConfirm={resetOrder}
               >
-                <UiButton variant="default">恢复默认</UiButton>
-              </UiPopconfirm>
-              <UiButton variant="ghost" onClick={() => setIsEditing(false)}>
+                <Button>恢复默认</Button>
+              </Popconfirm>
+              <Button type="primary" ghost onClick={() => setIsEditing(false)}>
                 完成编辑
-              </UiButton>
+              </Button>
             </>
           ) : (
-            <UiButton variant="default" onClick={() => setIsEditing(true)}>
-              自定义布局
-            </UiButton>
+            <Button onClick={() => setIsEditing(true)}>自定义布局</Button>
           )}
-          <UiButton variant="default" icon={<ReloadOutlined />} onClick={() => void reload()}>
+          <Button icon={<ReloadOutlined />} onClick={() => void reload()}>
             刷新数据
-          </UiButton>
-        </UiSpace>
+          </Button>
+        </Space>
       </header>
 
       <DashboardSortableLayout

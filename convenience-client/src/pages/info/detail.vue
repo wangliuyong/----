@@ -16,22 +16,10 @@
     <scroll-view v-else-if="detail" scroll-y class="page-detail__scroll" :show-scrollbar="false">
       <!-- 顶部图集：沉浸式轮播 + 浮动导航 -->
       <view class="page-detail__hero">
-        <swiper
-          v-if="detail.images.length"
-          class="page-detail__swiper"
-          :current="imageIndex"
-          indicator-dots
-          indicator-color="rgba(255,255,255,0.35)"
-          indicator-active-color="#fff"
-          @change="onSwiperChange"
-        >
+        <swiper v-if="detail.images.length" class="page-detail__swiper" :current="imageIndex" indicator-dots
+          indicator-color="rgba(255,255,255,0.35)" indicator-active-color="#fff" @change="onSwiperChange">
           <swiper-item v-for="(img, idx) in detail.images" :key="idx">
-            <image
-              class="page-detail__img"
-              :src="img"
-              mode="aspectFill"
-              @click="preview(idx)"
-            />
+            <image class="page-detail__img" :src="img" mode="aspectFill" @click="preview(idx)" />
           </swiper-item>
         </swiper>
         <view v-else class="page-detail__placeholder">
@@ -42,11 +30,7 @@
         <view class="page-detail__hero-fade" />
 
         <view class="page-detail__nav" :style="{ paddingTop: statusBarPadding }">
-          <view
-            class="page-detail__nav-btn"
-            hover-class="page-detail__nav-btn--pressed"
-            @click="goBack"
-          >
+          <view class="page-detail__nav-btn" hover-class="page-detail__nav-btn--pressed" @click="goBack">
             <u-icon name="arrow-left" color="#fff" size="20" />
           </view>
           <view v-if="detail.images.length" class="page-detail__counter">
@@ -56,20 +40,10 @@
       </view>
 
       <!-- 缩略图条：多图时快速切换 -->
-      <scroll-view
-        v-if="detail.images.length > 1"
-        scroll-x
-        class="page-detail__thumbs"
-        :show-scrollbar="false"
-      >
+      <scroll-view v-if="detail.images.length > 1" scroll-x class="page-detail__thumbs" :show-scrollbar="false">
         <view class="page-detail__thumbs-inner">
-          <view
-            v-for="(img, idx) in detail.images"
-            :key="idx"
-            class="page-detail__thumb"
-            :class="{ 'page-detail__thumb--active': imageIndex === idx }"
-            @click="imageIndex = idx"
-          >
+          <view v-for="(img, idx) in detail.images" :key="idx" class="page-detail__thumb"
+            :class="{ 'page-detail__thumb--active': imageIndex === idx }" @click="imageIndex = idx">
             <image class="page-detail__thumb-img" :src="img" mode="aspectFill" />
           </view>
         </view>
@@ -114,12 +88,8 @@
         </view>
 
         <!-- 位置信息：可点击打开地图 -->
-        <view
-          v-if="detail.address"
-          class="page-detail__loc cv-card"
-          hover-class="page-detail__loc--pressed"
-          @click="openMap"
-        >
+        <view v-if="detail.address" class="page-detail__loc cv-card" hover-class="page-detail__loc--pressed"
+          @click="openMap">
           <view class="page-detail__loc-icon">
             <u-icon name="map-fill" color="#1d4ed8" size="22" />
           </view>
@@ -156,20 +126,12 @@
 
     <!-- 底部操作栏 -->
     <view v-if="detail && !loading" class="page-detail__bar">
-      <view
-        class="page-detail__bar-collect"
-        :class="{ 'page-detail__bar-collect--on': collected }"
-        hover-class="page-detail__bar-collect--pressed"
-        @click="toggleCollect"
-      >
+      <view class="page-detail__bar-collect" :class="{ 'page-detail__bar-collect--on': collected }"
+        hover-class="page-detail__bar-collect--pressed" @click="toggleCollect">
         <u-icon :name="collected ? 'star-fill' : 'star'" :color="collected ? '#fff' : '#1d4ed8'" size="20" />
         <text>{{ collected ? '已收藏' : '收藏' }}</text>
       </view>
-      <view
-        class="page-detail__bar-action"
-        hover-class="page-detail__bar-action--pressed"
-        @click="goReport"
-      >
+      <view class="page-detail__bar-action" hover-class="page-detail__bar-action--pressed" @click="goReport">
         <u-icon name="warning" color="#64748b" size="20" />
         <text>举报</text>
       </view>
@@ -423,6 +385,7 @@ onMounted(async () => {
   0% {
     background-position: 200% 0;
   }
+
   100% {
     background-position: -200% 0;
   }

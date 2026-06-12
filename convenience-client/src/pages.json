@@ -94,7 +94,8 @@
       "path": "pages/location/picker",
       "style": {
         "navigationBarTitleText": "地图选点",
-        "navigationStyle": "custom"
+        "navigationStyle": "custom",
+        "disableScroll": true
       }
     },
     {

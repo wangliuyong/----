@@ -1,16 +1,15 @@
 import type { DashboardOverview } from '../types';
 
-/** Tech Admin 图表色板（深色背景适配） */
+/** Ink & Sand 图表色板（与 inkSandDesignTokens 对齐） */
 export const DASHBOARD_CHART_COLORS = {
-  accent: '#22d3ee',
-  accentSoft: '#06b6d4',
-  ink: '#e2e8f0',
-  sand: '#64748b',
-  muted: '#94a3b8',
-  message: '#fbbf24',
-  ai: '#818cf8',
-  grid: 'rgba(148, 163, 184, 0.12)',
-  tooltipBg: '#0c1222',
+  accent: '#9a3412',
+  accentSoft: '#c2410c',
+  ink: '#141414',
+  sand: '#d6d3d1',
+  muted: '#78716c',
+  message: '#b45309',
+  ai: '#44403c',
+  grid: 'rgba(20, 20, 20, 0.06)',
 } as const;
 
 /** 访问与互动趋势折线图 */
@@ -23,7 +22,7 @@ export function buildVisitTrendOption(
     color: [DASHBOARD_CHART_COLORS.accent, DASHBOARD_CHART_COLORS.message, DASHBOARD_CHART_COLORS.ai],
     tooltip: {
       trigger: 'axis',
-      backgroundColor: DASHBOARD_CHART_COLORS.tooltipBg,
+      backgroundColor: '#fff',
       borderColor: DASHBOARD_CHART_COLORS.grid,
       textStyle: { color: DASHBOARD_CHART_COLORS.ink, fontSize: 12 },
     },
@@ -62,8 +61,8 @@ export function buildVisitTrendOption(
             x2: 0,
             y2: 1,
             colorStops: [
-              { offset: 0, color: 'rgba(34, 211, 238, 0.22)' },
-              { offset: 1, color: 'rgba(34, 211, 238, 0.02)' },
+              { offset: 0, color: 'rgba(154, 52, 18, 0.18)' },
+              { offset: 1, color: 'rgba(154, 52, 18, 0.02)' },
             ],
           },
         },
@@ -99,7 +98,7 @@ export function buildTopPagesOption(topPages: DashboardOverview['charts']['topPa
     tooltip: {
       trigger: 'axis',
       axisPointer: { type: 'shadow' },
-      backgroundColor: DASHBOARD_CHART_COLORS.tooltipBg,
+      backgroundColor: '#fff',
       borderColor: DASHBOARD_CHART_COLORS.grid,
       textStyle: { color: DASHBOARD_CHART_COLORS.ink, fontSize: 12 },
     },
@@ -126,7 +125,7 @@ export function buildTopPagesOption(topPages: DashboardOverview['charts']['topPa
       {
         type: 'bar',
         barWidth: 14,
-        itemStyle: { borderRadius: [0, 4, 4, 0] },
+        itemStyle: { borderRadius: [0, 2, 2, 0] },
         data: values,
       },
     ],
@@ -142,10 +141,10 @@ export function buildContentMixOption(contentMix: DashboardOverview['charts']['c
   ].filter((item) => item.value > 0);
 
   return {
-    color: ['#22d3ee', '#94a3b8', '#64748b'],
+    color: ['#9a3412', '#78716c', '#d6d3d1'],
     tooltip: {
       trigger: 'item',
-      backgroundColor: DASHBOARD_CHART_COLORS.tooltipBg,
+      backgroundColor: '#fff',
       borderColor: DASHBOARD_CHART_COLORS.grid,
       textStyle: { color: DASHBOARD_CHART_COLORS.ink, fontSize: 12 },
     },
@@ -160,7 +159,7 @@ export function buildContentMixOption(contentMix: DashboardOverview['charts']['c
         center: ['50%', '44%'],
         avoidLabelOverlap: true,
         itemStyle: {
-          borderColor: '#0c1222',
+          borderColor: '#fff',
           borderWidth: 2,
         },
         label: {

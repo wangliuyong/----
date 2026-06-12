@@ -1,4 +1,4 @@
-import type { AdminMenuItem } from '../components/ui';
+import type { MenuProps } from 'antd';
 import type { AdminMenuNode } from '../types/rbac';
 import { resolveIcon } from './iconRegistry';
 import { getRouterBasename } from './routes';
@@ -80,29 +80,27 @@ export function findDirCodeByPath(path: string, menus: AdminMenuNode[]): string 
   return keys[keys.length - 1] ?? menus[0]?.code ?? '';
 }
 
-/** 动态菜单 -> 侧栏导航项（仅菜单，不含权限点） */
-export function buildMenuItems(menus: AdminMenuNode[]): AdminMenuItem[] {
-  return menus
-    .map((node) => {
-      const Icon = resolveIcon(node.icon);
-      if (isSidebarGroup(node)) {
-        return {
-          key: node.code,
-          icon: <Icon />,
-          label: node.name,
-          children: node.children?.length ? buildMenuItems(node.children) : [],
-        };
-      }
-      if (node.type === 'menu' && node.path) {
-        return {
-          key: node.path,
-          icon: <Icon />,
-          label: node.name,
-        };
-      }
-      return null;
-    })
-    .filter(Boolean) as AdminMenuItem[];
+/** 动态菜单 -> Ant Design Menu items（仅菜单，不含权限点） */
+export function buildMenuItems(menus: AdminMenuNode[]): MenuProps['items'] {
+  return menus.map((node) => {
+    const Icon = resolveIcon(node.icon);
+    if (isSidebarGroup(node)) {
+      return {
+        key: node.code,
+        icon: <Icon />,
+        label: node.name,
+        children: node.children?.length ? buildMenuItems(node.children) : [],
+      };
+    }
+    if (node.type === 'menu' && node.path) {
+      return {
+        key: node.path,
+        icon: <Icon />,
+        label: node.name,
+      };
+    }
+    return null;
+  }).filter(Boolean) as MenuProps['items'];
 }
 
 /** 点击分组菜单时不导航 */

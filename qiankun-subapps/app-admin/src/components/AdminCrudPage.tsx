@@ -1,5 +1,14 @@
 import { DeleteOutlined, EditOutlined, PlusOutlined, UnorderedListOutlined } from '@ant-design/icons';
-import { Form, message, type FormInstance } from 'antd';
+import {
+  Button,
+  Form,
+  Modal,
+  Popconfirm,
+  Space,
+  Table,
+  message,
+  type FormInstance,
+} from 'antd';
 import type { ColumnsType } from 'antd/es/table';
 import { useMemo, useState, type ReactNode } from 'react';
 import {
@@ -11,10 +20,10 @@ import {
 } from './admin-page';
 import PageLoading from './_common/PageLoading';
 import PermissionGuard from './PermissionGuard';
-import { UiButton, UiModal, UiPopconfirm, UiTable, type UiTableColumn } from './ui';
 
 export interface AdminCrudPageProps<T extends { id: number }> {
   title: string;
+  /** 页面功能说明 */
   description?: string;
   createLabel: string;
   data: T[];
@@ -28,28 +37,21 @@ export interface AdminCrudPageProps<T extends { id: number }> {
   onUpdate: (id: number, values: Record<string, unknown>) => Promise<void>;
   onDelete: (id: number) => Promise<void>;
   onReload: () => void;
+  /** 按钮级权限码 */
   createPermission?: string;
   updatePermission?: string;
   deletePermission?: string;
+  /** 操作列额外按钮 */
   extraActions?: (record: T) => ReactNode;
+  /** 自定义统计指标（默认展示总记录数） */
   stats?: AdminStatItem[];
+  /** 是否展示总记录数统计，默认 true */
   showTotalStat?: boolean;
+  /** 表格上方工具区（筛选等） */
   toolbar?: ReactNode;
 }
 
-/** 将 Ant Design 列定义转为自定义表格列（结构兼容） */
-function toUiColumns<T>(columns: ColumnsType<T>): UiTableColumn<T>[] {
-  return columns.map((col, index) => ({
-    title: col.title,
-    dataIndex: col.dataIndex as keyof T & string | undefined,
-    key: col.key as string | undefined,
-    width: col.width as number | string | undefined,
-    fixed: col.fixed as 'left' | 'right' | undefined,
-    render: col.render as UiTableColumn<T>['render'],
-  }));
-}
-
-/** 后台标准 CRUD 页壳：Hero + 统计 + 自定义 Table + Modal Form */
+/** 后台标准 CRUD 页壳：Hero + 统计 + Table + Modal Form + 权限控制 */
 export default function AdminCrudPage<T extends { id: number }>({
   title,
   description,
@@ -130,33 +132,31 @@ export default function AdminCrudPage<T extends { id: number }>({
   };
 
   const createBtn = (
-    <UiButton variant="primary" icon={<PlusOutlined />} onClick={openCreate}>
+    <Button type="primary" icon={<PlusOutlined />} onClick={openCreate}>
       {createLabel}
-    </UiButton>
+    </Button>
   );
 
-  const uiColumns = toUiColumns(columns);
-  const actionColumn: UiTableColumn<T> = {
+  const actionColumn: ColumnsType<T>[number] = {
     title: '操作',
-    key: 'actions',
     width: extraActions ? 200 : 140,
     fixed: 'right',
     render: (_, record) => (
-      <div className="ui-space" style={{ gap: 4 }}>
+      <Space>
         {extraActions?.(record)}
         <PermissionGuard code={updatePermission ?? ''}>
-          <UiButton variant="link" size="sm" icon={<EditOutlined />} onClick={() => openEdit(record)}>
+          <Button type="link" size="small" icon={<EditOutlined />} onClick={() => openEdit(record)}>
             编辑
-          </UiButton>
+          </Button>
         </PermissionGuard>
         <PermissionGuard code={deletePermission ?? ''}>
-          <UiPopconfirm title={deleteConfirmTitle} onConfirm={() => handleDelete(record.id)}>
-            <UiButton variant="link" size="sm" icon={<DeleteOutlined />}>
+          <Popconfirm title={deleteConfirmTitle} onConfirm={() => handleDelete(record.id)}>
+            <Button type="link" size="small" danger icon={<DeleteOutlined />}>
               删除
-            </UiButton>
-          </UiPopconfirm>
+            </Button>
+          </Popconfirm>
         </PermissionGuard>
-      </div>
+      </Space>
     ),
   };
 
@@ -175,28 +175,30 @@ export default function AdminCrudPage<T extends { id: number }>({
     >
       <AdminSectionCard noPadding>
         {toolbar}
-        <UiTable
+        <Table
           rowKey="id"
-          columns={[...uiColumns, actionColumn]}
+          columns={[...columns, actionColumn]}
           dataSource={data}
+          size={ADMIN_TABLE_DEFAULTS.size}
           className={ADMIN_TABLE_DEFAULTS.className}
           scroll={{ x: 'max-content' }}
           pagination={mergeAdminTablePagination({ total: data.length })}
         />
       </AdminSectionCard>
 
-      <UiModal
+      <Modal
         title={editing?.id ? modalTitles.edit : modalTitles.create}
         open={modalOpen}
         onCancel={() => setModalOpen(false)}
-        onOk={() => void handleSave()}
+        onOk={handleSave}
         confirmLoading={saving}
         width={modalWidth}
+        destroyOnClose
       >
         <Form form={form} layout="vertical">
           {renderForm(form)}
         </Form>
-      </UiModal>
+      </Modal>
     </AdminPageShell>
   );
 }
