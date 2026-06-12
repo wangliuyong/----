@@ -6,11 +6,18 @@
     </view>
 
     <view class="msg__bubble" :class="role === 'user' ? 'msg__bubble--user' : 'msg__bubble--assistant'">
-      <text class="msg__text">{{ content || ' ' }}</text>
-      <view v-if="!content && role === 'assistant'" class="msg__cursor" />
+      <!-- 用户消息：纯文本 -->
+      <text v-if="role === 'user'" class="msg__text msg__text--user">{{ content }}</text>
+
+      <!-- 助手消息：结构化友好展示 -->
+      <AiMessageContent
+        v-else
+        :content="content"
+        :streaming="streaming"
+      />
     </view>
 
-    <!-- 用户头像占位 -->
+    <!-- 用户头像 -->
     <view v-if="role === 'user'" class="msg__avatar msg__avatar--user">
       <u-icon name="account-fill" color="#fff" size="16" />
     </view>
@@ -19,10 +26,13 @@
 
 <script setup lang="ts">
 import type { AiMessageRole } from '@/types/city-info';
+import AiMessageContent from '@/components/AiMessageContent/AiMessageContent.vue';
 
 defineProps<{
   role: AiMessageRole;
   content: string;
+  /** 助手消息是否正在流式输出 */
+  streaming?: boolean;
 }>();
 </script>
 
@@ -66,44 +76,24 @@ defineProps<{
   max-width: calc(100% - 140rpx);
   padding: 24rpx 28rpx;
   border-radius: 28rpx;
-  line-height: 1.72;
   position: relative;
 }
 
 .msg__bubble--user {
   @include cv-ai-bubble-user;
+  padding: 22rpx 28rpx;
 }
 
 .msg__bubble--assistant {
   @include cv-ai-bubble-assistant;
+  min-width: 120rpx;
 }
 
-.msg__text {
+.msg__text--user {
   font-size: 28rpx;
+  line-height: 1.72;
   white-space: pre-wrap;
   word-break: break-word;
   letter-spacing: -0.01em;
-}
-
-/** 流式输出光标 */
-.msg__cursor {
-  display: inline-block;
-  width: 4rpx;
-  height: 28rpx;
-  margin-left: 4rpx;
-  background: $cv-primary;
-  border-radius: 2rpx;
-  animation: cv-blink 1s step-end infinite;
-  vertical-align: middle;
-}
-
-@keyframes cv-blink {
-  0%,
-  100% {
-    opacity: 1;
-  }
-  50% {
-    opacity: 0;
-  }
 }
 </style>

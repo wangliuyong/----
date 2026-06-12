@@ -53,14 +53,13 @@
       </view>
 
       <view v-if="!historyLoading" class="page-ai__msg-list">
-        <AiMessageBubble v-for="msg in messages" :key="msg.id" :role="msg.role" :content="msg.content" />
-      </view>
-
-      <view v-if="streaming" class="page-ai__typing">
-        <view class="page-ai__typing-sk">
-          <SkeletonLine variant="short" width="120rpx" :shimmer="true" />
-        </view>
-        <text>正在整理回答</text>
+        <AiMessageBubble
+          v-for="msg in messages"
+          :key="msg.id"
+          :role="msg.role"
+          :content="msg.content"
+          :streaming="streaming && msg.role === 'assistant' && msg.id === streamingMsgId"
+        />
       </view>
 
       <!-- 底部占位，避免最后一条被输入栏遮挡 -->
@@ -86,7 +85,6 @@ import { onLoad, onShow } from '@dcloudio/uni-app';
 import { queryAiMessages, streamAiChat } from '@/api/ai.api';
 import AiMessageBubble from '@/components/AiMessageBubble/AiMessageBubble.vue';
 import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
-import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import { isTabBarPath } from '@/constants/tabbar';
 import { useTabBarPage } from '@/composables/useTabBarPage';
 import { useTabBarStore } from '@/stores/tabbar';
@@ -102,6 +100,7 @@ const question = ref('');
 const messages = ref<AiMessageItem[]>([]);
 const sessionId = ref<number>();
 const streaming = ref(false);
+const streamingMsgId = ref<number>();
 const historyLoading = ref(false);
 const scrollTop = ref(0);
 let msgId = 1;
@@ -201,6 +200,7 @@ async function onSend() {
   };
   messages.value.push(assistantMsg);
   streaming.value = true;
+  streamingMsgId.value = assistantMsg.id;
 
   try {
     const gen = streamAiChat({ sessionId: sessionId.value, question: text });
@@ -217,6 +217,7 @@ async function onSend() {
     assistantMsg.content = (e as Error).message || '回答失败，请重试';
   } finally {
     streaming.value = false;
+    streamingMsgId.value = undefined;
     await scrollToBottom();
   }
 }
@@ -440,15 +441,6 @@ $ai-composer-offset: calc(112rpx + env(safe-area-inset-bottom));
   @include cv-pressable;
 }
 
-.page-ai__typing {
-  display: flex;
-  align-items: center;
-  gap: 12rpx;
-  padding: 8rpx 0 16rpx;
-  color: $cv-text-muted;
-  font-size: 24rpx;
-}
-
 .page-ai__msg-sk {
   display: flex;
   flex-direction: column;
@@ -463,12 +455,6 @@ $ai-composer-offset: calc(112rpx + env(safe-area-inset-bottom));
   &--right {
     justify-content: flex-end;
   }
-}
-
-.page-ai__typing-sk {
-  padding: 8rpx 16rpx;
-  border-radius: 16rpx;
-  background: $cv-surface-muted;
 }
 
 .page-ai__composer {

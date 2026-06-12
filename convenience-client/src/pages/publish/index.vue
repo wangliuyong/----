@@ -40,11 +40,25 @@
 
       <template v-else>
       <!-- 区块 1：分类 -->
-      <view class="page-publish__section cv-card">
+      <view
+        id="publish-field-category"
+        class="page-publish__section cv-card"
+        :class="{ 'page-publish__section--error': errors.categoryId }"
+      >
         <view class="page-publish__section-head">
-          <view class="page-publish__section-badge">1</view>
+          <view
+            class="page-publish__section-badge"
+            :class="{ 'page-publish__section-badge--error': errors.categoryId }"
+          >
+            1
+          </view>
           <view class="page-publish__section-meta">
-            <text class="page-publish__section-title">选择分类</text>
+            <text
+              class="page-publish__section-title"
+              :class="{ 'page-publish__section-title--error': errors.categoryId }"
+            >
+              选择分类<text class="page-publish__required">*</text>
+            </text>
             <text class="page-publish__section-sub">先选大类，再点具体类型</text>
           </view>
           <text v-if="errors.categoryId" class="page-publish__section-tip page-publish__section-tip--warn">
@@ -58,6 +72,7 @@
           :active-id="activeRootId"
           layout="wrap"
           :show-hint="false"
+          :class="{ 'page-publish__category-strip--error': errors.categoryId }"
           @select="onSelectRootItem"
         />
 
@@ -82,6 +97,10 @@
           </view>
         </scroll-view>
 
+        <text v-if="errors.categoryId" class="page-publish__field-error page-publish__field-error--block">
+          请选择具体分类后再提交
+        </text>
+
         <view v-if="categoryLabel" class="page-publish__picked">
           <view class="page-publish__picked-icon">
             <u-icon name="checkmark-circle-fill" color="#1d4ed8" size="16" />
@@ -94,7 +113,11 @@
       </view>
 
       <!-- 区块 2：标题与详情 -->
-      <view class="page-publish__section cv-card">
+      <view
+        id="publish-field-title"
+        class="page-publish__section cv-card"
+        :class="{ 'page-publish__section--error': errors.title || errors.content }"
+      >
         <view class="page-publish__section-head">
           <view class="page-publish__section-badge">2</view>
           <view class="page-publish__section-meta">
@@ -105,7 +128,12 @@
 
         <view class="page-publish__field">
           <view class="page-publish__field-head">
-            <text class="page-publish__field-label">标题</text>
+            <text
+              class="page-publish__field-label"
+              :class="{ 'page-publish__field-label--error': errors.title }"
+            >
+              标题<text class="page-publish__required">*</text>
+            </text>
             <text class="page-publish__field-count">{{ form.title.length }}/50</text>
           </view>
           <view
@@ -124,9 +152,14 @@
           <text v-if="errors.title" class="page-publish__field-error">请填写标题</text>
         </view>
 
-        <view class="page-publish__field page-publish__field--last">
+        <view id="publish-field-content" class="page-publish__field page-publish__field--last">
           <view class="page-publish__field-head">
-            <text class="page-publish__field-label">详情描述</text>
+            <text
+              class="page-publish__field-label"
+              :class="{ 'page-publish__field-label--error': errors.content }"
+            >
+              详情描述<text class="page-publish__required">*</text>
+            </text>
             <text class="page-publish__field-count">{{ form.content.length }}/500</text>
           </view>
           <view
@@ -196,7 +229,7 @@
           <view class="page-publish__section-badge page-publish__section-badge--muted">4</view>
           <view class="page-publish__section-meta">
             <text class="page-publish__section-title">添加图片</text>
-            <text class="page-publish__section-sub">最多 6 张，首张将作为封面</text>
+            <text class="page-publish__section-sub">最多 6 张，校验通过后提交时上传</text>
           </view>
         </view>
 
@@ -229,8 +262,8 @@
           type="primary"
           :text="submitButtonText"
           shape="circle"
-          :loading="submitting"
-          :disabled="!canSubmit && !submitting"
+          :loading="submitting || uploadingImages"
+          :disabled="submitting || uploadingImages"
           @click="onSubmit"
         />
       </view>
@@ -240,7 +273,7 @@
 </template>
 
 <script setup lang="ts">
-import { ref, computed, onMounted } from 'vue';
+import { ref, computed, onMounted, nextTick } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { postUploadImage } from '@/api/ai.api';
 import { postCityInfo } from '@/api/city-info.api';
@@ -261,6 +294,8 @@ const submitting = ref(false);
 const pageLoading = ref(true);
 const categories = ref<CategoryItem[]>([]);
 const fileList = ref<{ url: string }[]>([]);
+/** 是否正在上传待发布的图片（校验通过后） */
+const uploadingImages = ref(false);
 /** 当前展开的一级分类 ID */
 const activeRootId = ref(0);
 /** 用户是否已尝试提交，用于展示字段级错误 */
@@ -333,9 +368,11 @@ const errors = computed(() => ({
 }));
 
 /** 底部按钮文案随完成度变化 */
-const submitButtonText = computed(() =>
-  canSubmit.value ? '提交发布' : `还差 ${3 - completionCount.value} 项必填`,
-);
+const submitButtonText = computed(() => {
+  if (uploadingImages.value) return '正在上传图片…';
+  if (submitting.value) return '提交中…';
+  return canSubmit.value ? '提交发布' : `还差 ${3 - completionCount.value} 项必填`;
+});
 
 /** 选中一级分类并展开二级标签 */
 function onSelectRoot(rootId: number) {
@@ -388,25 +425,38 @@ function onUseCurrentLocation() {
   uni.showToast({ title: '已填入当前城市', icon: 'none' });
 }
 
-/** 选择图片后上传 */
-async function onAfterRead(event: {
+/** 选择图片：仅加入本地预览，校验通过后再上传 */
+function onAfterRead(event: {
   file: UniApp.UploadFileSuccessCallbackResultFile | UniApp.UploadFileSuccessCallbackResultFile[];
 }) {
   const files = Array.isArray(event.file) ? event.file : [event.file];
   for (const f of files) {
     const path = (f as { url?: string }).url || '';
     if (!path) continue;
-    try {
-      const res = await postUploadImage(path);
-      fileList.value.push({ url: res.url });
-    } catch (e) {
-      uni.showToast({ title: (e as Error).message || '上传失败', icon: 'none' });
-    }
+    fileList.value.push({ url: path });
   }
 }
 
 function onDelete(event: { index: number }) {
   fileList.value.splice(event.index, 1);
+}
+
+/** 校验通过后批量上传本地图片，返回服务端 URL 列表 */
+async function uploadPendingImages(): Promise<string[]> {
+  if (!fileList.value.length) return [];
+
+  uploadingImages.value = true;
+  const urls: string[] = [];
+  try {
+    for (let i = 0; i < fileList.value.length; i += 1) {
+      const localPath = fileList.value[i].url;
+      const res = await postUploadImage(localPath);
+      urls.push(res.url);
+    }
+    return urls;
+  } finally {
+    uploadingImages.value = false;
+  }
 }
 
 /** 发布页为独立子页，返回统一回到首页 Tab（避免 navigateBack 刷新当前页） */
@@ -426,21 +476,65 @@ function hideNativeTabBar() {
   uni.hideTabBar({ animation: false, fail: () => {} });
 }
 
+/** 滚动定位到第一个未填写的必填项 */
+async function scrollToFirstError() {
+  await nextTick();
+
+  let selector = '';
+  if (!form.value.categoryId) {
+    selector = '#publish-field-category';
+  } else if (!form.value.title.trim()) {
+    selector = '#publish-field-title';
+  } else if (!form.value.content.trim()) {
+    selector = '#publish-field-content';
+  }
+  if (!selector) return;
+
+  uni.createSelectorQuery()
+    .select(selector)
+    .boundingClientRect()
+    .selectViewport()
+    .scrollOffset()
+    .exec((res) => {
+      const rect = res[0] as UniApp.NodeInfo | null;
+      const viewport = res[1] as { scrollTop?: number } | null;
+      if (!rect || rect.top === undefined || !viewport) return;
+
+      const currentTop = viewport.scrollTop || 0;
+      const targetTop = Math.max(currentTop + rect.top - 100, 0);
+      uni.pageScrollTo({
+        scrollTop: targetTop,
+        duration: 300,
+      });
+    });
+}
+
 /** 提交发布 */
 async function onSubmit() {
   submitAttempted.value = true;
+  touched.value.title = true;
+  touched.value.content = true;
 
   if (!userStore.isLoggedIn) {
     uni.navigateTo({ url: '/pages/auth/login' });
     return;
   }
   if (!canSubmit.value) {
-    uni.showToast({ title: '请先完成必填项', icon: 'none' });
+    uni.showToast({ title: '请完成标红的必填项', icon: 'none' });
+    await scrollToFirstError();
     return;
   }
 
   submitting.value = true;
   try {
+    let imageUrls: string[] = [];
+    try {
+      imageUrls = await uploadPendingImages();
+    } catch (e) {
+      uni.showToast({ title: (e as Error).message || '图片上传失败，请重试', icon: 'none' });
+      return;
+    }
+
     await postCityInfo({
       categoryId: form.value.categoryId,
       title: form.value.title.trim(),
@@ -449,7 +543,7 @@ async function onSubmit() {
       address: form.value.address || undefined,
       latitude: locationStore.latitude,
       longitude: locationStore.longitude,
-      images: fileList.value.map((f) => f.url),
+      images: imageUrls,
     });
     uni.showToast({ title: '提交成功，等待审核', icon: 'success' });
     form.value = { categoryId: 0, title: '', content: '', price: '', address: '' };
@@ -614,6 +708,20 @@ onMounted(async () => {
 .page-publish__section {
   margin-bottom: 20rpx;
   padding: 28rpx 28rpx 32rpx;
+  border: 1rpx solid transparent;
+  transition: border-color 0.2s $cv-ease-out, box-shadow 0.2s $cv-ease-out;
+}
+
+/** 必填项校验失败：区块标红提示 */
+.page-publish__section--error {
+  border-color: rgba(220, 38, 38, 0.38);
+  box-shadow: 0 0 0 4rpx rgba(220, 38, 38, 0.08);
+}
+
+.page-publish__required {
+  margin-left: 4rpx;
+  color: #dc2626;
+  font-weight: 700;
 }
 
 .page-publish__section-head {
@@ -643,6 +751,15 @@ onMounted(async () => {
   color: $cv-text-secondary;
   box-shadow: none;
   border: 1rpx solid $cv-border;
+}
+
+.page-publish__section-badge--error {
+  background: linear-gradient(155deg, #b91c1c 0%, #dc2626 100%);
+  box-shadow: 0 8rpx 20rpx rgba(220, 38, 38, 0.24);
+}
+
+.page-publish__section-title--error {
+  color: #dc2626;
 }
 
 .page-publish__section-meta {
@@ -675,6 +792,15 @@ onMounted(async () => {
 
 .page-publish__section-tip--warn {
   color: #dc2626;
+}
+
+/** 分类条校验失败高亮 */
+.page-publish__category-strip--error {
+  padding: 12rpx;
+  margin: -12rpx;
+  border-radius: $cv-radius-sm;
+  background: #fef2f2;
+  border: 1rpx solid rgba(220, 38, 38, 0.28);
 }
 
 /** 二级分类：本页唯一横向滚动区 */
@@ -780,6 +906,10 @@ onMounted(async () => {
   color: $cv-text;
 }
 
+.page-publish__field-label--error {
+  color: #dc2626;
+}
+
 .page-publish__field-count {
   font-size: 22rpx;
   color: $cv-text-muted;
@@ -829,6 +959,10 @@ onMounted(async () => {
   margin-top: 10rpx;
   font-size: 22rpx;
   color: #dc2626;
+}
+
+.page-publish__field-error--block {
+  margin-top: 16rpx;
 }
 
 .page-publish__loc-btn {

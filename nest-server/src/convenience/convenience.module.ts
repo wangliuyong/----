@@ -1,7 +1,8 @@
-import { Module } from '@nestjs/common';
+import { Module, forwardRef } from '@nestjs/common';
 import { APP_FILTER, APP_INTERCEPTOR } from '@nestjs/core';
 import { JwtModule } from '@nestjs/jwt';
 import { PassportModule } from '@nestjs/passport';
+import { AiModule } from '../ai/ai.module';
 import { ConvApiExceptionFilter } from './common/api-exception.filter';
 import { ConvApiResponseInterceptor } from './common/api-response.interceptor';
 import { ConvAuthController } from './auth/conv-auth.controller';
@@ -27,6 +28,7 @@ import { ConvUploadService } from './upload/conv-upload.service';
 /** 同城便民 C 端 API 模块 */
 @Module({
   imports: [
+    forwardRef(() => AiModule),
     PassportModule.register({ defaultStrategy: 'conv-jwt' }),
     JwtModule.register({
       secret: process.env.JWT_SECRET || 'personal-site-dev-secret',

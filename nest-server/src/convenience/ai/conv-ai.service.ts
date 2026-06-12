@@ -1,31 +1,30 @@
-import { Injectable, NotFoundException } from '@nestjs/common';
+import {
+  Injectable,
+  InternalServerErrorException,
+  NotFoundException,
+} from '@nestjs/common';
+import {
+  AIMessage,
+  BaseMessage,
+  HumanMessage,
+  SystemMessage,
+} from '@langchain/core/messages';
+import { ChatOpenAI } from '@langchain/openai';
 import { PrismaService } from '../../prisma/prisma.service';
+import { AiConfigService } from '../../ai/services/ai-config.service';
 import { serializeAiMessage, serializeAiSession } from '../common/serializers';
+import { CONV_AI_SYSTEM_PROMPT } from './conv-ai.prompt';
 import type { ConvAiChatDto } from './dto/conv-ai.dto';
 
-/** 便民 AI 知识库片段（模拟 RAG 检索） */
-const KNOWLEDGE_SNIPPETS: Record<string, string> = {
-  发布:
-    '发布流程：底部 Tab「发布」→ 选择分类 → 填写标题与内容 → 上传图片（最多 6 张）→ 提交审核。审核通过后展示在首页和列表。',
-  审核:
-    '一般 1-2 个工作日完成审核。暑期兼职类优先，约 4 小时。可在「我的」查看状态：待审核、已通过、已驳回。',
-  举报:
-    '详情页点击「举报」，选择类型并填写说明。平台 24 小时内处理，严重违规立即下架。',
-  收藏:
-    '登录后可在详情页点击「收藏」，在「我的 - 我的收藏」中查看。取消收藏同样在该页面操作。',
-  分类:
-    '平台分三大板块：二手交易、求职招聘、上门服务。每类下有细分子分类，可在「分类」Tab 浏览。',
-  价格:
-    '二手类建议填写心理价位；招聘类可填月薪或日薪；服务类可填起步价或单价，方便用户筛选。',
-  定位:
-    '发布时填写地址有助于同城展示和距离排序。列表页支持按距离、价格、最新排序。',
-  默认:
-    '我是同城便民 AI 助手，可解答发布流程、审核规则、举报与分类等问题。请直接描述您的需求。',
-};
+/** 带入 LLM 的最大历史消息条数（user+assistant 合计） */
+const MAX_HISTORY_MESSAGES = 20;
 
 @Injectable()
 export class ConvAiService {
-  constructor(private readonly prisma: PrismaService) {}
+  constructor(
+    private readonly prisma: PrismaService,
+    private readonly aiConfig: AiConfigService,
+  ) {}
 
   /** 查询用户 AI 会话列表 */
   async findSessions(userId: number) {
@@ -51,21 +50,7 @@ export class ConvAiService {
     return messages.map(serializeAiMessage);
   }
 
-  /** 模拟 RAG 检索知识片段 */
-  private retrieveKnowledge(question: string): string {
-    const hit = Object.keys(KNOWLEDGE_SNIPPETS).find(
-      (key) => key !== '默认' && question.includes(key),
-    );
-    return KNOWLEDGE_SNIPPETS[hit || '默认'];
-  }
-
-  /** 生成 Mock 回答 */
-  private buildAnswer(question: string): string {
-    const snippet = this.retrieveKnowledge(question);
-    return `【便民知识库】${snippet}\n\n针对您的问题「${question}」，如需进一步帮助可联系平台客服。`;
-  }
-
-  /** AI 问答（非流式） */
+  /** AI 问答：调用管理后台配置的 LLM，结合会话历史生成回答 */
   async chat(userId: number, dto: ConvAiChatDto) {
     let sessionId = dto.sessionId;
 
@@ -86,8 +71,8 @@ export class ConvAiService {
       sessionId = session.id;
     }
 
+    const answer = await this.generateAnswer(sessionId!, dto.question);
     const now = new Date();
-    const answer = this.buildAnswer(dto.question);
 
     await this.prisma.convAiMessage.createMany({
       data: [
@@ -107,5 +92,101 @@ export class ConvAiService {
     });
 
     return { sessionId: sessionId!, answer };
+  }
+
+  /** 拉取平台动态上下文（公告摘要），注入 system 提示 */
+  private async buildDynamicContext(): Promise<string> {
+    const notices = await this.prisma.convNotice.findMany({
+      where: { published: true },
+      orderBy: { createdAt: 'desc' },
+      take: 3,
+      select: { title: true, content: true },
+    });
+    if (!notices.length) return '';
+
+    const lines = notices.map(
+      (n, i) => `${i + 1}. ${n.title}：${n.content.slice(0, 120)}`,
+    );
+    return `\n\n最新平台公告（回答时可参考）：\n${lines.join('\n')}`;
+  }
+
+  /** 组装 LLM 消息：system + 历史 + 当前问题 */
+  private async buildMessages(
+    sessionId: number,
+    question: string,
+  ): Promise<BaseMessage[]> {
+    const dynamicContext = await this.buildDynamicContext();
+    const messages: BaseMessage[] = [
+      new SystemMessage(CONV_AI_SYSTEM_PROMPT + dynamicContext),
+    ];
+
+    const history = await this.prisma.convAiMessage.findMany({
+      where: { sessionId },
+      orderBy: { createdAt: 'asc' },
+      take: MAX_HISTORY_MESSAGES,
+    });
+
+    for (const item of history) {
+      if (item.role === 'user') {
+        messages.push(new HumanMessage(item.content));
+      } else if (item.role === 'assistant') {
+        messages.push(new AIMessage(item.content));
+      }
+    }
+
+    messages.push(new HumanMessage(question));
+    return messages;
+  }
+
+  /** 创建 ChatOpenAI 实例（复用管理后台 AiConfig 配置） */
+  private async createLlm(): Promise<ChatOpenAI | null> {
+    const config = await this.aiConfig.getResolvedConfig();
+    if (!config) return null;
+
+    return new ChatOpenAI({
+      apiKey: config.apiKey,
+      model: config.chatModel,
+      temperature: 0.6,
+      streaming: false,
+      configuration: { baseURL: config.baseUrl },
+    });
+  }
+
+  /** 调用 LLM 生成回答 */
+  private async generateAnswer(
+    sessionId: number,
+    question: string,
+  ): Promise<string> {
+    const llm = await this.createLlm();
+    if (!llm) {
+      return 'AI 助手暂未配置。请管理员在后台「AI 小助手」中设置 API Key 后重试。';
+    }
+
+    try {
+      const messages = await this.buildMessages(sessionId, question);
+      const response = await llm.invoke(messages);
+      const text = this.extractTextContent(response.content);
+      return text.trim() || '抱歉，我暂时无法回答这个问题，请换个方式描述试试。';
+    } catch (e) {
+      const message = e instanceof Error ? e.message : String(e);
+      throw new InternalServerErrorException(`AI 回答生成失败：${message}`);
+    }
+  }
+
+  /** 解析 LangChain 消息 content（string 或 multimodal 数组） */
+  private extractTextContent(content: unknown): string {
+    if (typeof content === 'string') return content;
+    if (Array.isArray(content)) {
+      return content
+        .map((part) => {
+          if (typeof part === 'string') return part;
+          if (part && typeof part === 'object' && 'text' in part) {
+            return String((part as { text: string }).text);
+          }
+          return '';
+        })
+        .join('');
+    }
+    return String(content ?? '');
   }
 }
