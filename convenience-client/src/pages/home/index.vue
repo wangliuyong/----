@@ -19,37 +19,97 @@
         <u-icon name="search" color="#8b9bb8" size="18" />
         <text class="page-home__search-ph">搜索关键词</text>
       </view>
+
+      <!-- 数据概览：同城信息规模一目了然 -->
+      <view v-if="!loading" class="page-home__stats">
+        <view class="page-home__stat">
+          <text class="page-home__stat-num">{{ totalInfoCount }}</text>
+          <text class="page-home__stat-label">条信息</text>
+        </view>
+        <view class="page-home__stat-line" />
+        <view class="page-home__stat">
+          <text class="page-home__stat-num">{{ categories.length }}</text>
+          <text class="page-home__stat-label">个大类</text>
+        </view>
+        <view class="page-home__stat-line" />
+        <view class="page-home__stat">
+          <text class="page-home__stat-num">{{ totalSubCount }}</text>
+          <text class="page-home__stat-label">个子类</text>
+        </view>
+      </view>
+      <view v-else class="page-home__stats page-home__stats--skeleton">
+        <view v-for="i in 3" :key="i" class="page-home__stat-sk" />
+      </view>
     </view>
 
     <view class="page-home__body">
-      <view v-if="banners.length" class="page-home__swiper-wrap cv-card">
-        <u-swiper
-          :list="swiperList"
-          key-name="image"
-          height="300rpx"
-          radius="20"
-          indicator
-          indicator-mode="line"
-          :indicator-active-color="primaryColor"
-        />
+      <!-- 快捷入口 Bento -->
+      <HomeQuickActions
+        @publish="goPublish"
+        @ai="goAi"
+        @category="goCategoryTab"
+        @search="goSearch"
+      />
+
+      <!-- 轮播 + 公告并排（有数据时） -->
+      <view v-if="banners.length || notices.length" class="page-home__promo">
+        <view v-if="banners.length" class="page-home__swiper-wrap cv-card">
+          <u-swiper
+            :list="swiperList"
+            key-name="image"
+            height="280rpx"
+            radius="20"
+            indicator
+            indicator-mode="line"
+            :indicator-active-color="primaryColor"
+          />
+        </view>
+        <view v-if="notices.length" class="page-home__notice cv-card" @click="goNotice(notices[0].id)">
+          <view class="page-home__notice-head">
+            <view class="page-home__notice-tag">公告</view>
+            <text class="page-home__notice-time">{{ formatNoticeDate(notices[0].createdAt) }}</text>
+          </view>
+          <text class="page-home__notice-text">{{ notices[0].title }}</text>
+          <view class="page-home__notice-go">
+            <text>查看详情</text>
+            <u-icon name="arrow-right" color="#1d4ed8" size="12" />
+          </view>
+        </view>
       </view>
 
-      <view v-if="notices.length" class="page-home__notice cv-card" @click="goNotice(notices[0].id)">
-        <view class="page-home__notice-tag">公告</view>
-        <text class="page-home__notice-text">{{ notices[0].title }}</text>
-        <u-icon name="arrow-right" color="#cbd5e1" size="14" />
-      </view>
-
+      <!-- 热门分类 -->
       <view class="cv-section">
         <SectionHead title="热门分类" action-text="全部分类" @action="goCategoryTab" />
         <CategoryGrid :list="homeCategories" @select="onCategorySelect" />
       </view>
 
+      <!-- 最新推荐：精选 + 双列网格 -->
       <view class="cv-section">
-        <SectionHead title="推荐信息" action-text="查看更多" @action="goList" />
-        <InfoCard v-for="item in infoList" :key="item.id" :item="item" @click="goDetail" />
-        <u-empty v-if="!loading && !infoList.length" mode="list" text="暂无推荐信息" />
-        <u-loadmore v-if="infoList.length" :status="loadStatus" :color="primaryColor" />
+        <SectionHead title="最新推荐" :action-text="`共 ${totalInfoCount} 条`" @action="goList" />
+        <view v-if="loading" class="page-home__feed-loading">
+          <u-loading-icon mode="circle" size="20" :color="primaryColor" />
+          <text>加载中</text>
+        </view>
+        <template v-else>
+          <HomeFeaturedCard
+            v-if="featuredInfo"
+            :item="featuredInfo"
+            @click="goDetail"
+          />
+          <view v-if="gridInfoList.length" class="page-home__grid">
+            <HomeInfoTile
+              v-for="item in gridInfoList"
+              :key="item.id"
+              :item="item"
+              @click="goDetail"
+            />
+          </view>
+          <u-empty v-if="!featuredInfo && !gridInfoList.length" mode="list" text="暂无推荐信息" />
+          <view v-if="infoList.length" class="page-home__more" @click="goList">
+            <text>查看更多同城信息</text>
+            <u-icon name="arrow-right" color="#1d4ed8" size="14" />
+          </view>
+        </template>
       </view>
     </view>
 
@@ -68,8 +128,11 @@ import { queryCollectedIds } from '@/api/collect.api';
 import { queryNoticeList } from '@/api/notice.api';
 import AppTabBar from '@/components/AppTabBar/AppTabBar.vue';
 import CategoryGrid from '@/components/CategoryGrid/CategoryGrid.vue';
-import InfoCard from '@/components/InfoCard/InfoCard.vue';
+import HomeFeaturedCard from '@/components/HomeFeaturedCard/HomeFeaturedCard.vue';
+import HomeInfoTile from '@/components/HomeInfoTile/HomeInfoTile.vue';
+import HomeQuickActions from '@/components/HomeQuickActions/HomeQuickActions.vue';
 import SectionHead from '@/components/SectionHead/SectionHead.vue';
+import { openPublishPage } from '@/constants/tabbar';
 import { useTabBarPage } from '@/composables/useTabBarPage';
 import { useLocationStore } from '@/stores/location';
 import type { BannerItem, CategoryItem, CityInfoItem, NoticeItem } from '@/types/city-info';
@@ -82,20 +145,37 @@ const banners = ref<BannerItem[]>([]);
 const notices = ref<NoticeItem[]>([]);
 const categories = ref<CategoryItem[]>([]);
 const infoList = ref<CityInfoItem[]>([]);
+const totalInfoCount = ref(0);
 const loading = ref(false);
-const loadStatus = ref<'loadmore' | 'loading' | 'nomore'>('loadmore');
 
 const swiperList = computed(() =>
   banners.value.map((b) => ({ image: b.imageUrl, title: '' })),
 );
 
-/** 首页仅展示前 8 个一级分类，完整列表见「分类」Tab */
+/** 首页仅展示前 8 个一级分类 */
 const homeCategories = computed(() => categories.value.slice(0, 8));
+
+/** 全部子分类数量 */
+const totalSubCount = computed(() =>
+  categories.value.reduce((sum, root) => sum + (root.children?.length || 0), 0),
+);
+
+/** 精选：列表第一条 */
+const featuredInfo = computed(() => infoList.value[0] || null);
+
+/** 双列网格：第 2-7 条 */
+const gridInfoList = computed(() => infoList.value.slice(1, 7));
+
+/** 格式化公告日期 */
+function formatNoticeDate(iso?: string) {
+  if (!iso) return '';
+  const d = new Date(iso);
+  return `${d.getMonth() + 1}月${d.getDate()}日`;
+}
 
 /** 加载首页数据 */
 async function loadData() {
   loading.value = true;
-  loadStatus.value = 'loading';
   try {
     const [bannerRes, noticeRes, categoryRes, collectedIds] = await Promise.all([
       queryBannerList(),
@@ -107,8 +187,9 @@ async function loadData() {
     banners.value = bannerRes;
     notices.value = noticeRes;
     categories.value = categoryRes;
+
     const page = await queryCityInfoList(
-      { page: 1, pageSize: 6, sortBy: 'latest' },
+      { page: 1, pageSize: 7, sortBy: 'latest' },
       {
         lat: locationStore.latitude,
         lng: locationStore.longitude,
@@ -116,7 +197,7 @@ async function loadData() {
       },
     );
     infoList.value = page.list;
-    loadStatus.value = 'nomore';
+    totalInfoCount.value = page.total;
   } finally {
     loading.value = false;
   }
@@ -128,6 +209,14 @@ function onLocationTap() {
 
 function goSearch() {
   uni.navigateTo({ url: '/pages/info/list' });
+}
+
+function goPublish() {
+  openPublishPage();
+}
+
+function goAi() {
+  uni.switchTab({ url: '/pages/ai/index' });
 }
 
 function goCategoryTab() {
@@ -166,7 +255,7 @@ onMounted(loadData);
   position: relative;
   overflow: hidden;
   @include cv-hero-bg;
-  padding: 28rpx $cv-space-page 52rpx;
+  padding: 28rpx $cv-space-page 44rpx;
   padding-top: calc(28rpx + env(safe-area-inset-top));
 }
 
@@ -224,8 +313,8 @@ onMounted(loadData);
   position: relative;
   z-index: 1;
   display: block;
-  margin-top: 40rpx;
-  font-size: 46rpx;
+  margin-top: 36rpx;
+  font-size: 44rpx;
   font-weight: 700;
   color: #fff;
   letter-spacing: -0.04em;
@@ -236,7 +325,7 @@ onMounted(loadData);
   position: relative;
   z-index: 1;
   display: block;
-  margin-top: 14rpx;
+  margin-top: 12rpx;
   font-size: 26rpx;
   color: rgba(255, 255, 255, 0.8);
   line-height: 1.45;
@@ -248,8 +337,8 @@ onMounted(loadData);
   display: flex;
   align-items: center;
   gap: 14rpx;
-  margin-top: 32rpx;
-  padding: 26rpx 30rpx;
+  margin-top: 28rpx;
+  padding: 24rpx 28rpx;
   border-radius: $cv-radius-pill;
   @include cv-glass;
   @include cv-pressable;
@@ -261,27 +350,90 @@ onMounted(loadData);
   color: $cv-text-muted;
 }
 
+/** 英雄区数据概览 */
+.page-home__stats {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-top: 24rpx;
+  padding: 20rpx 28rpx;
+  border-radius: $cv-radius-sm;
+  background: rgba(255, 255, 255, 0.1);
+  border: 1rpx solid rgba(255, 255, 255, 0.16);
+}
+
+.page-home__stats--skeleton {
+  gap: 16rpx;
+}
+
+.page-home__stat {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4rpx;
+}
+
+.page-home__stat-num {
+  font-size: 34rpx;
+  font-weight: 700;
+  color: #fff;
+  font-variant-numeric: tabular-nums;
+  letter-spacing: -0.04em;
+  line-height: 1;
+}
+
+.page-home__stat-label {
+  font-size: 22rpx;
+  color: rgba(255, 255, 255, 0.72);
+}
+
+.page-home__stat-line {
+  width: 1rpx;
+  height: 36rpx;
+  background: rgba(255, 255, 255, 0.18);
+  flex-shrink: 0;
+}
+
+.page-home__stat-sk {
+  flex: 1;
+  height: 56rpx;
+  border-radius: 12rpx;
+  background: rgba(255, 255, 255, 0.08);
+}
+
 .page-home__body {
   @include cv-body-sheet;
 }
 
+.page-home__promo {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+  margin-bottom: 8rpx;
+}
+
 .page-home__swiper-wrap {
   overflow: hidden;
-  padding: 12rpx;
+  padding: 10rpx;
 }
 
 .page-home__notice {
-  display: flex;
-  align-items: center;
-  gap: 16rpx;
-  margin-top: 20rpx;
-  padding: 26rpx 30rpx;
+  padding: 24rpx 26rpx;
   @include cv-pressable;
 }
 
+.page-home__notice-head {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  margin-bottom: 12rpx;
+}
+
 .page-home__notice-tag {
-  flex-shrink: 0;
-  padding: 8rpx 16rpx;
+  padding: 6rpx 14rpx;
   font-size: 22rpx;
   font-weight: 600;
   color: $cv-accent;
@@ -289,13 +441,60 @@ onMounted(loadData);
   border-radius: $cv-radius-sm;
 }
 
+.page-home__notice-time {
+  font-size: 22rpx;
+  color: $cv-text-muted;
+  font-variant-numeric: tabular-nums;
+}
+
 .page-home__notice-text {
-  flex: 1;
-  font-size: 26rpx;
-  font-weight: 500;
+  display: block;
+  font-size: 28rpx;
+  font-weight: 600;
   color: $cv-text;
-  overflow: hidden;
-  text-overflow: ellipsis;
-  white-space: nowrap;
+  line-height: 1.45;
+  letter-spacing: -0.02em;
+}
+
+.page-home__notice-go {
+  display: flex;
+  align-items: center;
+  gap: 6rpx;
+  margin-top: 16rpx;
+  font-size: 24rpx;
+  font-weight: 600;
+  color: $cv-primary;
+}
+
+.page-home__feed-loading {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 12rpx;
+  padding: 48rpx 0;
+  font-size: 26rpx;
+  color: $cv-text-muted;
+}
+
+.page-home__grid {
+  display: grid;
+  grid-template-columns: repeat(2, 1fr);
+  gap: 14rpx;
+}
+
+.page-home__more {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8rpx;
+  margin-top: 24rpx;
+  padding: 24rpx;
+  border-radius: $cv-radius-pill;
+  background: $cv-surface;
+  border: 1rpx solid $cv-border;
+  font-size: 28rpx;
+  font-weight: 600;
+  color: $cv-primary;
+  @include cv-pressable;
 }
 </style>
