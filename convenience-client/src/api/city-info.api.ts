@@ -3,6 +3,7 @@ import {
   mockCategories,
   mockState,
   mockDelay,
+  mockInfoImages,
 } from '@/mock/data';
 import { useMock } from '@/utils/platform';
 import type { PageResult } from '@/types/api-response';
@@ -141,7 +142,9 @@ export async function postCityInfo(payload: CityInfoPayload): Promise<CityInfoIt
       address: payload.address,
       latitude: payload.latitude,
       longitude: payload.longitude,
-      images: payload.images || [],
+      images: payload.images?.length
+        ? payload.images
+        : mockInfoImages(payload.categoryId, payload.title),
       auditStatus: 'PENDING',
       viewCount: 0,
       collectCount: 0,

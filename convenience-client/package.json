@@ -43,7 +43,9 @@
     "android:pack:cloud": "bash scripts/android/cloud-pack.sh",
     "android:pack:offline": "bash scripts/android/offline-pack.sh",
     "type-check": "vue-tsc --noEmit",
-    "generate:tab-icons": "node scripts/generate-tab-icons.mjs"
+    "generate:tab-icons": "node scripts/generate-tab-icons.mjs",
+    "mock:topics:download": "node scripts/download-mock-topics.mjs",
+    "mock:topics:verify": "node scripts/verify-mock-topics.mjs"
   },
   "dependencies": {
     "@dcloudio/uni-app": "3.0.0-4080420251103001",

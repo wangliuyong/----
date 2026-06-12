@@ -8,15 +8,9 @@ import type {
   NoticeItem,
 } from '@/types/city-info';
 import type { UserProfile } from '@/types/user';
+import { mockBannerImg, mockImg, mockInfoImages } from './mock-images';
 
-/**
- * Mock 图片统一走本地 static，避免外网 CDN 失效或小程序域名限制
- * 资源目录：src/static/mock/{1-10}.jpg
- */
-export function mockImg(index: number): string {
-  const n = ((index - 1) % 10) + 1;
-  return `/static/mock/${n}.jpg`;
-}
+export { mockImg, mockInfoImages, mockTopicImg, resolveMockTopic } from './mock-images';
 
 /**
  * Mock 延迟，模拟网络请求
@@ -264,21 +258,21 @@ export const mockCategories: CategoryItem[] = [
 export const mockBanners: BannerItem[] = [
   {
     id: 1,
-    imageUrl: mockImg(1),
+    imageUrl: mockBannerImg(1),
     linkUrl: '',
     sort: 1,
     online: true,
   },
   {
     id: 2,
-    imageUrl: mockImg(2),
+    imageUrl: mockBannerImg(2),
     linkUrl: '',
     sort: 2,
     online: true,
   },
   {
     id: 3,
-    imageUrl: mockImg(3),
+    imageUrl: mockBannerImg(3),
     linkUrl: '',
     sort: 3,
     online: true,
@@ -318,8 +312,8 @@ export const mockNotices: NoticeItem[] = [
   },
 ];
 
-/** 初始便民信息列表（已通过审核） */
-const initialCityInfoList: CityInfoItem[] = [
+/** 初始便民信息列表（已通过审核，images 由下方 enrich 自动匹配） */
+const rawCityInfoList: CityInfoItem[] = [
   // 数码家电
   {
     id: 101,
@@ -1223,6 +1217,12 @@ const initialCityInfoList: CityInfoItem[] = [
     createdAt: '2026-06-02T11:00:00.000Z',
   },
 ];
+
+/** 按标题关键词 + 子分类自动匹配语义化配图 */
+const initialCityInfoList: CityInfoItem[] = rawCityInfoList.map((item) => ({
+  ...item,
+  images: mockInfoImages(item.categoryId, item.title),
+}));
 
 /** 预置收藏（登录用户 id=1 的初始收藏） */
 const initialCollectList: CollectItem[] = [
