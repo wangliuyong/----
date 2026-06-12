@@ -125,28 +125,13 @@
     "backgroundColor": "#E8ECF3"
   },
   "tabBar": {
-    "custom": false,
+    "custom": true,
     "color": "#8B9BB8",
     "selectedColor": "#1D4ED8",
     "backgroundColor": "#FFFFFF",
     "borderStyle": "white",
     "list": [
-      {
-        "pagePath": "pages/home/index",
-        "text": "首页"
-      },
-      {
-        "pagePath": "pages/category/index",
-        "text": "分类"
-      },
-      {
-        "pagePath": "pages/ai/index",
-        "text": "AI"
-      },
-      {
-        "pagePath": "pages/mine/index",
-        "text": "我的"
-      }
+     
     ]
   }
 }

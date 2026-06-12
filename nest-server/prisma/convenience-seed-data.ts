@@ -40,7 +40,15 @@ export const NOTICE_SEED = [
   },
 ] as const;
 
-export const BANNER_SEED = [] as const;
+/** 轮播图种子项（与 ConvBanner 字段对应，空数组表示不再写入 mock 静态图） */
+export type BannerSeedItem = {
+  imageUrl: string;
+  linkUrl?: string;
+  sort?: number;
+  online?: boolean;
+};
+
+export const BANNER_SEED: BannerSeedItem[] = [];
 
 /** 演示 C 端用户（密码均为 123456，由 seed.ts 写入 hash） */
 export const CONV_USER_SEED = [
