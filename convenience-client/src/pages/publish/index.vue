@@ -36,29 +36,20 @@
           </text>
         </view>
 
-        <!-- 一级分类：可视化卡片 -->
-        <view class="page-publish__roots">
-          <view
-            v-for="(root, index) in categories"
-            :key="root.id"
-            class="page-publish__root"
-            :class="[
-              `page-publish__root--${index % 5}`,
-              { 'page-publish__root--active': activeRootId === root.id },
-            ]"
-            @click="onSelectRoot(root.id)"
-          >
-            <view class="page-publish__root-icon">
-              <u-icon :name="rootIconMap(root.id)" color="#fff" size="18" />
-            </view>
-            <text class="page-publish__root-name">{{ root.name }}</text>
-          </view>
-        </view>
+        <!-- 一级分类：静态换行，不参与滚动 -->
+        <CategoryRootStrip
+          :list="categories"
+          :active-id="activeRootId"
+          layout="wrap"
+          :show-hint="false"
+          @select="onSelectRootItem"
+        />
 
-        <!-- 二级分类：横向滚动标签 -->
+        <!-- 二级分类：本页唯一横向滚动区 -->
         <scroll-view
           v-if="activeChildren.length"
           scroll-x
+          enable-flex
           class="page-publish__chips-scroll"
           :show-scrollbar="false"
         >
@@ -76,8 +67,13 @@
         </scroll-view>
 
         <view v-if="categoryLabel" class="page-publish__picked">
-          <u-icon name="checkmark-circle-fill" color="#1d4ed8" size="14" />
-          <text>{{ categoryLabel }}</text>
+          <view class="page-publish__picked-icon">
+            <u-icon name="checkmark-circle-fill" color="#1d4ed8" size="16" />
+          </view>
+          <view class="page-publish__picked-text">
+            <text class="page-publish__picked-label">已选分类</text>
+            <text class="page-publish__picked-value">{{ categoryLabel }}</text>
+          </view>
         </view>
       </view>
 
@@ -232,10 +228,10 @@ import { onLoad, onShow } from '@dcloudio/uni-app';
 import { postUploadImage } from '@/api/ai.api';
 import { postCityInfo } from '@/api/city-info.api';
 import { queryCategoryTree } from '@/api/category.api';
+import CategoryRootStrip from '@/components/CategoryRootStrip/CategoryRootStrip.vue';
 import { useLocationStore } from '@/stores/location';
 import { useTabBarStore } from '@/stores/tabbar';
 import { useUserStore } from '@/stores/user';
-import { getCategoryRootIcon } from '@/constants/category';
 import type { CategoryItem } from '@/types/city-info';
 
 const tabBarStore = useTabBarStore();
@@ -260,8 +256,14 @@ const form = ref({
   address: '',
 });
 
-/** 一级分类图标，与首页 CategoryGrid 共用 constants/category */
-const rootIconMap = getCategoryRootIcon;
+/** 已选分类展示文案 */
+const categoryLabel = computed(() => {
+  for (const root of categories.value) {
+    const hit = (root.children || []).find((c) => c.id === form.value.categoryId);
+    if (hit) return `${root.name} / ${hit.name}`;
+  }
+  return '';
+});
 
 /** u-input / u-textarea 内嵌样式：统一灰底圆角 */
 const inputStyle = {
@@ -281,15 +283,6 @@ const textareaStyle = {
 const activeChildren = computed(() => {
   const root = categories.value.find((c) => c.id === activeRootId.value);
   return root?.children || [];
-});
-
-/** 已选分类展示文案 */
-const categoryLabel = computed(() => {
-  for (const root of categories.value) {
-    const hit = (root.children || []).find((c) => c.id === form.value.categoryId);
-    if (hit) return `${root.name} · ${hit.name}`;
-  }
-  return '';
 });
 
 /** 必填项完成数量 */
@@ -334,6 +327,11 @@ function onSelectRoot(rootId: number) {
   } else if (!children.some((c) => c.id === form.value.categoryId)) {
     form.value.categoryId = 0;
   }
+}
+
+/** CategoryRootStrip 选中回调 */
+function onSelectRootItem(item: CategoryItem) {
+  onSelectRoot(item.id);
 }
 
 /** 选中二级分类 */
@@ -654,86 +652,21 @@ onMounted(async () => {
   color: #dc2626;
 }
 
-/** 一级分类卡片 */
-.page-publish__roots {
-  display: grid;
-  grid-template-columns: repeat(3, 1fr);
-  gap: 14rpx;
-}
-
-.page-publish__root {
-  position: relative;
-  display: flex;
-  flex-direction: column;
-  align-items: center;
-  justify-content: center;
-  gap: 10rpx;
-  padding: 22rpx 12rpx;
-  border-radius: $cv-radius-sm;
-  overflow: hidden;
-  min-height: 128rpx;
-  box-shadow: 0 10rpx 28rpx rgba(11, 18, 32, 0.14);
-  @include cv-pressable;
-
-  &--0 {
-    background: $cv-cat-1;
-  }
-
-  &--1 {
-    background: $cv-cat-2;
-  }
-
-  &--2 {
-    background: $cv-cat-3;
-  }
-
-  &--3 {
-    background: $cv-cat-4;
-  }
-
-  &--4 {
-    background: $cv-cat-5;
-  }
-
-  &--active {
-    box-shadow:
-      0 0 0 3rpx #fff,
-      0 0 0 6rpx $cv-primary,
-      0 14rpx 36rpx rgba(29, 78, 216, 0.32);
-    transform: scale(1.02);
-  }
-}
-
-.page-publish__root-icon {
-  width: 52rpx;
-  height: 52rpx;
-  border-radius: 16rpx;
-  background: rgba(255, 255, 255, 0.14);
-  border: 1rpx solid rgba(255, 255, 255, 0.22);
-  display: flex;
-  align-items: center;
-  justify-content: center;
-}
-
-.page-publish__root-name {
-  font-size: 24rpx;
-  font-weight: 700;
-  color: #fff;
-  letter-spacing: -0.02em;
-  text-align: center;
-}
-
-/** 二级分类横向标签 */
+/** 二级分类：本页唯一横向滚动区 */
 .page-publish__chips-scroll {
   width: 100%;
+  height: 80rpx;
   margin-top: 20rpx;
   white-space: nowrap;
 }
 
 .page-publish__chips {
   display: inline-flex;
+  align-items: center;
+  height: 80rpx;
   gap: 12rpx;
-  padding: 4rpx 0;
+  padding: 0 4rpx;
+  box-sizing: border-box;
 }
 
 .page-publish__chip {
@@ -760,14 +693,44 @@ onMounted(async () => {
 .page-publish__picked {
   display: flex;
   align-items: center;
-  gap: 10rpx;
+  gap: 14rpx;
   margin-top: 20rpx;
-  padding: 16rpx 20rpx;
+  padding: 18rpx 20rpx;
   border-radius: $cv-radius-sm;
-  background: $cv-primary-soft;
-  font-size: 24rpx;
-  font-weight: 600;
+  background: linear-gradient(135deg, rgba(29, 78, 216, 0.06) 0%, rgba(29, 78, 216, 0.12) 100%);
+  border: 1rpx solid rgba(29, 78, 216, 0.14);
+}
+
+.page-publish__picked-icon {
+  width: 40rpx;
+  height: 40rpx;
+  border-radius: 50%;
+  background: #fff;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+
+.page-publish__picked-text {
+  flex: 1;
+  min-width: 0;
+}
+
+.page-publish__picked-label {
+  display: block;
+  font-size: 20rpx;
+  color: $cv-text-muted;
+  line-height: 1.3;
+}
+
+.page-publish__picked-value {
+  display: block;
+  margin-top: 4rpx;
+  font-size: 26rpx;
+  font-weight: 700;
   color: $cv-primary-dark;
+  letter-spacing: -0.02em;
 }
 
 /** 垂直表单字段 */

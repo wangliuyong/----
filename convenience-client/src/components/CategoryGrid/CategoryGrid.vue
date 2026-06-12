@@ -17,6 +17,9 @@
       <view class="category-grid__text">
         <text class="category-grid__name">{{ item.name }}</text>
         <text class="category-grid__hint">{{ getCategoryRootHint(item.id) }}</text>
+        <text v-if="item.children?.length" class="category-grid__count">
+          {{ item.children.length }} 个子类
+        </text>
       </view>
     </view>
   </view>
@@ -138,5 +141,14 @@ function onSelect(item: CategoryItem) {
   margin-top: 8rpx;
   font-size: 22rpx;
   color: rgba(255, 255, 255, 0.72);
+}
+
+.category-grid__count {
+  display: block;
+  margin-top: 10rpx;
+  font-size: 20rpx;
+  font-weight: 600;
+  color: rgba(255, 255, 255, 0.55);
+  font-variant-numeric: tabular-nums;
 }
 </style>
