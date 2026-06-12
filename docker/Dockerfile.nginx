@@ -13,6 +13,12 @@ RUN cd qiankun-subapps/_shared && pnpm install --frozen-lockfile 2>/dev/null || 
 RUN cd qiankun-subapps/app-web && pnpm install && VITE_BASE=/micro/web/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 RUN cd qiankun-subapps/app-admin && pnpm install && VITE_BASE=/micro/admin/ NODE_ENV=production pnpm run build && node ../_shared/fixQiankunHtml.mjs dist
 
+# 同城便民 uni-app H5（C 端），部署在 /convenience/
+COPY convenience-client ./convenience-client
+RUN cd convenience-client && pnpm install \
+    && sed -i 's|"base": "./"|"base": "/convenience/"|' src/manifest.json \
+    && NODE_ENV=production pnpm run build:h5
+
 # ---------- Nginx 运行阶段 ----------
 FROM nginx:1.27-alpine AS runner
 
@@ -20,6 +26,7 @@ COPY docker/nginx.conf /etc/nginx/nginx.conf
 
 COPY --from=subapps-builder /build/qiankun-subapps/app-web/dist /usr/share/nginx/micro/web
 COPY --from=subapps-builder /build/qiankun-subapps/app-admin/dist /usr/share/nginx/micro/admin
+COPY --from=subapps-builder /build/convenience-client/dist/build/h5 /usr/share/nginx/convenience
 
 EXPOSE 80
 

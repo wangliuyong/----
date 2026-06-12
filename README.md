@@ -73,13 +73,34 @@ pnpm run build:web
 
 ## 同城便民 uni-app（convenience-client）
 
-C 端小程序 / H5 / APP，技术栈：**uni-app Vue3 + uview-plus + Pinia**，默认 **Mock 数据**（`VITE_USE_MOCK=true`）。
+C 端小程序 / H5 / APP，技术栈：**uni-app Vue3 + uview-plus + Pinia**，默认对接 **nest-server 真实 API**（`VITE_API_BASE_URL=http://localhost:3001/api`）。
+
+### 一键启动（推荐）
+
+在项目根目录：
+
+```bash
+pnpm run dev:convenience:all
+```
+
+并行启动：**后端 API (3001)** + **便民 H5 (5175)**。浏览器访问 **http://localhost:5175**。
+
+含管理后台时（API + H5 + 后台 4007）：
+
+```bash
+pnpm run dev:convenience:full
+```
+
+- C 端 H5：http://localhost:5175  
+- 管理后台：http://localhost:4007/login（账号 `admin` / `admin123`）
+
+### 分端启动
 
 ```bash
 # 安装依赖（或在根目录 pnpm run install:convenience）
 cd convenience-client && pnpm install
 
-# H5 开发（浏览器 http://localhost:5175）
+# 仅 H5（需另开终端启动 pnpm run dev:api）
 pnpm run dev:convenience:h5
 
 # 微信小程序（需微信开发者工具导入 dist/dev/mp-weixin）
@@ -89,7 +110,7 @@ pnpm run dev:convenience
 pnpm run dev:convenience:app
 ```
 
-Mock 登录（H5/APP）：手机号 `13800138000`，密码 `123456`。对接真实后端时将 `convenience-client/.env.production` 中 `VITE_USE_MOCK=false` 并配置 `VITE_API_BASE_URL`。
+C 端测试账号：手机号 `13800138000`，密码 `123456`。
 
 ## 文档
 

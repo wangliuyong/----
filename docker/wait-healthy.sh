@@ -8,7 +8,8 @@ i=0
 while [ "$i" -lt "$max" ]; do
   if curl -sf http://127.0.0.1/ >/dev/null 2>&1 \
     && curl -sf http://127.0.0.1/projects >/dev/null 2>&1 \
-    && curl -sf http://127.0.0.1/api/article/list >/dev/null 2>&1; then
+    && curl -sf http://127.0.0.1/api/article/list >/dev/null 2>&1 \
+    && curl -sf http://127.0.0.1/convenience/ >/dev/null 2>&1; then
     echo "[wait-healthy] 服务已就绪"
     exit 0
   fi

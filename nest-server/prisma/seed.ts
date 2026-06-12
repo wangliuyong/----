@@ -101,7 +101,30 @@ async function main() {
         techStack: 'marked, prismjs',
         previewUrl: 'http://localhost:3000/blog',
       },
+      {
+        name: '同城便民',
+        desc: '同城生活服务 C 端与管理后台。支持 H5 / 微信小程序 / APP 多端，含分类浏览、信息发布、收藏、举报、AI 助手与 RBAC 后台审核。',
+        techStack: 'uni-app, Vue3, uview-plus, Pinia, NestJS, Prisma',
+        previewUrl: process.env.PUBLIC_ORIGIN
+          ? `${process.env.PUBLIC_ORIGIN}/convenience/`
+          : 'http://localhost:5175',
+      },
     ],
+    });
+  }
+
+  /** 增量补全：已有作品集时仍写入「同城便民」条目（按名称去重） */
+  const convProject = await prisma.project.findFirst({ where: { name: '同城便民' } });
+  if (!convProject) {
+    await prisma.project.create({
+      data: {
+        name: '同城便民',
+        desc: '同城生活服务 C 端与管理后台。支持 H5 / 微信小程序 / APP 多端，含分类浏览、信息发布、收藏、举报、AI 助手与 RBAC 后台审核。',
+        techStack: 'uni-app, Vue3, uview-plus, Pinia, NestJS, Prisma',
+        previewUrl: process.env.PUBLIC_ORIGIN
+          ? `${process.env.PUBLIC_ORIGIN}/convenience/`
+          : 'http://localhost:5175',
+      },
     });
   }
 

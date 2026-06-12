@@ -22,6 +22,8 @@
     "dev:convenience": "pnpm --dir convenience-client run dev:mp-weixin",
     "dev:convenience:h5": "pnpm --dir convenience-client run dev:h5",
     "dev:convenience:app": "pnpm --dir convenience-client run dev:app",
+    "dev:convenience:all": "concurrently -k -n api,client -c blue,magenta \"pnpm run dev:api\" \"pnpm run dev:convenience:h5\"",
+    "dev:convenience:full": "concurrently -k -n api,client,admin -c blue,magenta,bgBlue \"pnpm run dev:api\" \"pnpm run dev:convenience:h5\" \"pnpm --dir qiankun-subapps/app-admin run dev:standalone\"",
     "build:convenience:h5": "pnpm --dir convenience-client run build:h5",
     "build:convenience:mp": "pnpm --dir convenience-client run build:mp-weixin",
     "build:convenience:app": "pnpm --dir convenience-client run build:app",

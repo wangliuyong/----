@@ -13,6 +13,7 @@ import { ProjectModule } from './project/project.module';
 import { RbacModule } from './rbac/rbac.module';
 import { SiteModule } from './site/site.module';
 import { ConvenienceModule } from './convenience/convenience.module';
+import { ConvenienceAdminModule } from './convenience/admin/convenience-admin.module';
 
 @Module({
   imports: [
@@ -29,6 +30,7 @@ import { ConvenienceModule } from './convenience/convenience.module';
     MessageModule,
     LinkModule,
     ConvenienceModule,
+    ConvenienceAdminModule,
     AiModule,
   ],
 })

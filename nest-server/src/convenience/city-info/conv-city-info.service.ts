@@ -7,6 +7,7 @@ import { Prisma } from '@prisma/client';
 import { PrismaService } from '../../prisma/prisma.service';
 import { ConvCategoryService } from '../category/conv-category.service';
 import { pageResult, serializeCityInfo } from '../common/serializers';
+import type { AdminCityInfoQueryDto } from '../admin/dto/conv-admin.dto';
 import type { CityInfoPayloadDto, CityInfoQueryDto } from './dto/city-info.dto';
 
 @Injectable()
@@ -142,6 +143,89 @@ export class ConvCityInfoService {
     }
     if (item.userId !== userId) {
       throw new ForbiddenException('无权删除该信息');
+    }
+    await this.prisma.convCityInfo.delete({ where: { id } });
+    return null;
+  }
+
+  /** 管理端：分页查询（含全部审核状态） */
+  async findAdminList(query: AdminCityInfoQueryDto) {
+    const page = query.page || 1;
+    const pageSize = query.pageSize || 10;
+    const where: Prisma.ConvCityInfoWhereInput = {};
+
+    if (query.auditStatus) {
+      where.auditStatus = query.auditStatus;
+    }
+    if (query.categoryId) {
+      const categoryIds = await this.categoryService.collectCategoryIds(query.categoryId);
+      where.categoryId = { in: categoryIds };
+    }
+    if (query.keyword?.trim()) {
+      const kw = query.keyword.trim();
+      where.OR = [{ title: { contains: kw } }, { content: { contains: kw } }];
+    }
+
+    const [total, rows] = await Promise.all([
+      this.prisma.convCityInfo.count({ where }),
+      this.prisma.convCityInfo.findMany({
+        where,
+        include: {
+          category: true,
+          user: { select: { id: true, nickname: true, phone: true } },
+        },
+        orderBy: { createdAt: 'desc' },
+        skip: (page - 1) * pageSize,
+        take: pageSize,
+      }),
+    ]);
+
+    const list = rows.map((item) => ({
+      ...serializeCityInfo(item),
+      userNickname: item.user.nickname,
+      userPhone: item.user.phone ?? undefined,
+    }));
+    return pageResult(list, total, page, pageSize);
+  }
+
+  /** 管理端：详情（不限审核状态） */
+  async findAdminOne(id: number) {
+    const item = await this.prisma.convCityInfo.findUnique({
+      where: { id },
+      include: {
+        category: true,
+        user: { select: { id: true, nickname: true, phone: true } },
+      },
+    });
+    if (!item) {
+      throw new NotFoundException('信息不存在');
+    }
+    return {
+      ...serializeCityInfo(item),
+      userNickname: item.user.nickname,
+      userPhone: item.user.phone ?? undefined,
+    };
+  }
+
+  /** 管理端：审核通过/驳回 */
+  async audit(id: number, auditStatus: 'APPROVED' | 'REJECTED') {
+    const item = await this.prisma.convCityInfo.findUnique({ where: { id } });
+    if (!item) {
+      throw new NotFoundException('信息不存在');
+    }
+    const updated = await this.prisma.convCityInfo.update({
+      where: { id },
+      data: { auditStatus },
+      include: { category: true },
+    });
+    return serializeCityInfo(updated);
+  }
+
+  /** 管理端：强制删除 */
+  async adminRemove(id: number) {
+    const item = await this.prisma.convCityInfo.findUnique({ where: { id } });
+    if (!item) {
+      throw new NotFoundException('信息不存在');
     }
     await this.prisma.convCityInfo.delete({ where: { id } });
     return null;
