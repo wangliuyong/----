@@ -29,7 +29,8 @@ export class ConvApiExceptionFilter implements ExceptionFilter {
       request.path === '/api/ai/sessions' ||
       /^\/api\/ai\/sessions\/\d+\/messages$/.test(request.path || '') ||
       (request.path === '/api/ai/chat' && request.body?.question !== undefined) ||
-      request.path?.startsWith('/api/upload');
+      request.path?.startsWith('/api/upload') ||
+      request.path?.startsWith('/api/geocode');
 
     if (!isConvenience) {
       if (exception instanceof HttpException) {

@@ -41,7 +41,14 @@
           "NSPhotoLibraryUsageDescription": "用于选择相册图片"
         }
       },
-      "sdkConfigs": {}
+      "sdkConfigs": {
+        "maps": {
+          "amap": {
+            "appkey_android": "",
+            "appkey_ios": ""
+          }
+        }
+      }
     }
   },
   "quickapp": {},
@@ -64,6 +71,15 @@
     "router": {
       "mode": "hash",
       "base": "./"
+    },
+    "sdkConfigs": {
+      "maps": {
+        "amap": {
+          "key": "0f0cc0c89c6b629b412c1d78c1aa7407",
+          "securityJsCode": "0786a0069b5a6df14a749e215bdc1403",
+          "serviceHost": ""
+        }
+      }
     },
     "devServer": {
       "port": 5175

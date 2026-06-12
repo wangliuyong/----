@@ -51,10 +51,23 @@ export async function seedConvenience(prisma: PrismaClient) {
   if (bannerCount === 0) {
     await prisma.convBanner.createMany({
       data: [
-        { imageUrl: '/static/mock/banner-1.jpg', linkUrl: '', sort: 1, online: true },
-        { imageUrl: '/static/mock/banner-2.jpg', linkUrl: '', sort: 2, online: true },
-        { imageUrl: '/static/mock/banner-3.jpg', linkUrl: '', sort: 3, online: true },
+        { imageUrl: '/static/mock/1.jpg', linkUrl: '', sort: 1, online: true },
+        { imageUrl: '/static/mock/2.jpg', linkUrl: '', sort: 2, online: true },
+        { imageUrl: '/static/mock/3.jpg', linkUrl: '', sort: 3, online: true },
       ],
+    });
+  }
+
+  /** 修正旧种子中不存在的 banner-x.jpg 路径 */
+  const legacyBannerFix: Record<string, string> = {
+    '/static/mock/banner-1.jpg': '/static/mock/1.jpg',
+    '/static/mock/banner-2.jpg': '/static/mock/2.jpg',
+    '/static/mock/banner-3.jpg': '/static/mock/3.jpg',
+  };
+  for (const [oldUrl, newUrl] of Object.entries(legacyBannerFix)) {
+    await prisma.convBanner.updateMany({
+      where: { imageUrl: oldUrl },
+      data: { imageUrl: newUrl },
     });
   }
 

@@ -9,7 +9,7 @@
           <view class="page-home__location-icon">
             <u-icon name="map-fill" color="#fff" size="14" />
           </view>
-          <text class="page-home__city">{{ locationStore.cityName }}</text>
+          <text class="page-home__city">{{ locationStore.locating ? '定位中...' : locationStore.cityName }}</text>
           <u-icon name="arrow-down-fill" color="rgba(255,255,255,0.7)" size="10" />
         </view>
       </view>
@@ -161,6 +161,7 @@ import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import HomeQuickActions from '@/components/HomeQuickActions/HomeQuickActions.vue';
 import SectionHead from '@/components/SectionHead/SectionHead.vue';
 import { openPublishPage } from '@/constants/tabbar';
+import { useLocationAction } from '@/composables/useLocationAction';
 import { useTabBarPage } from '@/composables/useTabBarPage';
 import { useLocationStore } from '@/stores/location';
 import type { BannerItem, CategoryItem, CityInfoItem, NoticeItem } from '@/types/city-info';
@@ -169,6 +170,7 @@ useTabBarPage();
 
 const primaryColor = '#1d4ed8';
 const locationStore = useLocationStore();
+const { openLocationPicker } = useLocationAction(() => loadData());
 const banners = ref<BannerItem[]>([]);
 const notices = ref<NoticeItem[]>([]);
 const categories = ref<CategoryItem[]>([]);
@@ -232,7 +234,7 @@ async function loadData() {
 }
 
 function onLocationTap() {
-  uni.showToast({ title: '定位功能开发中', icon: 'none' });
+  openLocationPicker();
 }
 
 function goSearch() {

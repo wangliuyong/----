@@ -24,6 +24,8 @@ import { ConvAiController } from './ai/conv-ai.controller';
 import { ConvAiService } from './ai/conv-ai.service';
 import { ConvUploadController } from './upload/conv-upload.controller';
 import { ConvUploadService } from './upload/conv-upload.service';
+import { ConvGeocodeController } from './geocode/conv-geocode.controller';
+import { ConvGeocodeService } from './geocode/conv-geocode.service';
 
 /** 同城便民 C 端 API 模块 */
 @Module({
@@ -45,6 +47,7 @@ import { ConvUploadService } from './upload/conv-upload.service';
     ConvReportController,
     ConvAiController,
     ConvUploadController,
+    ConvGeocodeController,
   ],
   providers: [
     ConvAuthService,
@@ -57,6 +60,7 @@ import { ConvUploadService } from './upload/conv-upload.service';
     ConvReportService,
     ConvAiService,
     ConvUploadService,
+    ConvGeocodeService,
     {
       provide: APP_INTERCEPTOR,
       useClass: ConvApiResponseInterceptor,

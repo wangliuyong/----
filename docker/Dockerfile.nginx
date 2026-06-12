@@ -15,8 +15,17 @@ RUN cd qiankun-subapps/app-admin && pnpm install && VITE_BASE=/micro/admin/ NODE
 
 # 同城便民 uni-app H5（C 端），部署在 /convenience/
 COPY convenience-client ./convenience-client
+ARG AMAP_KEY_WEB=
+ARG AMAP_SECURITY_CODE=
+ARG AMAP_KEY_ANDROID=
+ARG AMAP_KEY_IOS=
 RUN cd convenience-client && pnpm install \
-    && sed -i 's|"base": "./"|"base": "/convenience/"|' src/manifest.json \
+    && VITE_H5_BASE=/convenience/ \
+       AMAP_KEY_WEB="${AMAP_KEY_WEB}" \
+       AMAP_SECURITY_CODE="${AMAP_SECURITY_CODE}" \
+       AMAP_KEY_ANDROID="${AMAP_KEY_ANDROID}" \
+       AMAP_KEY_IOS="${AMAP_KEY_IOS}" \
+       node scripts/apply-manifest-env.mjs \
     && NODE_ENV=production pnpm run build:h5
 
 # ---------- Nginx 运行阶段 ----------

@@ -207,9 +207,9 @@
         <view class="page-publish__field page-publish__field--last">
           <view class="page-publish__field-head">
             <text class="page-publish__field-label">地址</text>
-            <view class="page-publish__loc-btn" @click="onUseCurrentLocation">
+            <view class="page-publish__loc-btn" @click="onPickLocation">
               <u-icon name="map-fill" color="#1d4ed8" size="13" />
-              <text>用当前位置</text>
+              <text>地图选点</text>
             </view>
           </view>
           <view class="page-publish__input-wrap">
@@ -412,17 +412,12 @@ function touchField(field: 'title' | 'content') {
   touched.value[field] = true;
 }
 
-/** 一键填入当前城市作为地址前缀 */
-function onUseCurrentLocation() {
-  const city = locationStore.cityName;
-  if (!city) {
-    uni.showToast({ title: '暂未获取到位置', icon: 'none' });
-    return;
+/** 地图选点 / 重新定位，填入地址 */
+async function onPickLocation() {
+  const result = await locationStore.openLocationAction();
+  if (result !== 'cancelled') {
+    form.value.address = locationStore.address || locationStore.cityName;
   }
-  if (!form.value.address.includes(city)) {
-    form.value.address = form.value.address ? `${city} ${form.value.address}` : city;
-  }
-  uni.showToast({ title: '已填入当前城市', icon: 'none' });
 }
 
 /** 选择图片：仅加入本地预览，校验通过后再上传 */

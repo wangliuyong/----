@@ -91,6 +91,13 @@
       }
     },
     {
+      "path": "pages/location/picker",
+      "style": {
+        "navigationBarTitleText": "地图选点",
+        "navigationStyle": "custom"
+      }
+    },
+    {
       "path": "pages/ai/history",
       "style": {
         "navigationBarTitleText": "历史会话"

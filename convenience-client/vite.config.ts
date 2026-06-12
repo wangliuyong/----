@@ -1,8 +1,17 @@
-import { defineConfig } from 'vite';
+import { defineConfig, loadEnv } from 'vite';
 import uni from '@dcloudio/vite-plugin-uni';
+import { execSync } from 'node:child_process';
 
 // https://vitejs.dev/config/
-export default defineConfig({
+export default defineConfig(({ mode }) => {
+  const env = loadEnv(mode, process.cwd(), '');
+  // 启动/构建前将 .env 中的高德地图 Key 写入 manifest.json
+  execSync('node scripts/apply-manifest-env.mjs', {
+    env: { ...process.env, ...env },
+    stdio: 'inherit',
+  });
+
+  return {
   plugins: [uni()],
   define: {
     __VUE_OPTIONS_API__: true,
@@ -30,4 +39,5 @@ export default defineConfig({
       },
     },
   },
+  };
 });
