@@ -1,0 +1,38 @@
+@import './tokens.scss';
+
+/** 骨架屏基础色块 */
+@mixin cv-skeleton-base {
+  background: $cv-surface-muted;
+  border-radius: 8rpx;
+}
+
+/** 骨架屏流光动画 */
+@mixin cv-skeleton-shimmer {
+  background: linear-gradient(
+    90deg,
+    $cv-surface-muted 0%,
+    rgba(240, 243, 248, 0.5) 50%,
+    $cv-surface-muted 100%
+  );
+  background-size: 200% 100%;
+  animation: cv-skeleton-shimmer 1.2s ease-in-out infinite;
+}
+
+@keyframes cv-skeleton-shimmer {
+  0% {
+    background-position: 100% 0;
+  }
+
+  100% {
+    background-position: -100% 0;
+  }
+}
+
+/** 在容器上调用，关闭 prefers-reduced-motion 下的动画 */
+@mixin cv-skeleton-reduced-motion($selector) {
+  @media (prefers-reduced-motion: reduce) {
+    #{$selector} {
+      animation: none;
+    }
+  }
+}

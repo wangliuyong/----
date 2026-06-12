@@ -1,5 +1,43 @@
 <template>
   <view class="page-profile">
+    <!-- 加载骨架：与账号设置页同形 -->
+    <template v-if="loading">
+      <view class="page-profile__hero">
+        <view class="page-profile__hero-glow" />
+        <view class="page-profile__nav">
+          <view class="page-profile__back" @click="onBack">
+            <u-icon name="arrow-left" color="#fff" size="18" />
+          </view>
+          <view class="page-profile__nav-text">
+            <SkeletonLine variant="long" width="180rpx" :shimmer="true" />
+            <SkeletonLine variant="mid" width="280rpx" />
+          </view>
+        </view>
+        <view class="page-profile__hero-user">
+          <SkeletonBlock width="160rpx" height="160rpx" radius="50%" :shimmer="true" />
+          <view class="page-profile__hero-info page-profile__hero-info--sk">
+            <SkeletonLine variant="long" width="200rpx" />
+            <SkeletonLine variant="mid" width="160rpx" />
+          </view>
+        </view>
+      </view>
+      <view class="page-profile__body page-profile__body--sk">
+        <view class="page-profile__overview">
+          <SkeletonBlock v-for="i in 3" :key="i" height="120rpx" radius="20rpx" :shimmer="true" flex="1" />
+        </view>
+        <view class="page-profile__section cv-card page-profile__section--sk">
+          <SkeletonLine variant="short" width="140rpx" />
+          <SkeletonLine variant="long" />
+          <SkeletonLine variant="long" />
+        </view>
+        <view class="page-profile__section cv-card page-profile__section--sk">
+          <SkeletonLine variant="short" width="100rpx" />
+          <SkeletonBlock height="80rpx" radius="16rpx" :shimmer="true" />
+        </view>
+      </view>
+    </template>
+
+    <template v-else>
     <!-- 顶部英雄区：当前账号概览 -->
     <view class="page-profile__hero">
       <view class="page-profile__hero-glow" />
@@ -108,6 +146,7 @@
     </view>
 
     <AiAssistantFab />
+    </template>
   </view>
 </template>
 
@@ -116,12 +155,15 @@ import { ref, computed, onMounted } from 'vue';
 import { postUploadImage } from '@/api/ai.api';
 import { postUpdateProfile, queryProfile } from '@/api/auth.api';
 import AiAssistantFab from '@/components/AiAssistantFab/AiAssistantFab.vue';
+import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
+import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import { useUserStore } from '@/stores/user';
 import type { UserProfile, UserType } from '@/types/user';
 import { formatDateTime, formatPhoneMask } from '@/utils/format';
 
 const userStore = useUserStore();
 const saving = ref(false);
+const loading = ref(true);
 const form = ref({ nickname: '', phone: '', avatar: '' });
 const profile = ref<UserProfile | null>(null);
 
@@ -211,13 +253,18 @@ onMounted(async () => {
     uni.navigateTo({ url: '/pages/auth/login' });
     return;
   }
-  const data = userStore.profile || (await queryProfile());
-  profile.value = data;
-  form.value = {
-    nickname: data.nickname,
-    phone: data.phone || '',
-    avatar: data.avatar || '',
-  };
+  loading.value = true;
+  try {
+    const data = userStore.profile || (await queryProfile());
+    profile.value = data;
+    form.value = {
+      nickname: data.nickname,
+      phone: data.phone || '',
+      avatar: data.avatar || '',
+    };
+  } finally {
+    loading.value = false;
+  }
 });
 </script>
 
@@ -466,5 +513,23 @@ onMounted(async () => {
 .page-profile__save--pressed {
   opacity: 0.92;
   transform: scale(0.98);
+}
+
+.page-profile__body--sk {
+  padding: 24rpx $cv-space-page;
+}
+
+.page-profile__hero-info--sk {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  gap: 12rpx;
+}
+
+.page-profile__section--sk {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
+  padding: 32rpx 28rpx;
 }
 </style>

@@ -23,6 +23,22 @@
     </view>
 
     <view class="page-publish__body">
+      <!-- 加载骨架：与表单区块同形 -->
+      <template v-if="pageLoading">
+        <view v-for="i in 4" :key="i" class="page-publish__section cv-card page-publish__section--sk">
+          <view class="page-publish__section-head">
+            <SkeletonBlock width="48rpx" height="48rpx" radius="50%" :shimmer="true" />
+            <view class="page-publish__section-meta">
+              <SkeletonLine variant="short" width="160rpx" />
+              <SkeletonLine variant="mid" width="280rpx" />
+            </view>
+          </view>
+          <SkeletonBlock height="120rpx" radius="16rpx" :shimmer="true" />
+          <SkeletonBlock v-if="i <= 2" height="200rpx" radius="16rpx" :shimmer="true" />
+        </view>
+      </template>
+
+      <template v-else>
       <!-- 区块 1：分类 -->
       <view class="page-publish__section cv-card">
         <view class="page-publish__section-head">
@@ -203,6 +219,7 @@
         <u-icon name="info-circle" color="#8b9bb8" size="14" />
         <text>提交后将进入人工审核，通过后展示在首页与分类列表</text>
       </view>
+      </template>
     </view>
 
     <!-- 底部提交栏（本页沉浸式，不展示 TabBar） -->
@@ -229,6 +246,8 @@ import { postUploadImage } from '@/api/ai.api';
 import { postCityInfo } from '@/api/city-info.api';
 import { queryCategoryTree } from '@/api/category.api';
 import CategoryRootStrip from '@/components/CategoryRootStrip/CategoryRootStrip.vue';
+import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
+import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import { useLocationStore } from '@/stores/location';
 import { useTabBarStore } from '@/stores/tabbar';
 import { useUserStore } from '@/stores/user';
@@ -239,6 +258,7 @@ const userStore = useUserStore();
 const locationStore = useLocationStore();
 
 const submitting = ref(false);
+const pageLoading = ref(true);
 const categories = ref<CategoryItem[]>([]);
 const fileList = ref<{ url: string }[]>([]);
 /** 当前展开的一级分类 ID */
@@ -459,12 +479,17 @@ onShow(() => {
 });
 
 onMounted(async () => {
-  await locationStore.fetchLocation();
-  categories.value = await queryCategoryTree();
-  if (form.value.categoryId) {
-    syncRootFromCategory(form.value.categoryId);
-  } else if (categories.value.length) {
-    activeRootId.value = categories.value[0].id;
+  pageLoading.value = true;
+  try {
+    await locationStore.fetchLocation();
+    categories.value = await queryCategoryTree();
+    if (form.value.categoryId) {
+      syncRootFromCategory(form.value.categoryId);
+    } else if (categories.value.length) {
+      activeRootId.value = categories.value[0].id;
+    }
+  } finally {
+    pageLoading.value = false;
   }
 });
 </script>
@@ -855,5 +880,11 @@ onMounted(async () => {
   :deep(.u-button--disabled) {
     opacity: 0.72;
   }
+}
+
+.page-publish__section--sk {
+  display: flex;
+  flex-direction: column;
+  gap: 20rpx;
 }
 </style>

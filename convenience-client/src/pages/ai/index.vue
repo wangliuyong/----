@@ -26,8 +26,19 @@
     <!-- 消息区：flex:1 + height:0 保证各端 scroll-view 可滚动 -->
     <scroll-view class="page-ai__messages" scroll-y :scroll-top="scrollTop" scroll-with-animation
       :show-scrollbar="false">
-      <!-- 空态欢迎 -->
-      <view v-if="!messages.length && !streaming" class="page-ai__welcome">
+      <!-- 空态欢迎 / 历史消息加载骨架 -->
+      <view v-if="historyLoading" class="page-ai__msg-sk">
+        <view v-for="i in 3" :key="i" class="page-ai__msg-sk-row" :class="{ 'page-ai__msg-sk-row--right': i % 2 === 0 }">
+          <SkeletonBlock
+            :width="i % 2 === 0 ? '60%' : '72%'"
+            :height="i === 2 ? '160rpx' : '80rpx'"
+            radius="24rpx"
+            :shimmer="true"
+          />
+        </view>
+      </view>
+
+      <view v-else-if="!messages.length && !streaming" class="page-ai__welcome">
         <view class="page-ai__welcome-icon">
           <u-icon name="chat" color="#1d4ed8" size="36" />
         </view>
@@ -41,12 +52,14 @@
         </view>
       </view>
 
-      <view class="page-ai__msg-list">
+      <view v-if="!historyLoading" class="page-ai__msg-list">
         <AiMessageBubble v-for="msg in messages" :key="msg.id" :role="msg.role" :content="msg.content" />
       </view>
 
       <view v-if="streaming" class="page-ai__typing">
-        <u-loading-icon mode="circle" size="16" color="#1d4ed8" />
+        <view class="page-ai__typing-sk">
+          <SkeletonLine variant="short" width="120rpx" :shimmer="true" />
+        </view>
         <text>正在整理回答</text>
       </view>
 
@@ -72,6 +85,8 @@ import { ref, nextTick, onMounted } from 'vue';
 import { onLoad, onShow } from '@dcloudio/uni-app';
 import { queryAiMessages, streamAiChat } from '@/api/ai.api';
 import AiMessageBubble from '@/components/AiMessageBubble/AiMessageBubble.vue';
+import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
+import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import { isTabBarPath } from '@/constants/tabbar';
 import { useTabBarPage } from '@/composables/useTabBarPage';
 import { useTabBarStore } from '@/stores/tabbar';
@@ -87,6 +102,7 @@ const question = ref('');
 const messages = ref<AiMessageItem[]>([]);
 const sessionId = ref<number>();
 const streaming = ref(false);
+const historyLoading = ref(false);
 const scrollTop = ref(0);
 let msgId = 1;
 
@@ -209,10 +225,15 @@ async function loadSessionHistory(id: number) {
   sessionId.value = id;
   streaming.value = false;
   question.value = '';
-  const history = await queryAiMessages(id);
-  messages.value = history;
-  msgId = history.length + 1;
-  await scrollToBottom();
+  historyLoading.value = true;
+  try {
+    const history = await queryAiMessages(id);
+    messages.value = history;
+    msgId = history.length + 1;
+    await scrollToBottom();
+  } finally {
+    historyLoading.value = false;
+  }
 }
 
 onLoad((query) => {
@@ -426,6 +447,28 @@ $ai-composer-offset: calc(112rpx + env(safe-area-inset-bottom));
   padding: 8rpx 0 16rpx;
   color: $cv-text-muted;
   font-size: 24rpx;
+}
+
+.page-ai__msg-sk {
+  display: flex;
+  flex-direction: column;
+  gap: 24rpx;
+  padding: 24rpx 0;
+}
+
+.page-ai__msg-sk-row {
+  display: flex;
+  justify-content: flex-start;
+
+  &--right {
+    justify-content: flex-end;
+  }
+}
+
+.page-ai__typing-sk {
+  padding: 8rpx 16rpx;
+  border-radius: 16rpx;
+  background: $cv-surface-muted;
 }
 
 .page-ai__composer {

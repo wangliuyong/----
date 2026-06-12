@@ -25,6 +25,29 @@
     </view>
 
     <view class="page-mine__body">
+      <!-- 数据加载骨架（已登录时） -->
+      <template v-if="loading && userStore.isLoggedIn">
+        <view class="page-mine__stats cv-card--elevated page-mine__stats--sk">
+          <SkeletonBlock v-for="i in 3" :key="i" height="80rpx" radius="12rpx" :shimmer="true" flex="1" />
+        </view>
+        <view class="page-mine__actions">
+          <view v-for="i in 3" :key="i" class="page-mine__action cv-card page-mine__action--sk">
+            <SkeletonBlock width="72rpx" height="72rpx" radius="22rpx" :shimmer="true" />
+            <view class="page-mine__action-text">
+              <SkeletonLine variant="short" />
+              <SkeletonLine variant="mid" />
+            </view>
+          </view>
+        </view>
+        <view class="page-mine__recent">
+          <SkeletonLine variant="short" width="160rpx" />
+          <view class="page-mine__recent-block cv-card page-mine__recent-block--sk">
+            <SkeletonList :count="2" />
+          </view>
+        </view>
+      </template>
+
+      <template v-else>
       <!-- 未登录引导 -->
       <view v-if="!userStore.isLoggedIn" class="page-mine__login cv-card--elevated">
         <view class="page-mine__login-icon">
@@ -136,6 +159,7 @@
       <view v-if="userStore.isLoggedIn" class="page-mine__logout">
         <u-button type="error" plain text="退出登录" shape="circle" @click="onLogout" />
       </view>
+      </template>
     </view>
 
     <!-- #ifndef MP-WEIXIN -->
@@ -153,6 +177,9 @@ import { queryMyCityInfoList } from '@/api/city-info.api';
 import { queryMineOverview } from '@/api/mine.api';
 import type { MineOverview } from '@/api/mine.api';
 import AppTabBar from '@/components/AppTabBar/AppTabBar.vue';
+import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
+import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
+import SkeletonList from '@/components/SkeletonList/SkeletonList.vue';
 import { AI_PAGE_PATH, isTabBarPath, openPublishPage } from '@/constants/tabbar';
 import { useTabBarPage } from '@/composables/useTabBarPage';
 import { useUserStore } from '@/stores/user';
@@ -169,7 +196,7 @@ useTabBarPage();
 
 const userStore = useUserStore();
 const appVersion = 'v1.0.0';
-const loading = ref(false);
+const loading = ref(true);
 
 const overview = ref<MineOverview>({
   collectCount: 0,
@@ -279,6 +306,7 @@ async function loadMineData() {
     };
     recentCollects.value = [];
     recentPosts.value = [];
+    loading.value = false;
     return;
   }
 
@@ -704,5 +732,27 @@ onShow(loadMineData);
 .page-mine__logout {
   margin-top: 32rpx;
   padding-bottom: 16rpx;
+}
+
+.page-mine__stats--sk {
+  display: flex;
+  gap: 24rpx;
+  padding: 32rpx 24rpx;
+}
+
+.page-mine__action--sk {
+  display: flex;
+  align-items: center;
+  gap: 20rpx;
+  padding: 28rpx 24rpx;
+}
+
+.page-mine__recent-block--sk {
+  margin-top: 16rpx;
+  padding: 0;
+  overflow: hidden;
+  border: none;
+  background: transparent;
+  box-shadow: none;
 }
 </style>

@@ -56,14 +56,7 @@
       <view class="page-list__scroll-inner">
         <!-- 骨架屏 -->
         <view v-if="loading && !list.length" class="page-list__skeleton">
-          <view v-for="i in 4" :key="i" class="page-list__sk-card">
-            <view class="page-list__sk-media" />
-            <view class="page-list__sk-body">
-              <view class="page-list__sk-line page-list__sk-line--short" />
-              <view class="page-list__sk-line page-list__sk-line--long" />
-              <view class="page-list__sk-line page-list__sk-line--mid" />
-            </view>
-          </view>
+          <SkeletonList :count="4" />
         </view>
 
         <template v-else>
@@ -91,6 +84,7 @@ import { queryCityInfoList } from '@/api/city-info.api';
 import { queryCollectedIds } from '@/api/collect.api';
 import AiAssistantFab from '@/components/AiAssistantFab/AiAssistantFab.vue';
 import InfoListCard from '@/components/InfoListCard/InfoListCard.vue';
+import SkeletonList from '@/components/SkeletonList/SkeletonList.vue';
 import { useLocationStore } from '@/stores/location';
 import type { CityInfoItem } from '@/types/city-info';
 
@@ -344,76 +338,10 @@ onMounted(async () => {
   box-sizing: border-box;
 }
 
-/** 骨架屏 */
+/** 骨架屏容器 */
 .page-list__skeleton {
   display: flex;
   flex-direction: column;
   gap: 16rpx;
-}
-
-.page-list__sk-card {
-  display: flex;
-  gap: 0;
-  overflow: hidden;
-  border-radius: $cv-radius-sm;
-  background: $cv-surface;
-  border: 1rpx solid $cv-border;
-}
-
-.page-list__sk-media {
-  width: 200rpx;
-  min-height: 200rpx;
-  flex-shrink: 0;
-  background: linear-gradient(
-    90deg,
-    $cv-surface-muted 0%,
-    rgba(240, 243, 248, 0.5) 50%,
-    $cv-surface-muted 100%
-  );
-  background-size: 200% 100%;
-  animation: page-list-shimmer 1.2s ease-in-out infinite;
-}
-
-.page-list__sk-body {
-  flex: 1;
-  padding: 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 14rpx;
-}
-
-.page-list__sk-line {
-  height: 24rpx;
-  border-radius: 8rpx;
-  background: $cv-surface-muted;
-
-  &--short {
-    width: 40%;
-  }
-
-  &--mid {
-    width: 60%;
-  }
-
-  &--long {
-    width: 90%;
-    height: 32rpx;
-  }
-}
-
-@keyframes page-list-shimmer {
-  0% {
-    background-position: 100% 0;
-  }
-
-  100% {
-    background-position: -100% 0;
-  }
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page-list__sk-media {
-    animation: none;
-  }
 }
 </style>

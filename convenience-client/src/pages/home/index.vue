@@ -51,8 +51,16 @@
         @search="goSearch"
       />
 
-      <!-- 轮播 + 公告并排（有数据时） -->
-      <view v-if="banners.length || notices.length" class="page-home__promo">
+      <!-- 轮播 + 公告：加载中显示骨架 -->
+      <view v-if="loading" class="page-home__promo">
+        <SkeletonBlock height="280rpx" radius="20rpx" :shimmer="true" />
+        <view class="page-home__notice-sk cv-card">
+          <SkeletonLine variant="short" />
+          <SkeletonLine variant="long" height="28rpx" />
+          <SkeletonLine variant="mid" />
+        </view>
+      </view>
+      <view v-else-if="banners.length || notices.length" class="page-home__promo">
         <view v-if="banners.length" class="page-home__swiper-wrap cv-card">
           <u-swiper
             :list="swiperList"
@@ -80,15 +88,33 @@
       <!-- 热门分类 -->
       <view class="cv-section">
         <SectionHead title="热门分类" action-text="全部分类" @action="goCategoryTab" />
-        <CategoryGrid :list="homeCategories" @select="onCategorySelect" />
+        <view v-if="loading" class="page-home__cat-sk">
+          <SkeletonBlock
+            v-for="i in 8"
+            :key="i"
+            width="calc(25% - 12rpx)"
+            height="140rpx"
+            radius="20rpx"
+            :shimmer="true"
+          />
+        </view>
+        <CategoryGrid v-else :list="homeCategories" @select="onCategorySelect" />
       </view>
 
       <!-- 最新推荐：精选 + 双列网格 -->
       <view class="cv-section">
         <SectionHead title="最新推荐" :action-text="`共 ${totalInfoCount} 条`" @action="goList" />
-        <view v-if="loading" class="page-home__feed-loading">
-          <u-loading-icon mode="circle" size="20" :color="primaryColor" />
-          <text>加载中</text>
+        <view v-if="loading" class="page-home__feed-sk">
+          <SkeletonBlock height="320rpx" radius="20rpx" :shimmer="true" />
+          <view class="page-home__grid-sk">
+            <SkeletonBlock
+              v-for="i in 6"
+              :key="i"
+              height="280rpx"
+              radius="16rpx"
+              :shimmer="true"
+            />
+          </view>
         </view>
         <template v-else>
           <HomeFeaturedCard
@@ -130,6 +156,8 @@ import AppTabBar from '@/components/AppTabBar/AppTabBar.vue';
 import CategoryGrid from '@/components/CategoryGrid/CategoryGrid.vue';
 import HomeFeaturedCard from '@/components/HomeFeaturedCard/HomeFeaturedCard.vue';
 import HomeInfoTile from '@/components/HomeInfoTile/HomeInfoTile.vue';
+import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
+import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import HomeQuickActions from '@/components/HomeQuickActions/HomeQuickActions.vue';
 import SectionHead from '@/components/SectionHead/SectionHead.vue';
 import { openPublishPage } from '@/constants/tabbar';
@@ -146,7 +174,7 @@ const notices = ref<NoticeItem[]>([]);
 const categories = ref<CategoryItem[]>([]);
 const infoList = ref<CityInfoItem[]>([]);
 const totalInfoCount = ref(0);
-const loading = ref(false);
+const loading = ref(true);
 
 const swiperList = computed(() =>
   banners.value.map((b) => ({ image: b.imageUrl, title: '' })),
@@ -466,14 +494,29 @@ onMounted(loadData);
   color: $cv-primary;
 }
 
-.page-home__feed-loading {
+.page-home__notice-sk {
+  padding: 24rpx 26rpx;
   display: flex;
-  align-items: center;
-  justify-content: center;
-  gap: 12rpx;
-  padding: 48rpx 0;
-  font-size: 26rpx;
-  color: $cv-text-muted;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.page-home__cat-sk {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 16rpx;
+}
+
+.page-home__feed-sk {
+  display: flex;
+  flex-direction: column;
+  gap: 16rpx;
+}
+
+.page-home__grid-sk {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
 }
 
 .page-home__grid {

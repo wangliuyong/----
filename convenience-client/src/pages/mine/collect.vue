@@ -48,14 +48,7 @@
       <view class="page-collect__scroll-inner">
         <!-- 骨架屏 -->
         <view v-if="loading" class="page-collect__skeleton">
-          <view v-for="i in 4" :key="i" class="page-collect__sk-card">
-            <view class="page-collect__sk-media" />
-            <view class="page-collect__sk-body">
-              <view class="page-collect__sk-line page-collect__sk-line--short" />
-              <view class="page-collect__sk-line page-collect__sk-line--long" />
-              <view class="page-collect__sk-line page-collect__sk-line--mid" />
-            </view>
-          </view>
+          <SkeletonList :count="4" />
         </view>
 
         <!-- 收藏列表 -->
@@ -87,6 +80,7 @@ import { ref, computed, onMounted } from 'vue';
 import { queryCollectList } from '@/api/collect.api';
 import AiAssistantFab from '@/components/AiAssistantFab/AiAssistantFab.vue';
 import InfoListCard from '@/components/InfoListCard/InfoListCard.vue';
+import SkeletonList from '@/components/SkeletonList/SkeletonList.vue';
 import { useLocationStore } from '@/stores/location';
 import type { CityInfoItem } from '@/types/city-info';
 import { calcDistanceKm } from '@/utils/format';
@@ -340,64 +334,6 @@ onMounted(loadCollects);
   gap: 16rpx;
 }
 
-.page-collect__sk-card {
-  display: flex;
-  overflow: hidden;
-  border-radius: $cv-radius-sm;
-  background: $cv-surface;
-  border: 1rpx solid $cv-border;
-}
-
-.page-collect__sk-media {
-  width: 200rpx;
-  min-height: 200rpx;
-  flex-shrink: 0;
-  background: linear-gradient(
-    90deg,
-    $cv-surface-muted 0%,
-    rgba(240, 243, 248, 0.5) 50%,
-    $cv-surface-muted 100%
-  );
-  background-size: 200% 100%;
-  animation: collect-shimmer 1.2s ease-in-out infinite;
-}
-
-.page-collect__sk-body {
-  flex: 1;
-  padding: 24rpx;
-  display: flex;
-  flex-direction: column;
-  gap: 14rpx;
-}
-
-.page-collect__sk-line {
-  height: 24rpx;
-  border-radius: 8rpx;
-  background: $cv-surface-muted;
-
-  &--short {
-    width: 40%;
-  }
-
-  &--mid {
-    width: 60%;
-  }
-
-  &--long {
-    width: 90%;
-    height: 32rpx;
-  }
-}
-
-@keyframes collect-shimmer {
-  0% {
-    background-position: 100% 0;
-  }
-  100% {
-    background-position: -100% 0;
-  }
-}
-
 .page-collect__empty {
   display: flex;
   flex-direction: column;
@@ -419,11 +355,5 @@ onMounted(loadCollects);
   color: $cv-text-secondary;
   line-height: 1.5;
   max-width: 420rpx;
-}
-
-@media (prefers-reduced-motion: reduce) {
-  .page-collect__sk-media {
-    animation: none;
-  }
 }
 </style>

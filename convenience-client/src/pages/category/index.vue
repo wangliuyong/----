@@ -1,5 +1,43 @@
 <template>
   <view class="page-category cv-page">
+    <!-- 加载骨架：与最终布局同形 -->
+    <template v-if="loading">
+      <view class="page-category__hero">
+        <view class="page-category__hero-glow" />
+        <view class="page-category__hero-main">
+          <SkeletonLine variant="lg" width="200rpx" :shimmer="true" />
+          <SkeletonLine variant="mid" width="320rpx" />
+        </view>
+        <view class="page-category__stats page-category__stats--sk">
+          <SkeletonBlock width="120rpx" height="72rpx" radius="12rpx" :shimmer="true" />
+          <SkeletonBlock width="120rpx" height="72rpx" radius="12rpx" :shimmer="true" />
+        </view>
+      </view>
+      <view class="page-category__body">
+        <view class="page-category__roots cv-card page-category__roots--sk">
+          <SkeletonBlock
+            v-for="i in 5"
+            :key="i"
+            width="140rpx"
+            height="64rpx"
+            radius="32rpx"
+            :shimmer="true"
+          />
+        </view>
+        <SkeletonBlock height="120rpx" radius="20rpx" :shimmer="true" />
+        <view class="page-category__subs page-category__subs--sk">
+          <SkeletonBlock
+            v-for="i in 8"
+            :key="i"
+            height="120rpx"
+            radius="16rpx"
+            :shimmer="true"
+          />
+        </view>
+      </view>
+    </template>
+
+    <template v-else>
     <view class="page-category__hero">
       <view class="page-category__hero-glow" />
       <view class="page-category__hero-main">
@@ -63,12 +101,15 @@
     <!-- #ifndef MP-WEIXIN -->
     <AppTabBar page-path="pages/category/index" />
     <!-- #endif -->
+    </template>
   </view>
 </template>
 
 <script setup lang="ts">
 import { ref, computed, onMounted } from 'vue';
 import { queryCategoryTree } from '@/api/category.api';
+import SkeletonBlock from '@/components/SkeletonBlock/SkeletonBlock.vue';
+import SkeletonLine from '@/components/SkeletonLine/SkeletonLine.vue';
 import AppTabBar from '@/components/AppTabBar/AppTabBar.vue';
 import CategoryRootStrip from '@/components/CategoryRootStrip/CategoryRootStrip.vue';
 import CategorySubGrid from '@/components/CategorySubGrid/CategorySubGrid.vue';
@@ -80,6 +121,7 @@ useTabBarPage();
 
 const categories = ref<CategoryItem[]>([]);
 const activeRootId = ref(0);
+const loading = ref(true);
 
 /** 全部子分类数量 */
 const totalSubCount = computed(() =>
@@ -105,9 +147,14 @@ function goList(sub: CategoryItem) {
 }
 
 onMounted(async () => {
-  categories.value = await queryCategoryTree();
-  if (categories.value.length) {
-    activeRootId.value = categories.value[0].id;
+  loading.value = true;
+  try {
+    categories.value = await queryCategoryTree();
+    if (categories.value.length) {
+      activeRootId.value = categories.value[0].id;
+    }
+  } finally {
+    loading.value = false;
   }
 });
 </script>
@@ -287,6 +334,27 @@ onMounted(async () => {
 }
 
 .page-category__subs {
+  padding-bottom: 16rpx;
+}
+
+/** 骨架屏布局 */
+.page-category__stats--sk {
+  justify-content: center;
+  gap: 48rpx;
+}
+
+.page-category__roots--sk {
+  display: flex;
+  flex-wrap: nowrap;
+  gap: 16rpx;
+  padding: 24rpx;
+  overflow: hidden;
+}
+
+.page-category__subs--sk {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 16rpx;
   padding-bottom: 16rpx;
 }
 </style>
